@@ -6,7 +6,7 @@ import * as React from "react";
 import { toast } from "sonner";
 import { isFlagged } from "@/lib/companyStats";
 import { getDataSource } from "@/lib/data";
-import type { CommentInput, EntityKey, Post, QueryResult, Vote, VoteDir } from "@/lib/data/types";
+import type { CommentInput, DiscussionInput, EntityKey, Flair, Post, QueryResult, Vote, VoteDir } from "@/lib/data/types";
 import { commentCounts, sortPosts, tallyVotes, type FeedSort } from "@/lib/social";
 import { passesTrustFilter, type TrustFilter, type TrustResult } from "@/lib/trust";
 import { isMyPost, myPostsVersion, subscribeMyPosts } from "@/lib/myPosts";
@@ -20,6 +20,7 @@ export const sk = {
   post: (key: string) => ["post", key] as const,
   allVotes: ["votes", "all"] as const,
   allComments: ["comments", "all"] as const,
+  allDiscussions: ["discussions", "all"] as const,
   comments: (postKey: string) => ["comments", postKey] as const,
 };
 
@@ -101,19 +102,40 @@ export function useCreateComment() {
   });
 }
 
+export type FeedKind = "all" | "discussion" | "salary" | "review";
+
 export interface FeedOptions {
   company?: string;
   sort: FeedSort;
   trust: TrustFilter;
+  kind?: FeedKind;
+  flair?: Flair;
+}
+
+export function useAllDiscussions() {
+  return useQuery({ queryKey: sk.allDiscussions, queryFn: () => ds().getDiscussions(), staleTime: 15_000, refetchInterval: 20_000 });
+}
+
+export function useCreateDiscussion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: DiscussionInput) => ds().createDiscussion(input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["discussions"] });
+      qc.invalidateQueries({ queryKey: ["stats"] });
+    },
+  });
 }
 
 /**
- * The home / community feed: every live salary + review, filtered by trust and ranked by votes.
- * Reviews (which have no trust score) are hidden under Medium+ when their wallet posted flagged entries.
+ * The home / community feed: every live discussion, package (salary) and review, filtered by trust and
+ * ranked by votes. Discussions and reviews (which have no trust score) are hidden under Medium+ when
+ * their wallet posted flagged entries.
  */
-export function useFeed({ company, sort, trust }: FeedOptions) {
+export function useFeed({ company, sort, trust, kind = "all", flair }: FeedOptions) {
   const t = useTrustIndex();
   const reviews = useAllReviews();
+  const discussions = useAllDiscussions();
   const { tallies } = useTallies();
   const comments = useAllComments();
 
@@ -127,7 +149,12 @@ export function useFeed({ company, sort, trust }: FeedOptions) {
   const counts = React.useMemo(() => commentCounts(comments.data?.data ?? []), [comments.data]);
 
   const result = React.useMemo(() => {
-    const posts: Post[] = [...(t.all ?? []), ...(reviews.all ?? [])].filter((p) => !company || p.company === company);
+    const posts: Post[] = [...(discussions.data?.data ?? []), ...(t.all ?? []), ...(reviews.all ?? [])].filter(
+      (p) =>
+        (!company || p.company === company) &&
+        (kind === "all" || p.kind === kind) &&
+        (!flair || (p.kind === "discussion" && p.flair === flair)),
+    );
     const visible = posts.filter((p) =>
       isMyPost(p.key) ||
       (p.kind === "salary"
@@ -136,7 +163,7 @@ export function useFeed({ company, sort, trust }: FeedOptions) {
     );
     return { posts: sortPosts(visible, sort, tallies), hidden: posts.length - visible.length };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mineVersion re-runs this when I post
-  }, [t.all, t.index, reviews.all, company, trust, sort, tallies, flaggedWallets, mineVersion]);
+  }, [t.all, t.index, reviews.all, discussions.data, company, kind, flair, trust, sort, tallies, flaggedWallets, mineVersion]);
 
   return {
     ...result,
@@ -144,13 +171,18 @@ export function useFeed({ company, sort, trust }: FeedOptions) {
     flaggedWallets,
     tallies,
     commentCounts: counts,
-    isLoading: t.isLoading || reviews.isLoading || !t.index,
-    isError: t.isError || reviews.isError,
-    error: t.error ?? reviews.error,
+    isLoading: t.isLoading || reviews.isLoading || discussions.isLoading || !t.index,
+    isError: t.isError || reviews.isError || discussions.isError,
+    error: t.error ?? reviews.error ?? discussions.error,
     refetch: () => {
       t.refetch();
       reviews.refetch();
+      discussions.refetch();
     },
-    queries: [t.queries.salaries, reviews.data?.query].filter(Boolean) as string[],
+    queries: [
+      kind === "all" || kind === "discussion" ? discussions.data?.query : undefined,
+      kind === "all" || kind === "salary" ? t.queries.salaries : undefined,
+      kind === "all" || kind === "review" ? reviews.data?.query : undefined,
+    ].filter(Boolean) as string[],
   };
 }

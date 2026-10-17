@@ -48,7 +48,7 @@ function PostView() {
   }
 
   const trust = p.kind === "salary" ? feed.trustIndex?.get(p.key) : undefined;
-  const flagged = p.kind === "review" && feed.flaggedWallets.has(p.owner.toLowerCase());
+  const flagged = p.kind !== "salary" && feed.flaggedWallets.has(p.owner.toLowerCase());
   const company = getCompany(p.company);
   const list = comments.data?.data ?? [];
 

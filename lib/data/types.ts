@@ -86,11 +86,37 @@ export interface Stats {
   companies: number;
   confirmations: number;
   comments: number;
+  discussions: number;
   latestBlock: number;
 }
 
-/** A feed post is either a salary entry or a company review. */
-export type Post = SalaryEntry | Review;
+/** Topic tag on a discussion thread. */
+export type Flair =
+  | "culture"
+  | "layoffs"
+  | "compensation"
+  | "workplace"
+  | "management"
+  | "interviews"
+  | "company-news"
+  | "ask";
+
+/** A company-wise discussion thread — the primary post type. */
+export interface Discussion {
+  key: EntityKey;
+  kind: "discussion";
+  company: CompanyId;
+  flair: Flair;
+  city?: City; // optional office, e.g. "hyderabad" for "Hyderabad HO"
+  title: string; // ≤ 140 chars, PII-checked
+  body?: string; // ≤ 3000 chars, PII-checked
+  createdAt: number;
+  expiresAt: number;
+  owner: Address;
+}
+
+/** A feed post: a discussion, a salary package, or a company review. */
+export type Post = Discussion | SalaryEntry | Review;
 
 /** "up" / "down", or "none" to clear a previous vote. Latest vote per (wallet, target) wins. */
 export type VoteDir = "up" | "down" | "none";
@@ -119,6 +145,7 @@ export interface Comment {
 export type SalaryInput = Omit<SalaryEntry, "key" | "kind" | "createdAt" | "expiresAt" | "owner">;
 export type ReviewInput = Omit<Review, "key" | "kind" | "createdAt" | "expiresAt" | "owner">;
 export type CommentInput = Pick<Comment, "postKey" | "parentKey" | "body">;
+export type DiscussionInput = Omit<Discussion, "key" | "kind" | "createdAt" | "expiresAt" | "owner">;
 
 export interface DataSource {
   // reads
@@ -128,6 +155,8 @@ export interface DataSource {
   getPost(key: EntityKey): Promise<QueryResult<Post | null>>;
   /** Reviews for one company, or every review when `company` is omitted (feed). */
   getReviews(company?: CompanyId): Promise<QueryResult<Review[]>>;
+  /** Discussion threads for one company, or every thread when omitted (feed). */
+  getDiscussions(company?: CompanyId): Promise<QueryResult<Discussion[]>>;
   /** Comments on one post, or every comment when omitted (feed comment counts). */
   getComments(postKey?: EntityKey): Promise<QueryResult<Comment[]>>;
   /** Votes on the given targets, or every vote when omitted. */
@@ -145,6 +174,7 @@ export interface DataSource {
   // writes (require wallet)
   createSalary(input: SalaryInput): Promise<WriteReceipt>;
   createReview(input: ReviewInput): Promise<WriteReceipt>;
+  createDiscussion(input: DiscussionInput): Promise<WriteReceipt>;
   confirmEntry(entryKey: EntityKey): Promise<WriteReceipt>; // also extends expiry if Arkiv allows
   createComment(input: CommentInput): Promise<WriteReceipt>;
   castVote(targetKey: EntityKey, dir: VoteDir): Promise<WriteReceipt>;

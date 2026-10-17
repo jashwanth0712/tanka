@@ -9,6 +9,9 @@ import type {
   Address,
   Comment,
   CommentInput,
+  Discussion,
+  DiscussionInput,
+  Flair,
   Confirmation,
   EntityKey,
   Rating,
@@ -137,6 +140,7 @@ export const STORED_FIELDS = {
   salary: ["company", "role", "level", "city", "years of experience", "annual CTC", "base salary (optional)", "posting time"],
   review: ["company", "4 ratings (1–5)", "comment (optional, ≤ 280 chars)", "posting time"],
   comment: ["the post it replies to", "your comment text (≤ 500 chars)", "posting time"],
+  discussion: ["company", "topic", "office city (optional)", "title", "text (optional)", "posting time"],
 };
 
 export function commentToEntity(input: CommentInput, createdAt: number): EntityDraft {
@@ -183,6 +187,36 @@ export function entityToVote(e: RawEntity): Vote {
 }
 
 /** Attributes exactly as stored, for any post (on-chain panel). */
-export function postAttributes(p: SalaryEntry | Review): Attributes {
-  return p.kind === "salary" ? salaryToEntity(p, p.createdAt).attributes : reviewToEntity(p, p.createdAt).attributes;
+export function postAttributes(p: SalaryEntry | Review | Discussion): Attributes {
+  if (p.kind === "salary") return salaryToEntity(p, p.createdAt).attributes;
+  if (p.kind === "review") return reviewToEntity(p, p.createdAt).attributes;
+  return discussionToEntity(p, p.createdAt).attributes;
+}
+
+export function discussionToEntity(input: DiscussionInput, createdAt: number): EntityDraft {
+  return {
+    attributes: {
+      ...common("discussion", createdAt),
+      company: input.company,
+      flair: input.flair,
+      ...(input.city ? { city: input.city } : {}),
+    },
+    payload: { title: input.title, ...(input.body ? { body: input.body } : {}) },
+  };
+}
+
+export function entityToDiscussion(e: RawEntity): Discussion {
+  const a = e.attributes;
+  return {
+    key: e.key,
+    kind: "discussion",
+    company: str(a, "company"),
+    flair: str(a, "flair") as Flair,
+    city: a.city ? str(a, "city") : undefined,
+    title: typeof e.payload?.title === "string" ? e.payload.title : "",
+    body: typeof e.payload?.body === "string" ? e.payload.body : undefined,
+    createdAt: num(a, "createdAt"),
+    expiresAt: e.expiresAt,
+    owner: e.owner,
+  };
 }

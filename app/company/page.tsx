@@ -14,12 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/overlays";
 import { Card, Skeleton } from "@/components/ui/primitives";
 import { useCompany } from "@/hooks/queries";
+import { useAllDiscussions } from "@/hooks/social";
 import { cityLabel, getCompany } from "@/lib/catalog";
 import { companyStats, FLAG_THRESHOLD, isFlagged } from "@/lib/companyStats";
 import { salariesQuery } from "@/lib/data/query";
 import { formatINRCompact } from "@/lib/format";
 
-const TABS = ["posts", "salaries", "ratings"] as const;
+const TABS = ["discussions", "packages", "reviews"] as const;
 type Tab = (typeof TABS)[number];
 
 function CommunityView() {
@@ -28,10 +29,12 @@ function CommunityView() {
   const pathname = usePathname();
   const id = sp.get("name") ?? "";
   const tabParam = sp.get("tab");
-  const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "posts";
+  const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "discussions";
   const showingAll = sp.get("trust") === "all";
   const company = getCompany(id);
   const data = useCompany(company ? id : undefined);
+  const allDiscussions = useAllDiscussions();
+  const discussionCount = (allDiscussions.data?.data ?? []).filter((d) => d.company === id).length;
 
   if (!company) {
     return (
@@ -59,7 +62,7 @@ function CommunityView() {
   };
 
   const statItems: [string, React.ReactNode][] = [
-    ["Posts", stats ? stats.entries + reviews.length : null],
+    ["Posts", stats ? stats.entries + reviews.length + discussionCount : null],
     ["Median CTC", stats ? (stats.medianCtc != null ? formatINRCompact(stats.medianCtc) : "—") : null],
     ["Rating", stats ? (stats.avgRating != null ? <Stars key="s" value={stats.avgRating} /> : "—") : null],
     ["High trust", stats ? (stats.highTrustPct != null ? `${stats.highTrustPct}%` : "—") : null],
@@ -104,31 +107,36 @@ function CommunityView() {
               <FlagBanner pct={stats!.flaggedPct} showing={showingAll} onToggle={() => setParams({ trust: showingAll ? null : "all" })} />
             )}
 
-            <Tabs value={tab} onValueChange={(t) => setParams({ tab: t === "posts" ? null : t })}>
+            <Tabs value={tab} onValueChange={(t) => setParams({ tab: t === "discussions" ? null : t, flair: null })}>
               <TabsList>
-                <TabsTrigger value="posts">Posts</TabsTrigger>
-                <TabsTrigger value="salaries">Salary bands</TabsTrigger>
-                <TabsTrigger value="ratings">Ratings</TabsTrigger>
+                <TabsTrigger value="discussions">
+                  Discussions <span className="tabular text-muted">{discussionCount}</span>
+                </TabsTrigger>
+                <TabsTrigger value="packages">Packages</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
               </TabsList>
-              <TabsContent value="posts" className="pt-4">
-                <Feed company={id} />
+              <TabsContent value="discussions" className="pt-4">
+                <Feed company={id} kind="discussion" />
               </TabsContent>
-              <TabsContent value="salaries" className="pt-4">
-                {data.isLoading ? <Skeleton className="h-64 w-full" /> : <SalaryMatrix company={id} entries={cleanSalaries} />}
-                <QueryReveal className="mt-2" queries={[salariesQuery({ companies: [id] })]} />
+              <TabsContent value="packages" className="flex flex-col gap-4 pt-4">
+                <section aria-label="Salary bands">
+                  <h2 className="mb-3 text-lg font-semibold">Salary bands</h2>
+                  {data.isLoading ? <Skeleton className="h-64 w-full" /> : <SalaryMatrix company={id} entries={cleanSalaries} />}
+                  <QueryReveal className="mt-2" queries={[salariesQuery({ companies: [id] })]} />
+                </section>
+                <h2 className="text-lg font-semibold">Package posts</h2>
+                <Feed company={id} kind="salary" />
               </TabsContent>
-              <TabsContent value="ratings" className="pt-4">
+              <TabsContent value="reviews" className="flex flex-col gap-4 pt-4">
                 {data.reviews.isLoading ? (
                   <Skeleton className="h-40 w-full" />
-                ) : cleanReviews.length === 0 ? (
-                  <EmptyState title="No reviews yet." body="Be the first to rate this company." action={<Button asChild><Link href="/submit/">Write a review</Link></Button>} />
-                ) : (
+                ) : cleanReviews.length > 0 ? (
                   <Card className="p-5">
                     <p className="mb-4 text-sm text-muted">Average of {cleanReviews.length} reviews</p>
                     <RatingBars reviews={cleanReviews} />
                   </Card>
-                )}
-                <QueryReveal className="mt-2" queries={[data.reviews.data?.query]} />
+                ) : null}
+                <Feed company={id} kind="review" />
               </TabsContent>
             </Tabs>
           </div>
@@ -138,7 +146,7 @@ function CommunityView() {
               <Card className="p-4">
                 <p className="font-medium">About c/{id}</p>
                 <p className="mt-1 text-sm text-muted">
-                  Salaries, reviews and discussion about {company.label}. Anonymous, on Arkiv, impossible for {company.label} to take down.
+                  Discussions, packages and reviews about {company.label}. Anonymous, on Arkiv, impossible for {company.label} to take down.
                 </p>
                 <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4">
                   {statItems.map(([label, value]) => (

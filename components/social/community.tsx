@@ -58,7 +58,7 @@ export function LeftRail() {
         <Home className="size-4" aria-hidden /> Home
       </NavItem>
       <NavItem href="/salaries/" active={path.startsWith("/salaries")}>
-        <Table2 className="size-4" aria-hidden /> Salary search
+        <Table2 className="size-4" aria-hidden /> Package search
       </NavItem>
       <NavItem href="/verify/" active={path.startsWith("/verify")}>
         <ScanSearch className="size-4" aria-hidden /> Verify it yourself
@@ -108,7 +108,7 @@ export function AboutCard() {
         <div>
           <p className="font-display text-lg font-semibold">Salaries no one <span className="text-gradient">can delete.</span></p>
           <p className="mt-1 text-sm text-muted">
-            Anonymous salaries, reviews and discussion — every post, vote and comment is an Arkiv entity. No company can take them down.
+            Anonymous company discussions, packages and reviews — every post, vote and comment is an Arkiv entity. No company can take them down.
           </p>
         </div>
         <dl className="grid grid-cols-2 gap-3 border-y border-border py-3 text-sm">

@@ -7,7 +7,7 @@
 import { PROJECT_TAG } from "../constants";
 import type { Address, CompanyId, EntityKey, SalaryFilters } from "./types";
 
-export type EntityType = "salary" | "review" | "confirmation" | "comment" | "vote";
+export type EntityType = "salary" | "review" | "confirmation" | "comment" | "vote" | "discussion";
 
 const str = (v: string) => `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 
@@ -38,6 +38,8 @@ export const allOfTypeQuery = (type: EntityType) => base(type);
 export const entityQuery = (key: EntityKey) => `$key = ${key}`;
 export const reviewsQuery = (company?: CompanyId) =>
   company ? `${base("review")} && company = ${str(company)}` : base("review");
+export const discussionsQuery = (company?: CompanyId) =>
+  company ? `${base("discussion")} && company = ${str(company)}` : base("discussion");
 export const commentsQuery = (postKey?: EntityKey) =>
   postKey ? `${base("comment")} && postKey = ${str(postKey.toLowerCase())}` : base("comment");
 export function votesQuery(targetKeys?: EntityKey[]): string {
@@ -59,6 +61,8 @@ export const recentQuery = (sinceMs: number) => `${base("salary")} && createdAt 
 
 /** Presets for the /verify playground. */
 export const QUERY_PRESETS: { label: string; query: () => string }[] = [
+  { label: "Godavari Labs discussions", query: () => discussionsQuery("godavari-labs") },
+  { label: "Every layoffs thread", query: () => `${base("discussion")} && flair = "layoffs"` },
   {
     label: "All SDE-2 salaries in Hyderabad",
     query: () => salariesQuery({ levels: ["sde-2"], cities: ["hyderabad"] }),

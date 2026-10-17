@@ -1,7 +1,8 @@
 // zod schemas — validate in the form AND right before writing to Arkiv.
 import { z } from "zod";
 import { isCity, isCompany, isLevel, isRole } from "./catalog";
-import { COMMENT_MAX } from "./constants";
+import { BODY_MAX, COMMENT_MAX, FLAIRS, TITLE_MAX } from "./constants";
+import type { Flair } from "./data/types";
 import { scanPII } from "./pii";
 
 const catalog = (check: (s: string) => boolean, what: string) =>
@@ -57,3 +58,20 @@ export function parseINR(input: string): number {
   if (unit.startsWith("l")) return Math.round(n * 100_000);
   return Math.round(n * 10_000_000);
 }
+
+const noPII = (t: string) => scanPII(t).ok;
+
+export const discussionSchema = z.object({
+  company: catalog(isCompany, "community"),
+  flair: z.enum(FLAIRS.map((f) => f.id) as [Flair, ...Flair[]], { error: "Pick a topic" }),
+  city: z.string().refine((c) => c === "" || isCity(c), "Pick a city from the list").optional(),
+  title: z
+    .string()
+    .trim()
+    .min(8, "Give the thread a title of at least 8 characters")
+    .max(TITLE_MAX, `Keep the title under ${TITLE_MAX} characters`)
+    .refine(noPII, "Remove personal details to continue"),
+  body: z.string().max(BODY_MAX, `Keep it under ${BODY_MAX} characters`).refine(noPII, "Remove personal details to continue").optional(),
+});
+
+export type DiscussionForm = z.infer<typeof discussionSchema>;

@@ -6,8 +6,8 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input, Label, NativeSelect, Textarea } from "@/components/ui/primitives";
 import { CITIES, COMPANIES, LEVELS, ROLES, type CatalogItem } from "@/lib/catalog";
-import { COMMENT_MAX } from "@/lib/constants";
-import { reviewSchema, salarySchema, type ReviewForm, type SalaryForm } from "@/lib/schemas";
+import { BODY_MAX, COMMENT_MAX, FLAIRS, TITLE_MAX } from "@/lib/constants";
+import { discussionSchema, reviewSchema, salarySchema, type DiscussionForm, type ReviewForm, type SalaryForm } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { FieldError, MoneyInput, PIIScanner, StarRating } from "./fields";
 
@@ -159,6 +159,127 @@ export function ReviewDetails({ defaults, onNext }: { defaults?: Partial<ReviewF
         <PIIScanner text={comment} />
         {errors.comment?.message && !comment && <FieldError id="e-comment" message={errors.comment.message} />}
       </div>
+      <Button type="submit" size="lg" className="self-stretch sm:self-end">
+        Continue <ArrowRight />
+      </Button>
+    </form>
+  );
+}
+
+export function DiscussionDetails({ defaults, onNext }: { defaults?: Partial<DiscussionForm>; onNext: (v: DiscussionForm) => void }) {
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<DiscussionForm>({
+    resolver: zodResolver(discussionSchema),
+    defaultValues: { title: "", body: "", city: "", ...defaults },
+    mode: "onTouched",
+  });
+  const title = useWatch({ control, name: "title" }) ?? "";
+  const body = useWatch({ control, name: "body" }) ?? "";
+
+  return (
+    <form
+      onSubmit={handleSubmit((v) => onNext({ ...v, title: v.title.trim(), body: v.body?.trim() || undefined, city: v.city || undefined }))}
+      noValidate
+      className="flex flex-col gap-5"
+    >
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="f-company">Community</Label>
+          <CatalogSelect
+            items={COMPANIES.map((c) => ({ id: c.id, label: `c/${c.id} · ${c.label}` }))}
+            placeholder="Select a company"
+            id="f-company"
+            aria-invalid={errors.company ? true : undefined}
+            {...register("company")}
+          />
+          <FieldError id="e-company" message={errors.company?.message} />
+        </div>
+        <div>
+          <Label htmlFor="f-city">
+            Office <span className="font-normal text-muted">(optional)</span>
+          </Label>
+          <NativeSelect id="f-city" {...register("city")}>
+            <option value="">Any / not specific</option>
+            {CITIES.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+      </div>
+
+      <fieldset>
+        <legend className="mb-1.5 block text-sm font-medium">Topic</legend>
+        <Controller
+          control={control}
+          name="flair"
+          render={({ field: f }) => (
+            <div role="radiogroup" aria-label="Topic" className="flex flex-wrap gap-2">
+              {FLAIRS.map((fl) => (
+                <button
+                  key={fl.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={f.value === fl.id}
+                  onClick={() => f.onChange(fl.id)}
+                  className={cn(
+                    "h-9 rounded-full px-3.5 text-sm font-medium transition-colors cursor-pointer",
+                    f.value === fl.id ? "bg-gradient-primary text-accent-fg" : "bg-surface-2 text-muted ring-1 ring-border hover:text-text",
+                  )}
+                >
+                  {fl.label}
+                </button>
+              ))}
+            </div>
+          )}
+        />
+        <FieldError id="e-flair" message={errors.flair?.message} />
+      </fieldset>
+
+      <div>
+        <Label htmlFor="f-title">Title</Label>
+        <Input
+          id="f-title"
+          maxLength={TITLE_MAX}
+          placeholder="e.g. Is the appraisal cycle delayed again this year?"
+          aria-invalid={errors.title ? true : undefined}
+          aria-describedby="title-count"
+          {...register("title")}
+        />
+        <div className="mt-1 flex justify-end">
+          <span id="title-count" className="tabular text-xs text-muted">
+            {title.length}/{TITLE_MAX}
+          </span>
+        </div>
+        <PIIScanner text={title} />
+        <FieldError id="e-title" message={errors.title?.message} />
+      </div>
+
+      <div>
+        <Label htmlFor="f-body">
+          Details <span className="font-normal text-muted">(optional)</span>
+        </Label>
+        <Textarea
+          id="f-body"
+          maxLength={BODY_MAX}
+          className="min-h-36"
+          placeholder="What's happening, and what do you want to know? Talk about teams, policies and patterns — not named individuals."
+          aria-describedby="body-count"
+          {...register("body")}
+        />
+        <div className="mt-1 flex justify-end">
+          <span id="body-count" className={cn("tabular text-xs", body.length > BODY_MAX - 100 ? "text-trust-low" : "text-muted")}>
+            {body.length}/{BODY_MAX}
+          </span>
+        </div>
+        <PIIScanner text={body} />
+      </div>
+
       <Button type="submit" size="lg" className="self-stretch sm:self-end">
         Continue <ArrowRight />
       </Button>

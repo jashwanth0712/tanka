@@ -48,7 +48,7 @@ function IntroCard() {
         Salaries no one <span className="text-accent-ink">can delete.</span>
       </h1>
       <p className="relative mt-1 text-sm text-muted">
-        Anonymous salaries, reviews and discussion. Every post, vote and comment is an Arkiv entity — no company can take it down.
+        Anonymous company discussions, packages and reviews. Every post, vote and comment is an Arkiv entity — no company can take it down.
       </p>
       <Link href="/verify/" className="relative mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-accent-ink hover:underline">
         <ScanSearch className="size-4" aria-hidden /> Verify it yourself

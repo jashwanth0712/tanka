@@ -18,6 +18,21 @@ export const CONFIRMATION_TTL_MS = ENTRY_TTL_MS;
 export const K_ANONYMITY = 3;
 export const COMMENT_MAX = 280; // review comments
 export const COMMENT_MAX_LEN = 500; // thread comments
+export const TITLE_MAX = 140; // discussion titles
+export const BODY_MAX = 3000; // discussion bodies
+
+export const FLAIRS: { id: import("./data/types").Flair; label: string }[] = [
+  { id: "culture", label: "Culture" },
+  { id: "layoffs", label: "Layoffs" },
+  { id: "compensation", label: "Compensation" },
+  { id: "workplace", label: "Workplace" },
+  { id: "management", label: "Management" },
+  { id: "interviews", label: "Interviews" },
+  { id: "company-news", label: "Company news" },
+  { id: "ask", label: "Ask" },
+];
+export const flairLabel = (id: string) => FLAIRS.find((f) => f.id === id)?.label ?? id;
+export const isFlair = (id: string): id is import("./data/types").Flair => FLAIRS.some((f) => f.id === id);
 
 export interface RpcEndpoint {
   url: string;

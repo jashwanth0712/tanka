@@ -12,7 +12,7 @@ const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variab
 export const metadata: Metadata = {
   title: { default: "Tankha — Salaries no one can delete", template: "%s · Tankha" },
   description:
-    "Anonymous salaries and workplace reviews, stored on Arkiv. No company can take them down. Anyone can query them.",
+    "Anonymous company discussions, salary packages and workplace reviews, stored on Arkiv. No company can take them down. Anyone can query them.",
   icons: { icon: "/favicon.svg" },
 };
 

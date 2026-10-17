@@ -14,7 +14,8 @@ import { ensureIdentity } from "@/hooks/social";
 import { useNow } from "@/hooks/useNow";
 import { cityLabel, companyName, levelLabel, roleLabel } from "@/lib/catalog";
 import { reviewAvg } from "@/lib/companyStats";
-import type { Post, Review, SalaryEntry } from "@/lib/data/types";
+import type { Discussion, Post, Review, SalaryEntry } from "@/lib/data/types";
+import { flairLabel } from "@/lib/constants";
 import { formatINRCompact, formatYears } from "@/lib/format";
 import type { Tally } from "@/lib/social";
 import type { TrustResult } from "@/lib/trust";
@@ -29,8 +30,50 @@ export const postHref = (key: string) => `/post/?key=${key}`;
 export const communityHref = (company: string) => `/company/?name=${company}`;
 
 export function postTitle(p: Post) {
+  if (p.kind === "discussion") return p.title;
   if (p.kind === "salary") return `${roleLabel(p.role)} · ${levelLabel(p.level)} · ${formatINRCompact(p.ctc)}`;
   return `Review · ${reviewAvg(p).toFixed(1)}★ overall`;
+}
+
+const KIND_TAG: Record<Post["kind"], { label: string; cls: string }> = {
+  discussion: { label: "Discussion", cls: "bg-accent/12 text-accent-ink ring-1 ring-accent/25" },
+  salary: { label: "Package", cls: "bg-chain/12 text-chain ring-1 ring-chain/25" },
+  review: { label: "Review", cls: "bg-accent-2/12 text-accent-ink ring-1 ring-accent-2/25" },
+};
+
+/** Topic chip for discussions. Links to the filtered community feed. */
+export function FlairChip({ p }: { p: Discussion }) {
+  return (
+    <Link
+      href={`/company/?name=${p.company}&flair=${p.flair}`}
+      className="relative z-10 inline-flex h-6 items-center rounded-full bg-surface-2 px-2.5 text-[11px] font-medium text-text ring-1 ring-border hover:ring-accent/40"
+    >
+      {flairLabel(p.flair)}
+    </Link>
+  );
+}
+
+function DiscussionBody({ p, full, flagged }: { p: Discussion; full?: boolean; flagged?: boolean }) {
+  return (
+    <div className="flex flex-col gap-2.5">
+      {p.body && (
+        <p className={cn("whitespace-pre-wrap break-words text-[15px] leading-relaxed text-text/90", !full && "line-clamp-3")}>{p.body}</p>
+      )}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <FlairChip p={p} />
+        {p.city && (
+          <span className="inline-flex h-6 items-center gap-1 rounded-full bg-surface-2 px-2.5 text-[11px] text-muted">
+            <MapPin className="size-3" aria-hidden /> {cityLabel(p.city)} office
+          </span>
+        )}
+      </div>
+      {flagged && (
+        <p className="inline-flex items-center gap-1.5 text-xs font-medium text-trust-low">
+          <Flag className="size-3.5" aria-hidden /> From a wallet flagged for a posting burst
+        </p>
+      )}
+    </div>
+  );
 }
 
 function SalaryBody({ p, trust, big }: { p: SalaryEntry; trust?: TrustResult; big?: boolean }) {
@@ -142,7 +185,8 @@ export function PostCard({
   const now = useNow();
   const reduce = useReducedMotion();
   const href = postHref(post.key);
-  const lowTrust = post.kind === "salary" ? trust?.band === "low" : flagged;
+  const lowTrust = post.kind === "salary" ? trust?.band === "low" && !trust.isNew : flagged;
+  const tag = KIND_TAG[post.kind];
 
   const Title = full ? "h1" : "h2";
   const body = (
@@ -164,22 +208,31 @@ export function PostCard({
               Your post · visible to you
             </span>
           )}
-          <span className={cn("ml-auto rounded-full px-2 py-0.5 text-[11px] font-medium", post.kind === "salary" ? "bg-chain/12 text-chain ring-1 ring-chain/25" : "bg-accent-2/12 text-accent-ink ring-1 ring-accent-2/25")}>
-            {post.kind === "salary" ? "Salary" : "Review"}
-          </span>
+          <span className={cn("ml-auto rounded-full px-2 py-0.5 text-[11px] font-medium", tag.cls)}>{tag.label}</span>
         </header>
 
-        <Title className={cn("font-sans font-semibold tracking-normal", full ? "text-xl sm:text-2xl" : "text-base sm:text-lg")}>
+        <Title
+          className={cn(
+            "break-words font-sans font-semibold tracking-normal",
+            post.kind === "discussion" ? (full ? "text-2xl leading-snug sm:text-3xl" : "text-lg leading-snug sm:text-xl") : full ? "text-xl sm:text-2xl" : "text-base sm:text-lg",
+          )}
+        >
           {full ? (
-            post.kind === "salary" ? `${roleLabel(post.role)} · ${levelLabel(post.level)} at ${companyName(post.company)}` : `Review of ${companyName(post.company)}`
+            post.kind === "discussion" ? post.title : post.kind === "salary" ? `${roleLabel(post.role)} · ${levelLabel(post.level)} at ${companyName(post.company)}` : `Review of ${companyName(post.company)}`
           ) : (
             <Link href={href} className="after:absolute after:inset-0 after:content-['']">
-              {post.kind === "salary" ? `${roleLabel(post.role)} · ${levelLabel(post.level)}` : `${reviewAvg(post).toFixed(1)}★ — ${companyName(post.company)}`}
+              {post.kind === "discussion" ? post.title : post.kind === "salary" ? `${roleLabel(post.role)} · ${levelLabel(post.level)}` : `${reviewAvg(post).toFixed(1)}★ — ${companyName(post.company)}`}
             </Link>
           )}
         </Title>
 
-        {post.kind === "salary" ? <SalaryBody p={post} trust={trust} big={full} /> : <ReviewBody p={post} flagged={flagged} full={full} />}
+        {post.kind === "discussion" ? (
+          <DiscussionBody p={post} full={full} flagged={flagged} />
+        ) : post.kind === "salary" ? (
+          <SalaryBody p={post} trust={trust} big={full} />
+        ) : (
+          <ReviewBody p={post} flagged={flagged} full={full} />
+        )}
 
         <footer className="-mb-1 flex flex-wrap items-center gap-1 pt-1">
           <VoteControl targetKey={post.key} tally={tally} size="sm" />

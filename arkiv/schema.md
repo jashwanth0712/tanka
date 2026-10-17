@@ -42,6 +42,17 @@ Payload: JSON `{ "comment": "…" }` (optional, ≤ 280 chars, PII-checked clien
 
 Payload: none. Expiry: ~18 months. Writing a confirmation also extends the target salary to `max(current expiry, now + 18 months)` — **TODO(arkiv): confirm a non-owner can extend.**
 
+### `discussion` (primary post type)
+| Attribute | Kind | Example |
+|---|---|---|
+| project, type, v | | `"tankha"`, `"discussion"`, `1` |
+| company | string | `"godavari-labs"` |
+| flair | string | `"culture"` · `"layoffs"` · `"compensation"` · `"workplace"` · `"management"` · `"interviews"` · `"company-news"` · `"ask"` |
+| city | string (optional) | `"hyderabad"` (office the thread is about) |
+| createdAt | numeric | ms epoch |
+
+Payload: JSON `{ "title": "…", "body": "…" }` (title 8–140 chars, body optional ≤ 3000; both PII-checked). Expiry: ~18 months.
+
 ### `comment`
 | Attribute | Kind | Example |
 |---|---|---|
@@ -69,6 +80,8 @@ project = "tankha" && type = "salary" && level = "sde-2" && city = "hyderabad"
 project = "tankha" && type = "salary" && (company = "a" || company = "b") && ctc >= 2000000
 project = "tankha" && type = "review" && company = "kaveri-systems"
 project = "tankha" && type = "confirmation" && entryKey = "0x…"
+project = "tankha" && type = "discussion" && company = "godavari-labs"
+project = "tankha" && type = "discussion" && flair = "layoffs"
 project = "tankha" && type = "comment" && postKey = "0x…"
 project = "tankha" && type = "vote"
 project = "tankha" && $owner = 0x…

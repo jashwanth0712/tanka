@@ -14,7 +14,7 @@ import { SearchTrigger } from "./CommandMenu";
 import { StatusPill } from "./StatusPill";
 
 const NAV = [
-  { href: "/salaries/", label: "Salaries" },
+  { href: "/salaries/", label: "Packages" },
   { href: "/companies/", label: "Communities" },
   { href: "/verify/", label: "Verify" },
 ];
@@ -107,7 +107,7 @@ export function Nav() {
 
 const TABS = [
   { href: "/", label: "Home", Icon: Home },
-  { href: "/salaries/", label: "Salaries", Icon: Table2 },
+  { href: "/salaries/", label: "Packages", Icon: Table2 },
   { href: "/submit/", label: "Post", Icon: Plus, raised: true },
   { href: "/companies/", label: "Communities", short: "Groups", Icon: Building2 },
   { href: "/verify/", label: "Verify", Icon: ShieldCheck },
@@ -170,7 +170,7 @@ export function Footer() {
         <div className="flex max-w-sm flex-col gap-3">
           <Logo />
           <p className="text-sm text-muted">
-            Salaries no one can delete. Anonymous salaries, reviews and discussion — stored on Arkiv, queryable by anyone.
+            Salaries no one can delete. Anonymous company discussions, packages and reviews — stored on Arkiv, queryable by anyone.
           </p>
           <p className="text-xs text-muted">Built for the CROPS Censorship Resistance track · MIT</p>
         </div>

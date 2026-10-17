@@ -8,7 +8,9 @@ import { EmptyState, ErrorState } from "@/components/common";
 import { QueryReveal } from "@/components/salary/QueryReveal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/primitives";
-import { useFeed } from "@/hooks/social";
+import { useFeed, type FeedKind } from "@/hooks/social";
+import { companyName } from "@/lib/catalog";
+import { FLAIRS, isFlair } from "@/lib/constants";
 import type { Post } from "@/lib/data/types";
 import { tallyFor, type FeedSort } from "@/lib/social";
 import type { TrustFilter } from "@/lib/trust";
@@ -52,7 +54,34 @@ function useStableOrder(posts: Post[], signature: string) {
   return order.map((k) => byKey.get(k)).filter(Boolean) as Post[];
 }
 
-export function Feed({ company }: { company?: string }) {
+const KINDS: { value: FeedKind; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "discussion", label: "Discussions" },
+  { value: "salary", label: "Packages" },
+  { value: "review", label: "Reviews" },
+];
+
+function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={cn(
+        "inline-flex h-8 shrink-0 items-center rounded-full px-3 text-xs font-medium transition-colors cursor-pointer",
+        active ? "bg-gradient-primary text-accent-fg" : "bg-surface-2 text-muted ring-1 ring-border hover:text-text",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+/**
+ * Feed of posts. `kind` locks the feed to one post type (community tabs); without it the viewer can
+ * switch kinds with chips (home). Topic chips appear whenever discussions are shown.
+ */
+export function Feed({ company, kind: lockedKind }: { company?: string; kind?: FeedKind }) {
   const sp = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -61,16 +90,23 @@ export function Feed({ company }: { company?: string }) {
   const trustParam = sp.get("trust");
   const sort: FeedSort = sortParam === "new" || sortParam === "top" ? sortParam : "hot";
   const trust: TrustFilter = trustParam === "all" || trustParam === "high" ? trustParam : "medium";
+  const kindParam = sp.get("kind");
+  const kind: FeedKind = lockedKind ?? (KINDS.some((k) => k.value === kindParam) ? (kindParam as FeedKind) : "all");
+  const flairParam = sp.get("flair");
+  const flair = flairParam && isFlair(flairParam) && kind === "discussion" ? flairParam : undefined;
   const [shown, setShown] = React.useState(PAGE);
 
-  const feed = useFeed({ company, sort, trust });
-  const signature = `${company ?? ""}|${sort}|${trust}|${feed.isLoading}`;
+  const feed = useFeed({ company, sort, trust, kind, flair });
+  const signature = `${company ?? ""}|${sort}|${trust}|${kind}|${flair ?? ""}|${feed.isLoading}`;
   const ordered = useStableOrder(feed.posts, signature);
   const [lastSig, setLastSig] = React.useState(signature);
   if (lastSig !== signature) {
     setLastSig(signature);
     setShown(PAGE);
   }
+
+  const createType = kind === "salary" ? "salary" : kind === "review" ? "review" : "discussion";
+  const createHref = `/submit/?type=${createType}${company ? `&company=${company}` : ""}`;
 
   const setParam = (k: string, v: string, def: string) => {
     const p = new URLSearchParams(sp.toString());
@@ -82,19 +118,45 @@ export function Feed({ company }: { company?: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Create post bar */}
+      {/* Create post bar — discussions first */}
       <Card className="flex items-center gap-3 p-2.5 pl-3">
         <IdentityAvatar address={wallet.address} size={32} />
         <Link
-          href="/submit/"
+          href={createHref}
           className="flex h-10 min-w-0 flex-1 items-center truncate rounded-full border border-border bg-surface-2 px-4 text-sm text-muted transition-colors hover:border-accent/40"
         >
-          {company ? `Post to c/${company}…` : "Share a salary or review, anonymously…"}
+          {kind === "salary"
+            ? company ? `Share your package at ${companyName(company)}…` : "Share your package, anonymously…"
+            : kind === "review"
+              ? company ? `Review ${companyName(company)}…` : "Review your company…"
+              : company ? `Start a discussion in c/${company}…` : "Start a discussion about your company…"}
         </Link>
         <Button asChild size="icon-sm" aria-label="Create post">
-          <Link href="/submit/"><Plus /></Link>
+          <Link href={createHref}><Plus /></Link>
         </Button>
       </Card>
+
+      {!lockedKind && (
+        <div role="group" aria-label="Post type" className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+          {KINDS.map((k) => (
+            <Chip key={k.value} active={kind === k.value} onClick={() => setParam("kind", k.value, "all")}>
+              {k.label}
+            </Chip>
+          ))}
+        </div>
+      )}
+      {kind === "discussion" && (
+        <div role="group" aria-label="Topic" className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+          <Chip active={!flair} onClick={() => setParam("flair", "", "")}>
+            All topics
+          </Chip>
+          {FLAIRS.map((f) => (
+            <Chip key={f.id} active={flair === f.id} onClick={() => setParam("flair", f.id, "")}>
+              {f.label}
+            </Chip>
+          ))}
+        </div>
+      )}
 
       {/* Sort + trust */}
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -148,9 +210,13 @@ export function Feed({ company }: { company?: string }) {
         </div>
       ) : ordered.length === 0 ? (
         <EmptyState
-          title="Nothing here yet."
-          body={company ? `Be the first to post in c/${company}.` : "Be the first to post."}
-          action={<Button asChild><Link href="/submit/">Create a post</Link></Button>}
+          title={kind === "discussion" ? "No threads yet." : "Nothing here yet."}
+          body={
+            kind === "discussion"
+              ? `Ask what everyone's wondering${company ? ` about ${companyName(company)}` : ""}. Anonymously.`
+              : company ? `Be the first to post in c/${company}.` : "Be the first to post."
+          }
+          action={<Button asChild><Link href={createHref}>{kind === "discussion" || kind === "all" ? "Start a discussion" : "Create a post"}</Link></Button>}
         />
       ) : (
         <>
@@ -163,7 +229,7 @@ export function Feed({ company }: { company?: string }) {
                 trust={p.kind === "salary" ? feed.trustIndex?.get(p.key) : undefined}
                 tally={tallyFor(feed.tallies, p.key)}
                 comments={feed.commentCounts.get(p.key.toLowerCase()) ?? 0}
-                flagged={p.kind === "review" && feed.flaggedWallets.has(p.owner.toLowerCase())}
+                flagged={p.kind !== "salary" && feed.flaggedWallets.has(p.owner.toLowerCase())}
                 showCommunity={!company}
               />
             ))}

@@ -65,7 +65,7 @@ function SalariesView() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
       <header className="mb-6 flex flex-col gap-2 sm:mb-8">
-        <h1 className="text-4xl font-semibold sm:text-5xl">Salaries</h1>
+        <h1 className="text-4xl font-semibold sm:text-5xl">Packages</h1>
         <p className="max-w-2xl text-muted">
           Every number below is an Arkiv entity. Filter it, check the query, run it yourself.
         </p>

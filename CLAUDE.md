@@ -1,7 +1,7 @@
 # CLAUDE.md — Tankha
 
 > **Tankha** (Hindi/Urdu slang for "salary") — *Salaries no one can delete.*
-> An anonymous, censorship-resistant, **Reddit-style** community for salaries and workplace reviews: a ranked feed, one community per company (`c/nimbus-infotech`), up/down votes and threaded comments. All data — posts, votes, comments, confirmations — lives on **Arkiv** (Tiramisu testnet). No company, legal notice or server shutdown can remove it, and anyone can query it.
+> An anonymous, censorship-resistant, **Reddit-style company forum**. **Priority 1: company-wise discussions** (threads like "Layoffs at the Pune office?", "What % hike after 2 YOE?", "Toxic culture in the Bengaluru office"). **Priority 2: salary packages.** Then reviews. One community per company (`c/nimbus-infotech`), a ranked feed, up/down votes and threaded comments. All data — posts, votes, comments, confirmations — lives on **Arkiv** (Tiramisu testnet). No company, legal notice or server shutdown can remove it, and anyone can query it.
 
 This file is the single source of truth for building the **frontend and app logic**. The **Arkiv / web3 layer is owned by a teammate** and plugs in through the data contract in §6. Build against the mock data source first; never block on the web3 layer.
 
@@ -35,7 +35,7 @@ These come from the judging gates. Breaking any of them can disqualify the entry
 | People fear being identified | No sign-in, no email, no LinkedIn. Optional fresh wallet per post | Submit flow, "Post with a fresh wallet" option |
 | Fake reviews | **Trust score** computed only from Arkiv data | Trust badge on every entry, breakdown on entry page, "High trust only" filter |
 | Stale salaries mislead | Entries **expire (~18 months)** unless confirmed "Still accurate" | Life bar + countdown on every entry, confirm button |
-| Salary data alone is dry | **Social layer:** Hot/New/Top feed, company communities, up/down votes, threaded anonymous comments | Home feed, `c/<company>` pages, post pages with threads |
+| People need a safe place to talk about their company | **Company-wise discussions (primary post type):** titled threads with a topic (Culture, Layoffs, Compensation, Workplace, Management, Interviews, Company news, Ask) and optional office city, plus votes and threaded anonymous comments | Home feed (discussions rank first), community **Discussions** tab (default), "Start a discussion" CTA everywhere |
 
 **Judges must be able to feel all five rows within 2 minutes of opening the site.**
 
@@ -70,12 +70,12 @@ Use latest stable versions. Do not add libraries beyond this list without a clea
 
 ```
 /                 Home feed — Hot/New/Top, trust filter, left rail (communities), right rail (about, live stats, house rules)
-/salaries         Search + filters + aggregates + results (structured salary search)
+/salaries         "Packages": search + filters + aggregates + results (structured salary search)
 /companies        Communities directory — one per company, with headline numbers
-/company?name=    Community c/<slug> — banner, flag banner, tabs: Posts (feed) · Salary bands · Ratings
+/company?name=    Community c/<slug> — banner, flag banner, tabs in priority order: Discussions (default, topic chips) · Packages (salary bands + package posts) · Reviews (rating bars + review posts). ?flair= filters topics.
 /post?key=        Post page — full post, "Still accurate" + life bar (salaries), trust breakdown, threaded comments, raw entity
 /entry?key=       Alias of /post (old links keep working)
-/submit           "Create a post": Salary or Review → details → privacy check → sign → receipt
+/submit           "Create a post": Discussion (first, highlighted) · Package · Review → details → privacy check → sign → receipt. ?type=discussion|salary|review&company=<slug> pre-fills.
 /verify           "Don't trust us" — takedown diagram, RPC endpoints, query playground, CLI + curl, mirrors, schema
 ```
 
@@ -352,7 +352,10 @@ export interface DataSource {
 
 **Social additions (implemented in `lib/data/types.ts`, the source of truth):**
 ```ts
-export type Post = SalaryEntry | Review;
+export type Flair = 'culture' | 'layoffs' | 'compensation' | 'workplace' | 'management' | 'interviews' | 'company-news' | 'ask';
+export interface Discussion { key; kind: 'discussion'; company: CompanyId; flair: Flair; city?: City; title: string /* 8–140, PII-checked */; body?: string /* ≤ 3000, PII-checked */; createdAt; expiresAt; owner }
+export type Post = Discussion | SalaryEntry | Review;   // discussions are the primary post type
+// DataSource also gains: getDiscussions(company?) and createDiscussion(input). Stats gains `discussions`.
 export type VoteDir = 'up' | 'down' | 'none';          // latest vote per (wallet, target) wins
 export interface Vote { key; kind: 'vote'; targetKey: EntityKey; dir: VoteDir; createdAt; expiresAt; owner }
 export interface Comment { key; kind: 'comment'; postKey: EntityKey; parentKey?: EntityKey; body: string /* ≤ 500, PII-checked */; createdAt; expiresAt; owner }
@@ -413,6 +416,7 @@ Rules:
 - **Planted fraud:** 1 wallet posts ~8 Nimbus Infotech entries within 1 hour, each 2.5–3.5× the median, 0 confirmations, plus 5-star reviews → must surface as "Unusual"/"Burst" and trigger the company flag banner.
 - A few entries close to expiry (< 30 days) so the life bar and "Still accurate" demo are visible.
 - ~20 synthetic wallets, deterministic addresses (not real keys).
+- **Discussions** (generated after the social layer): 24 curated company-specific threads modelled on real forum topics (discrimination at an HO, bankruptcy fears, toxic culture, a manager fearing layoffs, hike % after 2 YOE…) **on fictional companies only**, plus 3 common threads per company; each with 2–9 topical comments, replies and votes. The fraud wallet also posts a glowing thread (hidden under Medium+). Never use real company names, even when the user's examples do (rule 5).
 - **Social layer** (generated last so it never changes the data above): ~240 comments (threads + replies, concentrated on recent posts, all PII-free), ~900 votes (≈86% up on legit posts). The Nimbus burst gets 4–7 downvotes per post, self-upvotes from the fraud wallet, and comments calling it out.
 
 Export the generator so the teammate's script can import it.

@@ -1,9 +1,9 @@
 // Deterministic synthetic dataset. Shared by the mock data source and the Arkiv seed script (/cli),
 // so both produce the same entries. 100% fictional — no real people, companies or keys.
 
-import { CITIES, COMPANIES } from "../catalog";
+import { CITIES, cityLabel, COMPANIES } from "../catalog";
 import { ENTRY_TTL_MS } from "../constants";
-import type { Address, Comment, Confirmation, EntityKey, Rating, Review, SalaryEntry, Vote } from "../data/types";
+import type { Address, Comment, Confirmation, Discussion, EntityKey, Flair, Rating, Review, SalaryEntry, Vote } from "../data/types";
 
 export const DEFAULT_SEED = 0x7a4b4a;
 
@@ -162,6 +162,110 @@ const FRAUD_REPLIES = [
   "That's why it's hidden by default. Click 'All' to see the burst.",
 ];
 
+interface ThreadTemplate {
+  flair: Flair;
+  title: string;
+  body?: string;
+  /** Pin to one company; otherwise spread across companies. */
+  company?: string;
+  atHq?: boolean;
+}
+
+// Company-wise discussions — the main content of the app. Fictional companies only, no people named.
+const THREADS: ThreadTemplate[] = [
+  { flair: "culture", company: "godavari-labs", atHq: true, title: "Is there a discrimination problem at the Hyderabad HO?", body: "Two people on my floor have quietly raised complaints about being passed over and spoken to differently because of where they're from. HR says it's \"being looked into\". Is this a pattern anyone else has seen, or is it one team?" },
+  { flair: "company-news", company: "tungabhadra-tech", title: "Does anyone feel Tungabhadra Tech is heading for bankruptcy?", body: "Salaries credited late two months in a row, vendor payments on hold, and the town hall got cancelled. Am I overthinking this or should people start interviewing?" },
+  { flair: "culture", company: "kaveri-systems", atHq: true, title: "Toxic culture in the Bengaluru office", body: "Late-night calls are normal, people get called out in public stand-ups, and nobody pushes back because reviews are around the corner. Is it the whole org or just product engineering?" },
+  { flair: "layoffs", company: "sahyadri-software", title: "My manager is worried about getting laid off. Anyone else hearing rumours?", body: "Our skip-level meetings got cancelled and my manager asked me to document everything I own. Feels like something is coming. Any signals in other teams?" },
+  { flair: "compensation", company: "kaveri-systems", title: "What % hike is realistic after 2 YOE?", body: "Joined as SDE-1, cycle is next month. Ratings are 'meets' or 'exceeds'. What did people actually get last year?" },
+  { flair: "compensation", company: "nimbus-infotech", title: "Appraisal cycle delayed again this year?", body: "Letters were supposed to come out in April. Still nothing. Anyone got an official date?" },
+  { flair: "workplace", company: "deccan-cloudworks", atHq: true, title: "Return-to-office: 5 days a week from next quarter?", body: "Heard this in an all-hands. Is it confirmed for everyone or only for certain teams?" },
+  { flair: "interviews", company: "vindhya-analytics", title: "How long does the SDE-2 interview loop take?", body: "Cleared the online test. How many rounds after this and how long before an offer?" },
+  { flair: "layoffs", company: "tungabhadra-tech", title: "Bench policy changed — 30 days and then out?", body: "New email says people on bench beyond 30 days will be 'reviewed'. Anyone know what that means in practice?" },
+  { flair: "compensation", company: "coromandel-digital", title: "Is the night-shift allowance still being paid?", body: "My last two payslips don't show it. Is it removed for everyone or a payroll error?" },
+  { flair: "management", company: "sahyadri-software", title: "Promotion criteria feel completely arbitrary", body: "Same rating, same scope, one person promoted and one not. Is there a written rubric anywhere?" },
+  { flair: "workplace", company: "nimbus-infotech", title: "Moonlighting policy — has anyone received a warning?", body: "Not doing anything myself, but heard people got emails about side projects on GitHub. What exactly is allowed?" },
+  { flair: "compensation", company: "godavari-labs", title: "ESOP vesting schedule changed for new joiners?", body: "Offer letter says 4-year vest with a 1-year cliff, but a friend who joined last year has monthly vesting after the cliff. Anyone compared?" },
+  { flair: "management", company: "coromandel-digital", title: "Leave only approved if you worked the previous weekend?", body: "Is this an official rule or just my team?" },
+  { flair: "ask", company: "vindhya-analytics", title: "Good place for freshers?", body: "Got an offer as a Data Analyst. Learning curve, mentorship, and how long until you get real projects?" },
+  { flair: "layoffs", company: "vindhya-analytics", title: "Layoffs in the data platform team this week?", body: "A few accounts went inactive on chat yesterday. Anyone know how many people were affected?" },
+  { flair: "company-news", company: "deccan-cloudworks", title: "New funding round — does it change anything for employees?", body: "Leadership says 'business as usual'. Any word on ESOP buyback or salary corrections?" },
+  { flair: "interviews", company: "kaveri-systems", title: "System design round for frontend roles — what to expect?", body: "Is it a generic system design round or frontend-specific (state, caching, rendering)?" },
+  { flair: "culture", company: "coromandel-digital", title: "Sale season crunch is getting worse every year", body: "Three weeks of 14-hour days before the big sale. Comp-offs are promised and then not approved. Is this normal for e-commerce?" },
+  { flair: "workplace", company: "godavari-labs", title: "GPU access for research teams is a nightmare", body: "We wait days for a slot on the shared cluster. Is any team getting dedicated capacity?" },
+  { flair: "compensation", company: "sahyadri-software", title: "Variable pay paid out at 60% this year?", body: "Company met targets per the town hall, but bonus letters say 60%. What did others get?" },
+  { flair: "management", company: "deccan-cloudworks", title: "Skip-levels stopped after the reorg", body: "We used to have monthly skip-levels. Since the reorg, nothing. Is anyone else's manager chain this quiet?" },
+  { flair: "ask", company: "tungabhadra-tech", title: "Notice period buyout — does the company allow it?", body: "Got an offer elsewhere with a 30-day joining requirement. Ours is 90 days. Has anyone negotiated a buyout?" },
+  { flair: "culture", company: "nimbus-infotech", title: "Client-site teams vs office teams feel like two companies", body: "Client-site people get no team events, no rewards, nothing. Anyone found a way to move back to an internal project?" },
+];
+
+// Common threads every company gets a few of. {co} = company name, {city} = HQ city.
+const GENERIC_THREADS: ThreadTemplate[] = [
+  { flair: "compensation", title: "Appraisal letters are out. How did everyone do?", body: "Post your rating band and hike % (no names). Trying to see if {co} is being fair this year." },
+  { flair: "workplace", title: "WFH policy at {co} after the latest HR mail?", body: "Is it 3 days in office now or still team-dependent?" },
+  { flair: "ask", title: "Notice period at {co} — can it be shortened?", body: "Got an offer that needs me in 30 days. Has anyone negotiated an early release?" },
+  { flair: "management", title: "Is it normal for managers at {co} to change every 6 months?", body: "On my third manager this year. Does this reset promotion chances?" },
+  { flair: "culture", title: "How is the {city} office compared to other {co} locations?", body: "Thinking of asking for a transfer. Culture, commute, food, anything." },
+  { flair: "layoffs", title: "Any restructuring news at {co} this quarter?", body: "Heard about a 'cost optimisation' exercise. Anyone have details?" },
+  { flair: "interviews", title: "Interview process at {co} for experienced hires?", body: "4+ YOE, backend. How many rounds, and is there a take-home?" },
+  { flair: "compensation", title: "Does {co} match competing offers?", body: "Have an offer about 30% higher. Will they counter, or is it better to just leave?" },
+];
+
+const THREAD_REPLIES = [
+  "Same here.",
+  "Can confirm, at least in our team.",
+  "This matches what I've heard from friends there.",
+  "Thanks for raising this. More people should.",
+  "Not in my org, but it sounds plausible.",
+  "Agree. Nobody says it out loud though.",
+];
+
+const THREAD_COMMENTS: Record<Flair, string[]> = {
+  culture: [
+    "Same experience in my team. The complaint was closed without any follow-up.",
+    "It depends a lot on the floor and the manager. Mine has been fine, but I believe you.",
+    "Use the anonymous ethics line — it at least gets logged and escalated.",
+    "This has been going on for a while. People just stopped raising it.",
+  ],
+  layoffs: [
+    "Documenting everything you own is usually the first sign. Update your resume.",
+    "Our org got a hiring freeze notice last week. Nothing about layoffs yet.",
+    "Same rumours here. Nothing official, but leadership has gone very quiet.",
+    "Severance last time was two months plus notice, if that helps anyone plan.",
+  ],
+  compensation: [
+    "Got about 9% after 2 years, 14% with the promotion.",
+    "Ask for a market correction with offers in hand — they do grant it.",
+    "Ours was 6–8% for 'meets', 10–12% for 'exceeds'.",
+    "Variable came in lower than the town hall suggested for us too.",
+  ],
+  workplace: [
+    "It's confirmed for our team. Exceptions only with a VP sign-off.",
+    "Hybrid is still allowed for us, but attendance is being tracked.",
+    "Not official yet. Wait for the HR mail before planning anything.",
+  ],
+  management: [
+    "There's a rubric on the internal wiki, but nobody follows it.",
+    "Calibration decides everything. Your manager's influence in that room matters most.",
+    "Raise it in your next 1:1 and ask for the criteria in writing.",
+  ],
+  interviews: [
+    "Four rounds: DSA, system design, hiring manager, HR. About three weeks end to end.",
+    "Design round was frontend-specific for me: caching, state, rendering performance.",
+    "Recruiters went quiet for a week after the final round, then the offer came.",
+  ],
+  "company-news": [
+    "Late salaries twice is a red flag. Start interviewing quietly — no harm in options.",
+    "Leadership always says business as usual. Watch what they do, not what they say.",
+    "No buyback news yet. The last round didn't have one either.",
+  ],
+  ask: [
+    "Good learning in the first year, mentorship depends on the team.",
+    "Buyouts are allowed if your manager signs off. HR will try to say no first.",
+    "Ask to talk to someone on the team before you accept — they usually agree.",
+  ],
+};
+
 export interface SeedData {
   wallets: Address[];
   fraudWallet: Address;
@@ -170,6 +274,7 @@ export interface SeedData {
   confirmations: Confirmation[];
   comments: Comment[];
   votes: Vote[];
+  discussions: Discussion[];
 }
 
 export interface GenerateOptions {
@@ -358,7 +463,7 @@ export function generateSeed({ seed = DEFAULT_SEED, now = Date.now() }: Generate
     if (w === not) w = wallets[(wallets.indexOf(w) + 1) % wallets.length];
     return w;
   };
-  const addComment = (post: SalaryEntry | Review, body: string, parent?: Comment, owner?: Address, at?: number) => {
+  const addComment = (post: { key: EntityKey; createdAt: number; owner: Address }, body: string, parent?: Comment, owner?: Address, at?: number) => {
     const createdAt = at ?? between(parent?.createdAt ?? post.createdAt);
     const c: Comment = {
       key: entityKey(r),
@@ -422,6 +527,89 @@ export function generateSeed({ seed = DEFAULT_SEED, now = Date.now() }: Generate
   }
   comments.sort((a, b) => a.createdAt - b.createdAt);
 
+  // ── Discussions (generated last so nothing above changes) ────────────────
+  const discussions: Discussion[] = [];
+  const hqOf = (c: string) => COMPANIES.find((x) => x.id === c)?.hq;
+  for (const t of THREADS) {
+    const company = t.company ?? pick(r, COMPANIES).id;
+    const createdAt = now - int(r, 2, 24 * 45) * HOUR; // last ~45 days: forums are about what's happening now
+    const d: Discussion = {
+      key: entityKey(r),
+      kind: "discussion",
+      company,
+      flair: t.flair,
+      city: t.atHq ? hqOf(company) : undefined,
+      title: t.title,
+      body: t.body,
+      createdAt,
+      expiresAt: createdAt + ENTRY_TTL_MS,
+      owner: pick(r, wallets),
+    };
+    discussions.push(d);
+    // Threads attract discussion: 3–9 top-level comments, many with replies.
+    const n = int(r, 3, 9);
+    for (let i = 0; i < n; i++) {
+      const top = addComment(d, pick(r, THREAD_COMMENTS[t.flair]));
+      if (r() < 0.5) {
+        const reply = addComment(d, pick(r, THREAD_REPLIES), top);
+        if (r() < 0.4) addComment(d, pick(r, THREAD_COMMENTS[t.flair]), reply, d.owner);
+      }
+    }
+    // …and votes: 6–17 wallets weigh in, mostly up.
+    const voters = new Set<Address>();
+    const v = int(r, 6, 17);
+    while (voters.size < v) voters.add(pick(r, wallets));
+    for (const w of voters) if (w !== d.owner) castVote(d.key, r() < 0.88 ? "up" : "down", w, d.createdAt);
+  }
+  // Three common threads per company, so every community has a living forum.
+  for (const c of COMPANIES) {
+    const picked = new Set<number>();
+    while (picked.size < 3) picked.add(int(r, 0, GENERIC_THREADS.length - 1));
+    for (const i of picked) {
+      const t = GENERIC_THREADS[i];
+      const fill = (x?: string) => x?.replaceAll("{co}", c.label).replaceAll("{city}", cityLabel(c.hq));
+      const createdAt = now - int(r, 2, 24 * 60) * HOUR;
+      const d: Discussion = {
+        key: entityKey(r),
+        kind: "discussion",
+        company: c.id,
+        flair: t.flair,
+        city: t.title.includes("{city}") ? c.hq : undefined,
+        title: fill(t.title)!,
+        body: fill(t.body),
+        createdAt,
+        expiresAt: createdAt + ENTRY_TTL_MS,
+        owner: pick(r, wallets),
+      };
+      discussions.push(d);
+      for (let k = int(r, 2, 7); k > 0; k--) {
+        const top = addComment(d, pick(r, THREAD_COMMENTS[t.flair]));
+        if (r() < 0.45) addComment(d, pick(r, THREAD_REPLIES), top);
+      }
+      const voters = new Set<Address>();
+      const v = int(r, 3, 12);
+      while (voters.size < v) voters.add(pick(r, wallets));
+      for (const w of voters) if (w !== d.owner) castVote(d.key, r() < 0.86 ? "up" : "down", w, d.createdAt);
+    }
+  }
+  // The fraud wallet also tries a glowing thread; it's hidden under Medium+ with its other posts.
+  {
+    const createdAt = burstStart + 70 * 60_000;
+    discussions.push({
+      key: entityKey(r),
+      kind: "discussion",
+      company: "nimbus-infotech",
+      flair: "compensation",
+      title: "Everyone here gets 3x hikes, best company in India!!",
+      body: "Seriously, join now. Highest pay in the industry.",
+      createdAt,
+      expiresAt: createdAt + ENTRY_TTL_MS,
+      owner: fraudWallet,
+    });
+  }
+  comments.sort((a, b) => a.createdAt - b.createdAt);
+  discussions.sort((a, b) => b.createdAt - a.createdAt);
+
   // Expiry = last activity (creation or latest confirmation) + TTL.
   const lastConf = new Map<string, number>();
   for (const c of confirmations)
@@ -431,6 +619,6 @@ export function generateSeed({ seed = DEFAULT_SEED, now = Date.now() }: Generate
   salaries.sort((a, b) => b.createdAt - a.createdAt);
   reviews.sort((a, b) => b.createdAt - a.createdAt);
   confirmations.sort((a, b) => b.createdAt - a.createdAt);
-  return { wallets, fraudWallet, salaries, reviews, confirmations, comments, votes };
+  return { wallets, fraudWallet, salaries, reviews, confirmations, comments, votes, discussions };
 }
 
