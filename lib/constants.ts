@@ -58,7 +58,7 @@ export const explorerTxUrl = (hash: string) => `${EXPLORER_URL}/tx/${hash}`;
 export const explorerAddressUrl = (addr: string) => `${EXPLORER_URL}/address/${addr}`;
 
 // TODO(arkiv): replace with the real repo + deployments.
-export const REPO_URL = "https://github.com/your-org/tankha";
+export const REPO_URL = "https://github.com/rgmanisrivas-ai/tanka";
 export const SCHEMA_URL = `${REPO_URL}/blob/main/arkiv/schema.md`;
 export const FRICTION_URL = `${REPO_URL}/blob/main/arkiv/friction.md`;
 export const DEMO_VIDEO_URL = ""; // TODO: demo video link (≤ 3 min)
