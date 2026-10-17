@@ -1,0 +1,493 @@
+# CLAUDE.md — Tankha
+
+> **Tankha** (Hindi/Urdu slang for "salary") — *Salaries no one can delete.*
+> An anonymous, censorship-resistant salary and workplace-review app. All data lives on **Arkiv** (Tiramisu testnet). No company, legal notice or server shutdown can remove it, and anyone can query it.
+
+This file is the single source of truth for building the **frontend and app logic**. The **Arkiv / web3 layer is owned by a teammate** and plugs in through the data contract in §6. Build against the mock data source first; never block on the web3 layer.
+
+---
+
+## 0. Non-negotiable hackathon rules (read first, obey always)
+
+These come from the judging gates. Breaking any of them can disqualify the entry.
+
+1. **Deadline: work must be done by 18 October 2026.** The repo's commit SHA is recorded at the deadline.
+2. **Never rewrite git history.** No `git push --force`, no `rebase` of pushed commits, no amending pushed commits. Commit small and often with clear messages.
+3. **Repo is public and MIT licensed.** `LICENSE` (MIT) must exist at the root.
+4. **No conventional database.** No Postgres, Supabase, Firebase, SQLite, Prisma, or server-side store for app data. **All reads and writes of app data go through Arkiv** (via the data contract). A "database app with Arkiv branding" is disqualified.
+5. **No real personal data, anywhere** — not in Arkiv, not in seed data, not in screenshots. Use only the fictional catalog in §7. No real names, emails, phone numbers, or real company names.
+6. **No secrets in code or in Arkiv entities.** Private keys only in `.env.local` (gitignored). Never log keys. Never put keys in entity payloads or attributes.
+7. **Required files** (create on day one, keep updated):
+   - `/arkiv/schema.md` — entity types and attributes (teammate owns; frontend must match it)
+   - `/arkiv/friction.md` — dated log of real problems hit while building on Arkiv. Add frontend-side friction too.
+   - `README.md` — what it is, live URL, reproducible setup steps, wallet addresses used on Tiramisu, demo video link.
+8. **Public deployment** judges can open without asking for access, kept live until 23 October.
+9. **Demo video ≤ 3 minutes.**
+
+---
+
+## 1. What we're building (the pitch the UI must prove)
+
+| Problem | What the app does | Where the user sees it |
+|---|---|---|
+| Reviews and salaries get taken down | Data stored as Arkiv entities; no central DB | "Verify it yourself" page, RPC switcher, live block indicator |
+| Data must stay queryable | Search by company / role / level / city / YoE / CTC via Arkiv attribute queries | Salaries page, "Show query" toggle on every result set |
+| People fear being identified | No sign-in, no email, no LinkedIn. Optional fresh wallet per post | Submit flow, "Post with a fresh wallet" option |
+| Fake reviews | **Trust score** computed only from Arkiv data | Trust badge on every entry, breakdown on entry page, "High trust only" filter |
+| Stale salaries mislead | Entries **expire (~18 months)** unless confirmed "Still accurate" | Life bar + countdown on every entry, confirm button |
+
+**Judges must be able to feel all five rows within 2 minutes of opening the site.**
+
+---
+
+## 2. Tech stack
+
+Use latest stable versions. Do not add libraries beyond this list without a clear reason.
+
+| Concern | Choice | Notes |
+|---|---|---|
+| Framework | **Next.js (App Router) + TypeScript (strict)** | `output: 'export'` — **fully static**. No API routes, no server actions, no middleware. This lets the site be hosted on Vercel *and* pinned to IPFS: the frontend itself has no single point of takedown. |
+| Styling | **Tailwind CSS v4** + CSS variables for tokens | Tokens in `app/globals.css` (§4). |
+| Components | **shadcn/ui** (Radix primitives) | Button, Card, Badge, Dialog, Drawer (vaul), Select, Slider, Tabs, Tooltip, Popover, Command, Sheet, Skeleton, Progress, Toggle, Separator, Input, Textarea, Form. |
+| Animation | **motion** (formerly framer-motion) | Respect `prefers-reduced-motion`. |
+| Data fetching | **TanStack Query** | Caching, retries, loading/error states, `refetchInterval` for live bits. |
+| Forms | **react-hook-form + zod** | Same zod schemas validate before sending to Arkiv. |
+| Charts | **Recharts** | Salary histogram, ratings bars. |
+| Icons | **lucide-react** | |
+| Toasts | **sonner** | |
+| Command palette | **cmdk** (via shadcn Command) | ⌘K / Ctrl+K company & role jump. |
+| Theme | **next-themes** | Dark default, light supported. |
+| Tests | **vitest** | Unit tests for `lib/trust.ts`, `lib/aggregate.ts`, `lib/format.ts`, `lib/pii.ts`. |
+| Lint/format | ESLint (next config) + Prettier | |
+| Package manager | pnpm | |
+
+**Static export caveat:** dynamic segments like `/company/[slug]` don't work with unknown slugs at build time. Use **query params** instead: `/company?name=nimbus-infotech`, `/entry?key=0x…`. Read them with `useSearchParams` inside a `<Suspense>` boundary.
+
+---
+
+## 3. Information architecture
+
+```
+/                 Landing — hero, live stats, search, live feed, "why it can't be deleted"
+/salaries         Search + filters + aggregates + results (the core page)
+/companies        Grid of all companies with headline numbers
+/company?name=    Company profile — salary bands by role/level, ratings, entries, reviews
+/entry?key=       Single entry — trust breakdown, expiry life bar, confirmations, raw entity
+/submit           Multi-step: Salary or Review → details → privacy check → sign → receipt
+/verify           "Don't trust us" — RPC endpoints, copyable queries, CLI + curl, mirrors
+```
+
+Global UI:
+- **Top nav (desktop):** logo, Salaries, Companies, Verify, ⌘K search, Arkiv status pill, theme toggle, primary CTA "Add salary".
+- **Bottom tab bar (mobile ≤ 768px):** Home, Salaries, Add (raised center button), Companies, Verify.
+- **Arkiv status pill:** pulsing dot + "Tiramisu · block #1,234,567" updating every ~5s. Click → popover with RPC in use and "Switch RPC". Red + "RPC unreachable — switch endpoint" when down.
+- **Settings popover (from status pill):** list of RPC endpoints + custom RPC input (stored in localStorage, wrapped in try/catch). This is a *censorship-resistance feature*: if one endpoint is blocked, users switch.
+- **Demo-data banner:** if `NEXT_PUBLIC_DATA_SOURCE=mock`, show a slim amber banner "Demo data — not reading from Arkiv". Never ship production with mock.
+
+---
+
+## 4. Design system — "Ledger at night"
+
+### Direction
+Editorial confidence + on-chain precision. Feels like a financial terminal designed by a magazine: big, bold type for numbers, monospace for anything on-chain, generous whitespace, one warm accent (marigold — a nod to India) against deep ink. **Not** the generic purple-gradient web3 look. No glassmorphism soup, no neon everywhere, no stock 3D blobs.
+
+### Typography (Google Fonts via `next/font`)
+- **Display:** `Bricolage Grotesque` (600–800) — headlines and big numbers.
+- **Body/UI:** `Inter` (400–600).
+- **Mono:** `JetBrains Mono` — entity keys, tx hashes, block numbers, queries, wallet addresses.
+- All numbers use `font-variant-numeric: tabular-nums`.
+- Scale: 12 / 14 / 16 / 18 / 24 / 32 / 48 / 72 (hero, desktop) / 44 (hero, mobile).
+
+### Color tokens (`app/globals.css`)
+Define on `:root` (light) and `.dark` (dark, default):
+
+| Token | Dark | Light | Use |
+|---|---|---|---|
+| `--bg` | `#0B0D12` | `#FAF8F3` | page |
+| `--surface` | `#12151C` | `#FFFFFF` | cards |
+| `--surface-2` | `#1A1E27` | `#F2EFE7` | inputs, hover |
+| `--border` | `#262B36` | `#E4DFD3` | hairlines |
+| `--text` | `#ECEDEF` | `#14161B` | primary |
+| `--muted` | `#8A90A0` | `#5D6270` | secondary |
+| `--accent` | `#F5A524` (marigold) | `#C97C00` | CTAs, highlights, focus |
+| `--accent-fg` | `#14161B` | `#FFFFFF` | text on accent |
+| `--trust-high` | `#22C55E` | `#15803D` | trust ≥ 70 |
+| `--trust-mid` | `#EAB308` | `#A16207` | 40–69 |
+| `--trust-low` | `#F97316` | `#C2410C` | < 40 |
+| `--danger` | `#EF4444` | `#B91C1C` | errors, flags |
+| `--chain` | `#7DD3FC` | `#0369A1` | on-chain data (keys, blocks) |
+
+Contrast must meet **WCAG AA**. Never rely on color alone — trust badges always include an icon + label.
+
+### Shape, depth, texture
+- Radius: 14px cards, 10px inputs/buttons, 999px pills.
+- Borders over shadows. One soft shadow for raised elements only.
+- Subtle background: faint grid or noise texture on the landing hero only (CSS, < 5KB).
+- Spacing on a 4px grid; section padding 64–96px desktop, 40–56px mobile.
+
+### Signature elements (these make it memorable)
+1. **Life bar** — every entry shows a thin horizontal bar that drains as expiry approaches, with "expires in 412 days". Confirming refills it with a satisfying animation.
+2. **On-chain receipt** — after submitting, a receipt-style card (perforated top edge via CSS mask, mono type): entity key, tx hash, block, expiry date, owner wallet, "View on explorer" and "Copy query".
+3. **Trust badge** — pill with icon + score: 🛡 High 82 / ⚠ Medium 55 / ⚑ Unusual 21. Hover/tap → breakdown popover.
+4. **"Show query" toggle** — on every result set, reveals the exact Arkiv query in a mono code block with copy button. Proves no hidden backend.
+5. **Live pulse** — status pill dot and the landing feed tick in real time.
+6. **Big salary numbers** in display font: `₹18.5 L` with p25–p75 range bar beneath.
+
+### Motion
+- Durations 150–250ms for UI, 400–600ms for hero/receipt. Ease: `[0.22, 1, 0.36, 1]`.
+- Use: fade/slide-up on list items (stagger 30ms, max 10 items), number count-up on stats, life-bar refill, receipt "print" reveal.
+- Never animate layout of large tables. Disable non-essential motion under `prefers-reduced-motion`.
+
+### Responsive rules (mobile-first, test at 360, 390, 768, 1024, 1440)
+- No horizontal scroll at any width.
+- **Salaries page:** desktop = left filter sidebar (280px) + results; mobile = sticky "Filters (3)" button opening a bottom **Drawer**, results as cards.
+- **Results:** desktop table (sortable columns) ≥ 1024px; cards below.
+- Tap targets ≥ 44px. Forms single-column on mobile.
+- Mobile bottom tab bar respects `env(safe-area-inset-bottom)`.
+
+### Content & formatting
+- Currency: Indian format via `Intl.NumberFormat('en-IN')`. Compact: `₹18.5 L`, `₹1.2 Cr`. Full on hover/detail: `₹18,50,000`.
+- CTC always **annual, INR**. Label "Annual CTC".
+- Wallets truncated `0x12ab…9f3c` with copy button.
+- Relative times ("3 days ago") with absolute on hover.
+- Tone: direct, slightly bold, never corporate. Microcopy example: "No sign-up. No email. Just the number."
+
+---
+
+## 5. Pages — detailed specs
+
+### 5.1 Landing `/`
+1. **Hero:** headline "Salaries no one can delete." Sub: "Anonymous salaries and workplace reviews, stored on Arkiv. No company can take them down. Anyone can query them." Big search input (company/role, opens ⌘K-style results) + CTA "Add your salary" + secondary "Verify it yourself →".
+2. **Live stats strip** (count-up, from Arkiv): total entries, companies, confirmations, latest block. Each with a tiny "live" dot.
+3. **Live feed:** last 8 entries as compact cards sliding in (refetch every 10s): company, role/level, city, ₹CTC, trust badge, "2 min ago".
+4. **How it works — 3 cards:** *Stored on Arkiv* (no central DB) · *Verified by data, not identity* (trust score) · *Self-cleaning* (expiry + confirmations).
+5. **"Try to take it down" section:** short copy + diagram: Web app / CLI / any client → Arkiv RPC (multiple endpoints) → Arkiv. CTA to `/verify`.
+6. **Top companies grid** (6 cards) → `/company`.
+7. Footer: GitHub repo, MIT, schema.md, friction.md, demo video, "Built for the CROPS Censorship Resistance track".
+
+### 5.2 Salaries `/salaries` (the core page — make it excellent)
+- **Filters:** Company (multi-select combobox), Role, Level, City (multi), YoE range slider (0–20), CTC range slider (₹0–1 Cr, log-ish steps), Trust: All / Medium+ / High only (default Medium+), Sort: newest / CTC high-low / trust.
+- Filters sync to URL query params (shareable links).
+- **Aggregate panel** (top of results): Median CTC (huge), p25–p75 range bar, entry count, histogram (Recharts, 8–12 bins), median YoE.
+  - **k-anonymity rule:** if the filtered group has < 3 entries, don't show aggregates; show "Not enough data yet — add yours" CTA.
+- **"Show query"** toggle under the aggregate panel.
+- **Results:** table (desktop) / cards (mobile): company, role, level, city, YoE, CTC, trust badge, life bar (mini), posted date. Row click → `/entry?key=`.
+- Empty state: illustration-free, typographic: "No salaries match. Loosen filters or be the first."
+- Loading: skeleton rows matching final layout. Error: inline card with retry + "Switch RPC".
+
+### 5.3 Companies `/companies`
+- Search box + sort (most entries / highest median / best rated).
+- Cards: monogram avatar (generated from initials + deterministic hue — no logos), name, industry, HQ city, entries count, median CTC, avg rating stars, % high-trust.
+
+### 5.4 Company `/company?name=`
+- Header: monogram, name, industry, city, stats row (entries, median CTC, avg rating, % high-trust).
+- **Flag banner** if > 30% of this company's entries are "Unusual" or "Burst": amber card "We detected a burst of low-trust entries for this company. They're hidden by default." + toggle to show. (This powers the Nimbus fraud demo — see §7.)
+- Tabs: **Salaries** (bands by role × level as a matrix: median + count per cell; tap cell → filtered `/salaries`) · **Reviews** (rating bars for WLB, Management, Growth, Culture; review cards with short comment) · **Entries** (raw list).
+
+### 5.5 Entry `/entry?key=`
+- Big CTC, role/level/city/YoE, company link.
+- **Trust card:** score ring + 4-row breakdown (confirmations, range fit, wallet history, freshness) with points each, plus flags ("Unusual: 2.8× median", "Burst: 6 posts in 1h from this wallet").
+- **Life bar** full size: created date, expiry date, days left.
+- **"Still accurate" button** — confirms (and extends if supported). Disabled for the entry's own owner wallet, with tooltip "You can't confirm your own entry". After success: life bar refill animation + toast.
+- **Confirmations list:** truncated wallets + times.
+- **On-chain panel (collapsible):** entity key, owner, tx/block if available, raw attributes as a mono key–value list, "View on explorer", "Copy query for this entity".
+
+### 5.6 Submit `/submit`
+Stepper (3 steps, progress bar at top):
+1. **Type:** "Salary" or "Review" (two big cards).
+2. **Details:**
+   - Salary: company (select from catalog), role, level, city, YoE (number), annual CTC (₹ input with live L/Cr preview), optional base salary.
+   - Review: company, ratings 1–5 for WLB / Management / Growth / Culture (tap stars), optional comment ≤ 280 chars.
+3. **Privacy check & post:**
+   - Live PII scanner on the comment (`lib/pii.ts`): blocks submit if it detects emails, phone numbers (Indian 10-digit, +91), URLs, @handles; shows inline highlight + "Remove personal details to continue".
+   - Info box: "What gets stored: [exact attribute list]. What never gets stored: your name, email, IP, device."
+   - Wallet choice: **"Post with a fresh wallet (recommended)"** vs "Use connected wallet". (Wallet logic is the teammate's `useWallet()` — §6.)
+   - Expiry note: "Your entry stays for ~18 months. Others can extend it by confirming."
+   - Submit → pending state with step text ("Signing… Writing to Arkiv… Confirming…") → **On-chain receipt** (§4) + "View entry" + "Add another".
+
+### 5.7 Verify `/verify` — "Don't trust us"
+The page that wins the censorship-resistance argument.
+1. **Intro:** "This site is just one window into the data. Close it and the data is still there."
+2. **RPC endpoints:** list with live status (latency, latest block), currently-selected marker, "Use this".
+3. **Query playground:** pick a preset (e.g., "All SDE-2 salaries in Hyderabad", "Nimbus Infotech entries", "Entries expiring this month"), shows the Arkiv query string, "Run" executes it live and shows raw results (mono, collapsible JSON).
+4. **Use the CLI:** copyable install + example commands (teammate supplies exact commands; leave placeholders in a constants file).
+5. **Use any HTTP client:** copyable `curl` JSON-RPC example (teammate supplies the method name/shape).
+6. **Mirrors:** links to every deployment of the frontend (Vercel, IPFS gateway(s)) — placeholders in constants.
+7. **Schema:** rendered summary of entity types + link to `/arkiv/schema.md` on GitHub.
+
+---
+
+## 6. Data contract (frontend ↔ Arkiv layer)
+
+The UI **only** talks to the `DataSource` interface. Two implementations:
+- `lib/data/mock/` — frontend builds this now, backed by the deterministic seed generator (§7). In-memory only.
+- `lib/data/arkiv/` — **teammate builds this.** Same interface, real Arkiv reads/writes.
+
+Selected by `NEXT_PUBLIC_DATA_SOURCE=mock|arkiv` in `lib/data/index.ts`. Production must be `arkiv`.
+
+```ts
+// lib/data/types.ts
+export type Address = `0x${string}`;
+export type EntityKey = `0x${string}`;
+
+export type CompanyId = string;      // slug from catalog, e.g. "nimbus-infotech"
+export type Role = string;           // from catalog
+export type Level = string;          // from catalog
+export type City = string;           // from catalog
+
+export interface SalaryEntry {
+  key: EntityKey;
+  kind: 'salary';
+  company: CompanyId;
+  role: Role;
+  level: Level;
+  city: City;
+  yoe: number;            // years of experience
+  ctc: number;            // annual CTC in INR (integer rupees)
+  baseSalary?: number;    // annual INR
+  createdAt: number;      // ms epoch
+  expiresAt: number;      // ms epoch (derived from Arkiv expiry)
+  owner: Address;
+}
+
+export interface Review {
+  key: EntityKey;
+  kind: 'review';
+  company: CompanyId;
+  wlb: 1 | 2 | 3 | 4 | 5;
+  management: 1 | 2 | 3 | 4 | 5;
+  growth: 1 | 2 | 3 | 4 | 5;
+  culture: 1 | 2 | 3 | 4 | 5;
+  comment?: string;       // ≤ 280 chars, PII-checked
+  createdAt: number;
+  expiresAt: number;
+  owner: Address;
+}
+
+export interface Confirmation {
+  key: EntityKey;
+  entryKey: EntityKey;
+  createdAt: number;
+  owner: Address;
+}
+
+export interface SalaryFilters {
+  companies?: CompanyId[];
+  roles?: Role[];
+  levels?: Level[];
+  cities?: City[];
+  yoeMin?: number; yoeMax?: number;
+  ctcMin?: number; ctcMax?: number;
+  limit?: number;
+}
+
+/** Every read returns the Arkiv query string used, for the "Show query" UI. */
+export interface QueryResult<T> { data: T; query: string; }
+
+export interface WriteReceipt {
+  key: EntityKey;
+  txHash?: `0x${string}`;
+  block?: number;
+  expiresAt: number;
+  owner: Address;
+}
+
+export interface NetworkStatus {
+  rpcUrl: string;
+  chainName: string;    // "Tiramisu"
+  latestBlock: number;
+  latencyMs: number;
+  ok: boolean;
+}
+
+export interface DataSource {
+  // reads
+  searchSalaries(f: SalaryFilters): Promise<QueryResult<SalaryEntry[]>>;
+  getSalary(key: EntityKey): Promise<QueryResult<SalaryEntry | null>>;
+  getReviews(company: CompanyId): Promise<QueryResult<Review[]>>;
+  getConfirmations(entryKey: EntityKey): Promise<QueryResult<Confirmation[]>>;
+  getConfirmationsFor(entryKeys: EntityKey[]): Promise<QueryResult<Confirmation[]>>;
+  getWalletActivity(owner: Address): Promise<QueryResult<{ firstSeenAt: number; entries: SalaryEntry[] }>>;
+  getRecent(limit: number): Promise<QueryResult<SalaryEntry[]>>;
+  getStats(): Promise<{ entries: number; companies: number; confirmations: number; latestBlock: number }>;
+  getNetworkStatus(rpcUrl?: string): Promise<NetworkStatus>;
+  runRawQuery(query: string): Promise<unknown>; // for /verify playground
+
+  // writes (require wallet)
+  createSalary(input: Omit<SalaryEntry, 'key' | 'kind' | 'createdAt' | 'expiresAt' | 'owner'>): Promise<WriteReceipt>;
+  createReview(input: Omit<Review, 'key' | 'kind' | 'createdAt' | 'expiresAt' | 'owner'>): Promise<WriteReceipt>;
+  confirmEntry(entryKey: EntityKey): Promise<WriteReceipt>; // also extends expiry if Arkiv allows
+}
+```
+
+**Wallet hook (teammate provides; frontend mocks until then):**
+```ts
+// lib/wallet/useWallet.ts
+export interface WalletState {
+  address?: Address;
+  status: 'disconnected' | 'connecting' | 'connected' | 'error';
+  isFresh: boolean;                 // true if a newly generated burner wallet
+  connect(): Promise<void>;         // injected wallet (e.g. MetaMask)
+  useFreshWallet(): Promise<void>;  // generate burner, fund via faucet if possible
+  disconnect(): void;
+}
+```
+
+Rules:
+- Components never import from `lib/data/arkiv` or `lib/data/mock` directly — only `getDataSource()` and React Query hooks in `hooks/`.
+- All hooks live in `hooks/` (`useSalaries`, `useSalary`, `useCompany`, `useReviews`, `useConfirmations`, `useTrust`, `useStats`, `useNetworkStatus`, `useRecent`).
+- Writes invalidate the relevant queries.
+- If a contract change is needed, update `lib/data/types.ts` **and** tell the teammate; keep `/arkiv/schema.md` in sync.
+
+---
+
+## 7. Catalog & seed data (synthetic only)
+
+`lib/catalog.ts` — **fictional** values; all dropdowns use these (no free text for company/role/level/city):
+
+- **Companies** (slug, name, industry, HQ):
+  - `nimbus-infotech` Nimbus Infotech — IT services — Hyderabad ← **the fraud story**
+  - `kaveri-systems` Kaveri Systems — Product SaaS — Bengaluru
+  - `godavari-labs` Godavari Labs — AI/ML — Hyderabad
+  - `deccan-cloudworks` Deccan Cloudworks — Cloud infra — Pune
+  - `sahyadri-software` Sahyadri Software — Fintech — Mumbai
+  - `tungabhadra-tech` Tungabhadra Tech — IT services — Chennai
+  - `vindhya-analytics` Vindhya Analytics — Data/analytics — Gurugram
+  - `coromandel-digital` Coromandel Digital — E-commerce — Coimbatore
+- **Roles:** Software Engineer, Frontend Engineer, Backend Engineer, Data Scientist, Data Analyst, QA Engineer, DevOps Engineer, Product Manager, Product Designer.
+- **Levels:** Intern, L1 / SDE-1, L2 / SDE-2, L3 / Senior, L4 / Staff, Lead / Manager.
+- **Cities:** Hyderabad, Bengaluru, Chennai, Pune, Mumbai, Gurugram, Noida, Coimbatore, Kochi, Remote.
+
+`lib/seed/generate.ts` — **deterministic** (seeded PRNG, e.g. mulberry32) so mock data and the teammate's Arkiv seed script produce the same dataset:
+- ~150 salary entries, ~60 reviews, ~120 confirmations, spread over the last ~16 months.
+- Realistic CTC bands per level × company tier (e.g. SDE-1 ₹6–18 L, SDE-2 ₹14–35 L, Senior ₹25–60 L, Staff ₹45–90 L), with noise.
+- **Planted fraud:** 1 wallet posts ~8 Nimbus Infotech entries within 1 hour, each 2.5–3.5× the median, 0 confirmations, plus 5-star reviews → must surface as "Unusual"/"Burst" and trigger the company flag banner.
+- A few entries close to expiry (< 30 days) so the life bar and "Still accurate" demo are visible.
+- ~20 synthetic wallets, deterministic addresses (not real keys).
+
+Export the generator so the teammate's script can import it.
+
+---
+
+## 8. Core logic (pure functions, unit-tested)
+
+### `lib/trust.ts` — trust score (0–100)
+Input: the entry, peer entries (same company + role + level), confirmations for the entry, the owner wallet's activity.
+
+| Component | Rule | Max |
+|---|---|---|
+| Confirmations | distinct confirming wallets, **excluding the owner**: `min(n, 5) × 8` | 40 |
+| Range fit | needs ≥ 3 peers else 15 (neutral). `r = ctc / median(peers)`. `0.67 ≤ r ≤ 1.5` → 30; `0.5 ≤ r ≤ 2` → 15; else 0 and flag **Unusual (r×)** | 30 |
+| Wallet history | wallet first seen ≥ 7 days before this entry → 15; ≥ 1 day → 8; else 0. **Burst:** > 3 entries for the same company within 24h → 0 and flag **Burst** | 15 |
+| Freshness | age from last confirmation (or creation): < 6 mo → 15; < 12 mo → 10; else 5 | 15 |
+
+Bands: **High ≥ 70**, **Medium 40–69**, **Low < 40**. Return `{ score, band, parts: {...}, flags: string[] }`.
+Write tests for: neutral with few peers, outlier flagged, owner self-confirm ignored, burst detection, band boundaries.
+
+> Note for the README / friction log: `createdAt` from attributes is self-reported; prefer chain-derived timestamps if the Arkiv layer can provide them.
+
+### `lib/aggregate.ts`
+`median`, `percentile(p)`, `histogram(values, bins)`, `groupMatrix(entries, 'role', 'level')`. Enforce **k ≥ 3** — return `null` for groups smaller than 3.
+
+### `lib/format.ts`
+`formatINRCompact(n)` → `₹18.5 L` / `₹1.2 Cr`; `formatINR(n)` → `₹18,50,000`; `truncateAddress`; `relativeTime`; `daysUntil`.
+
+### `lib/pii.ts`
+`scanPII(text) → { ok: boolean, matches: { type, start, end }[] }` for emails, Indian phone numbers (10 digits starting 6–9, optional +91/0, spaces/dashes), URLs, `@handles`. Tested.
+
+---
+
+## 9. Project structure
+
+```
+/app
+  layout.tsx            fonts, ThemeProvider, QueryProvider, Nav, MobileTabBar, Toaster, DemoBanner
+  page.tsx              landing
+  salaries/page.tsx
+  companies/page.tsx
+  company/page.tsx
+  entry/page.tsx
+  submit/page.tsx
+  verify/page.tsx
+  not-found.tsx
+  globals.css           tokens + base styles
+/components
+  ui/                   shadcn generated
+  layout/               Nav, MobileTabBar, Footer, StatusPill, RpcSwitcher, DemoBanner, ThemeToggle, CommandMenu
+  salary/               SalaryTable, SalaryCard, Filters, FilterDrawer, AggregatePanel, Histogram, RangeBar, QueryReveal
+  trust/                TrustBadge, TrustBreakdown, TrustRing
+  entry/                LifeBar, ConfirmButton, OnChainPanel, Receipt
+  company/              CompanyCard, CompanyHeader, SalaryMatrix, RatingBars, ReviewCard, FlagBanner, Monogram
+  submit/               Stepper, TypeStep, SalaryForm, ReviewForm, PrivacyStep, WalletChoice
+  landing/              Hero, LiveStats, LiveFeed, HowItWorks, TakedownDiagram
+  common/               CopyButton, Mono, EmptyState, ErrorState, Skeletons, CountUp
+/hooks                  React Query hooks (§6)
+/lib
+  data/types.ts, data/index.ts, data/mock/*, data/arkiv/* (teammate)
+  wallet/*              (teammate; frontend stub until ready)
+  catalog.ts, trust.ts, aggregate.ts, format.ts, pii.ts, constants.ts (RPCs, mirrors, CLI snippets)
+  seed/generate.ts
+/arkiv
+  schema.md             (teammate owns)
+  friction.md           (both append)
+/cli                    (teammate)
+/tests                  vitest
+LICENSE                 MIT
+README.md
+```
+
+---
+
+## 10. Build order (execute in this sequence)
+
+Commit after each step. Each step must leave the app runnable.
+
+1. **Scaffold:** Next.js + TS strict + Tailwind v4 + shadcn init, `output: 'export'`, fonts, tokens, ThemeProvider, QueryProvider, MIT LICENSE, README skeleton, `/arkiv/schema.md` + `/arkiv/friction.md` stubs. Deploy to Vercel immediately.
+2. **Contract + catalog + seed + mock source:** `types.ts`, `catalog.ts`, `seed/generate.ts`, mock `DataSource` (simulate 150–400ms latency and occasional writes). Demo banner.
+3. **Pure logic + tests:** `format`, `aggregate`, `trust`, `pii` with vitest passing.
+4. **Layout shell:** Nav, MobileTabBar, StatusPill (mock network status), Footer, CommandMenu.
+5. **Salaries page** end-to-end (filters ↔ URL, aggregates, histogram, table/cards, trust badges, show-query). This is the most important page.
+6. **Entry page** (trust breakdown, life bar, confirm, on-chain panel).
+7. **Submit flow** (forms, PII check, wallet stub, receipt).
+8. **Company + Companies pages** (matrix, ratings, flag banner for Nimbus).
+9. **Landing page** (hero, live stats, live feed, how-it-works, takedown diagram).
+10. **Verify page** (RPC list, query playground, CLI/curl snippets, mirrors).
+11. **Integrate Arkiv:** switch `NEXT_PUBLIC_DATA_SOURCE=arkiv`, fix mismatches, log friction.
+12. **Polish pass:** responsive audit at all breakpoints, empty/loading/error states everywhere, a11y, Lighthouse, copy review.
+13. **Docs:** README complete (live URL, setup, env vars, wallet addresses, video link, pre-existing work disclosure if any).
+
+If time is short, cut in this order (last first): Verify playground "Run" → command palette → companies list sorting → histogram. **Never cut:** salaries search, trust badge, life bar + confirm, receipt, show-query, Verify page basics, responsive.
+
+---
+
+## 11. Quality bar — "what impresses a judge"
+
+- [ ] Opens fast on mobile; looks intentional at 360px.
+- [ ] Within 10 seconds a judge sees: live block number, real Arkiv-backed numbers, a trust badge, a life bar.
+- [ ] Every number traces back to a visible query ("Show query").
+- [ ] Fraud story works: Nimbus shows the flag banner; planted entries are hidden under "Medium+".
+- [ ] Submitting produces an on-chain receipt with a working explorer link.
+- [ ] Switching RPC works and is visible.
+- [ ] No console errors; no layout shift on load; all images/icons have labels.
+- [ ] Lighthouse (mobile): Performance ≥ 85, Accessibility ≥ 95, Best Practices ≥ 95.
+- [ ] Keyboard: everything reachable; visible focus ring (accent color, 2px offset).
+- [ ] Every async view has skeleton, empty and error states.
+- [ ] Dark and light both look designed, not inverted.
+
+## 12. Do NOT build
+
+User accounts, login, LinkedIn/Google sign-in, email collection, comments/threads, upvotes, notifications, tokens/rewards, admin panel, any server or database, analytics that collect personal data, real company logos.
+
+---
+
+## 13. README must include
+
+- One-line pitch + screenshot/GIF.
+- Live URL(s) + demo video link (≤ 3 min).
+- **Why Arkiv** — what breaks on Postgres / IPFS / subgraph / own API; what we kept off Arkiv on purpose (aggregates computed client-side, no identities, no emails, no exact team names, frontend assets).
+- Setup: `pnpm i`, `.env.local` vars (`NEXT_PUBLIC_DATA_SOURCE`, `NEXT_PUBLIC_ARKIV_RPC_URL`, etc. — never real keys in the repo), `pnpm dev`, `pnpm test`, `pnpm build`.
+- Wallet addresses that created entities on Tiramisu.
+- Links to `/arkiv/schema.md` and `/arkiv/friction.md`.
+- Pre-existing work disclosure with baseline commit SHA (or "none").
+- Roadmap: zkEmail-based "verified employee of domain" without revealing identity; IPFS-pinned frontend mirrors.
+- License: MIT.
