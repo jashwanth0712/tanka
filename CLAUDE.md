@@ -1,7 +1,7 @@
 # CLAUDE.md — Tankha
 
 > **Tankha** (Hindi/Urdu slang for "salary") — *Salaries no one can delete.*
-> An anonymous, censorship-resistant salary and workplace-review app. All data lives on **Arkiv** (Tiramisu testnet). No company, legal notice or server shutdown can remove it, and anyone can query it.
+> An anonymous, censorship-resistant, **Reddit-style** community for salaries and workplace reviews: a ranked feed, one community per company (`c/nimbus-infotech`), up/down votes and threaded comments. All data — posts, votes, comments, confirmations — lives on **Arkiv** (Tiramisu testnet). No company, legal notice or server shutdown can remove it, and anyone can query it.
 
 This file is the single source of truth for building the **frontend and app logic**. The **Arkiv / web3 layer is owned by a teammate** and plugs in through the data contract in §6. Build against the mock data source first; never block on the web3 layer.
 
@@ -35,6 +35,7 @@ These come from the judging gates. Breaking any of them can disqualify the entry
 | People fear being identified | No sign-in, no email, no LinkedIn. Optional fresh wallet per post | Submit flow, "Post with a fresh wallet" option |
 | Fake reviews | **Trust score** computed only from Arkiv data | Trust badge on every entry, breakdown on entry page, "High trust only" filter |
 | Stale salaries mislead | Entries **expire (~18 months)** unless confirmed "Still accurate" | Life bar + countdown on every entry, confirm button |
+| Salary data alone is dry | **Social layer:** Hot/New/Top feed, company communities, up/down votes, threaded anonymous comments | Home feed, `c/<company>` pages, post pages with threads |
 
 **Judges must be able to feel all five rows within 2 minutes of opening the site.**
 
@@ -68,18 +69,19 @@ Use latest stable versions. Do not add libraries beyond this list without a clea
 ## 3. Information architecture
 
 ```
-/                 Landing — hero, live stats, search, live feed, "why it can't be deleted"
-/salaries         Search + filters + aggregates + results (the core page)
-/companies        Grid of all companies with headline numbers
-/company?name=    Company profile — salary bands by role/level, ratings, entries, reviews
-/entry?key=       Single entry — trust breakdown, expiry life bar, confirmations, raw entity
-/submit           Multi-step: Salary or Review → details → privacy check → sign → receipt
-/verify           "Don't trust us" — RPC endpoints, copyable queries, CLI + curl, mirrors
+/                 Home feed — Hot/New/Top, trust filter, left rail (communities), right rail (about, live stats, house rules)
+/salaries         Search + filters + aggregates + results (structured salary search)
+/companies        Communities directory — one per company, with headline numbers
+/company?name=    Community c/<slug> — banner, flag banner, tabs: Posts (feed) · Salary bands · Ratings
+/post?key=        Post page — full post, "Still accurate" + life bar (salaries), trust breakdown, threaded comments, raw entity
+/entry?key=       Alias of /post (old links keep working)
+/submit           "Create a post": Salary or Review → details → privacy check → sign → receipt
+/verify           "Don't trust us" — takedown diagram, RPC endpoints, query playground, CLI + curl, mirrors, schema
 ```
 
 Global UI:
-- **Top nav (desktop):** logo, Salaries, Companies, Verify, ⌘K search, Arkiv status pill, theme toggle, primary CTA "Add salary".
-- **Bottom tab bar (mobile ≤ 768px):** Home, Salaries, Add (raised center button), Companies, Verify.
+- **Top nav (desktop):** logo, Salaries, Communities, Verify, ⌘K search, Arkiv status pill, theme toggle, primary CTA "Create", **identity chip** (the tab's anonymous wallet; "Start a new identity").
+- **Bottom tab bar (mobile ≤ 768px):** Home, Salaries, Post (raised center button), Communities, Verify. Theme toggle lives in the identity popover below 640px.
 - **Arkiv status pill:** pulsing dot + "Tiramisu · block #1,234,567" updating every ~5s. Click → popover with RPC in use and "Switch RPC". Red + "RPC unreachable — switch endpoint" when down.
 - **Settings popover (from status pill):** list of RPC endpoints + custom RPC input (stored in localStorage, wrapped in try/catch). This is a *censorship-resistance feature*: if one endpoint is blocked, users switch.
 - **Demo-data banner:** if `NEXT_PUBLIC_DATA_SOURCE=mock`, show a slim amber banner "Demo data — not reading from Arkiv". Never ship production with mock.
@@ -89,12 +91,11 @@ Global UI:
 ## 4. Design system — "Ledger at night"
 
 ### Direction
-Editorial confidence + on-chain precision. Feels like a financial terminal designed by a magazine: big, bold type for numbers, monospace for anything on-chain, generous whitespace, one warm accent (marigold — a nod to India) against deep ink. **Not** the generic purple-gradient web3 look. No glassmorphism soup, no neon everywhere, no stock 3D blobs.
+A friendly social feed with on-chain precision. Reads like a modern community app (Reddit-style cards, vote pills, threads) with big bold salary numbers, monospace only for on-chain data, and one warm accent (marigold — a nod to India) against deep ink. **Not** the generic purple-gradient web3 look, and **not** a clone of Reddit's branding (no Reddit logo, colours or typeface).
 
 ### Typography (Google Fonts via `next/font`)
-- **Display:** `Bricolage Grotesque` (600–800) — headlines and big numbers.
-- **Body/UI:** `Inter` (400–600).
-- **Mono:** `JetBrains Mono` — entity keys, tx hashes, block numbers, queries, wallet addresses.
+- **One sans for everything:** `Plus Jakarta Sans` (400–800) — UI, feed text, headlines and big numbers. (Social apps use a single friendly sans; the old Bricolage/Inter pairing read like a finance terminal.)
+- **Mono:** `JetBrains Mono` — **only** on-chain data: entity keys, tx hashes, block numbers, queries, raw attributes. Wallet handles in the feed use the sans. Never use mono for UI labels.
 - All numbers use `font-variant-numeric: tabular-nums`.
 - Scale: 12 / 14 / 16 / 18 / 24 / 32 / 48 / 72 (hero, desktop) / 44 (hero, mobile).
 
@@ -132,6 +133,8 @@ Contrast must meet **WCAG AA**. Never rely on color alone — trust badges alway
 4. **"Show query" toggle** — on every result set, reveals the exact Arkiv query in a mono code block with copy button. Proves no hidden backend.
 5. **Live pulse** — status pill dot and the landing feed tick in real time.
 6. **Big salary numbers** in display font: `₹18.5 L` with p25–p75 range bar beneath.
+7. **Vote pill** — ▲ score ▼ on every post and comment; optimistic (instant), marigold for up, chain-blue for down. Clicking your vote again clears it.
+8. **Anonymous handles** — `0x12ab…9f3c` with a deterministic two-tone avatar; `OP` badge on the poster's own comments.
 
 ### Motion
 - Durations 150–250ms for UI, 400–600ms for hero/receipt. Ease: `[0.22, 1, 0.36, 1]`.
@@ -156,7 +159,16 @@ Contrast must meet **WCAG AA**. Never rely on color alone — trust badges alway
 
 ## 5. Pages — detailed specs
 
-### 5.1 Landing `/`
+### 5.0 Home feed `/` (replaces the old landing page)
+- Center: "Create post" bar, sort tabs **Hot / New / Top** (URL `?sort=`), trust select **Medium+ (default) / All / High only** (URL `?trust=`), "N low-trust posts hidden · show them", post cards, "Load more", "Show query".
+- Post card: community + handle + time + kind tag (Salary/Review) → title → body (salary: big CTC, chips, trust badge, mini life bar; review: 4 rating chips + comment) → footer: vote pill, comment count, "Still accurate" (salaries), Share (copy link).
+- Order is **stable while voting** (no reshuffle under the cursor); recomputed on sort/filter change.
+- Left rail ≥ 1024px: Home, Salary search, Verify, communities list. Below that: horizontal community chips.
+- Right rail ≥ 1280px: About card (pitch, live posts/comments/confirmations/block, Create, Verify) + House rules. Below that: a dismissible intro card at the top of the feed.
+- **Authors always see their own new posts** in that tab (badge "Your post · visible to you"): a fresh-wallet post usually starts below Medium trust.
+- Hot = `sign(score)·log10(max(|score|,1)) + createdAt/45 000 000` (12.5 h per order of magnitude). Votes rank posts; **votes never affect trust**.
+
+### 5.1 (old) Landing — superseded by 5.0. The takedown diagram moved to `/verify`.
 1. **Hero:** headline "Salaries no one can delete." Sub: "Anonymous salaries and workplace reviews, stored on Arkiv. No company can take them down. Anyone can query them." Big search input (company/role, opens ⌘K-style results) + CTA "Add your salary" + secondary "Verify it yourself →".
 2. **Live stats strip** (count-up, from Arkiv): total entries, companies, confirmations, latest block. Each with a tiny "live" dot.
 3. **Live feed:** last 8 entries as compact cards sliding in (refetch every 10s): company, role/level, city, ₹CTC, trust badge, "2 min ago".
@@ -179,12 +191,20 @@ Contrast must meet **WCAG AA**. Never rely on color alone — trust badges alway
 - Search box + sort (most entries / highest median / best rated).
 - Cards: monogram avatar (generated from initials + deterministic hue — no logos), name, industry, HQ city, entries count, median CTC, avg rating stars, % high-trust.
 
-### 5.4 Company `/company?name=`
+### 5.4 Community `/company?name=` (c/<slug>)
+- Hued banner + community icon, `c/<slug>`, company · industry · HQ, "Create post". Stats (posts, median CTC, rating, % high-trust) in a right rail on desktop, a grid on mobile.
+- Flag banner as before; "Show them" sets `?trust=all` for the community feed.
+- Tabs: **Posts** (the feed scoped to this company) · **Salary bands** (matrix) · **Ratings** (rating bars).
+
+Original company-profile spec, still applicable to the tabs:
 - Header: monogram, name, industry, city, stats row (entries, median CTC, avg rating, % high-trust).
 - **Flag banner** if > 30% of this company's entries are "Unusual" or "Burst": amber card "We detected a burst of low-trust entries for this company. They're hidden by default." + toggle to show. (This powers the Nimbus fraud demo — see §7.)
 - Tabs: **Salaries** (bands by role × level as a matrix: median + count per cell; tap cell → filtered `/salaries`) · **Reviews** (rating bars for WLB, Management, Growth, Culture; review cards with short comment) · **Entries** (raw list).
 
-### 5.5 Entry `/entry?key=`
+### 5.5 Post `/post?key=` (`/entry?key=` is an alias)
+- Full post card, then for salaries the "Is this still accurate?" card (life bar + confirm), then **comments**: composer (≤ 500 chars, live PII scanner, blocks submit), thread sorted Top/New, collapsible branches, inline Reply, per-comment vote pill, OP badge, comments from burst-flagged wallets hidden. Right rail: community card + trust breakdown (salaries).
+
+Original entry spec, still applicable:
 - Big CTC, role/level/city/YoE, company link.
 - **Trust card:** score ring + 4-row breakdown (confirmations, range fit, wallet history, freshness) with points each, plus flags ("Unusual: 2.8× median", "Burst: 6 posts in 1h from this wallet").
 - **Life bar** full size: created date, expiry date, days left.
@@ -320,6 +340,24 @@ export interface DataSource {
 }
 ```
 
+**Social additions (implemented in `lib/data/types.ts`, the source of truth):**
+```ts
+export type Post = SalaryEntry | Review;
+export type VoteDir = 'up' | 'down' | 'none';          // latest vote per (wallet, target) wins
+export interface Vote { key; kind: 'vote'; targetKey: EntityKey; dir: VoteDir; createdAt; expiresAt; owner }
+export interface Comment { key; kind: 'comment'; postKey: EntityKey; parentKey?: EntityKey; body: string /* ≤ 500, PII-checked */; createdAt; expiresAt; owner }
+
+// DataSource gains:
+getPost(key): Promise<QueryResult<Post | null>>;
+getReviews(company?: CompanyId)                         // omit company → all reviews (feed)
+getComments(postKey?: EntityKey): Promise<QueryResult<Comment[]>>;   // omit → all (feed counts)
+getVotes(targetKeys?: EntityKey[]): Promise<QueryResult<Vote[]>>;    // omit → all
+createComment(input: { postKey; parentKey?; body }): Promise<WriteReceipt>;
+castVote(targetKey: EntityKey, dir: VoteDir): Promise<WriteReceipt>;
+// Stats gains `comments`.
+```
+Vote direction is a **string** attribute (`dir`) because Arkiv numeric attributes are unsigned.
+
 **Wallet hook (teammate provides; frontend mocks until then):**
 ```ts
 // lib/wallet/useWallet.ts
@@ -335,7 +373,8 @@ export interface WalletState {
 
 Rules:
 - Components never import from `lib/data/arkiv` or `lib/data/mock` directly — only `getDataSource()` and React Query hooks in `hooks/`.
-- All hooks live in `hooks/` (`useSalaries`, `useSalary`, `useCompany`, `useReviews`, `useConfirmations`, `useTrust`, `useStats`, `useNetworkStatus`, `useRecent`).
+- All hooks live in `hooks/` (`useSalaries`, `useSalary`, `useCompany`, `useReviews`, `useConfirmations`, `useTrust`, `useStats`, `useNetworkStatus`, `useRecent`; social: `useFeed`, `usePost`, `useComments`, `useAllVotes`, `useTallies`, `useCastVote` (optimistic), `useCreateComment` in `hooks/social.ts`).
+- Voting/commenting/confirming without a wallet silently creates a per-tab fresh wallet ("anonymous identity"). Posting with a fresh wallet drops it afterwards so the next action gets a new one.
 - Writes invalidate the relevant queries.
 - If a contract change is needed, update `lib/data/types.ts` **and** tell the teammate; keep `/arkiv/schema.md` in sync.
 
@@ -364,6 +403,7 @@ Rules:
 - **Planted fraud:** 1 wallet posts ~8 Nimbus Infotech entries within 1 hour, each 2.5–3.5× the median, 0 confirmations, plus 5-star reviews → must surface as "Unusual"/"Burst" and trigger the company flag banner.
 - A few entries close to expiry (< 30 days) so the life bar and "Still accurate" demo are visible.
 - ~20 synthetic wallets, deterministic addresses (not real keys).
+- **Social layer** (generated last so it never changes the data above): ~240 comments (threads + replies, concentrated on recent posts, all PII-free), ~900 votes (≈86% up on legit posts). The Nimbus burst gets 4–7 downvotes per post, self-upvotes from the fraud wallet, and comments calling it out.
 
 Export the generator so the teammate's script can import it.
 
@@ -391,6 +431,9 @@ Write tests for: neutral with few peers, outlier flagged, owner self-confirm ign
 
 ### `lib/format.ts`
 `formatINRCompact(n)` → `₹18.5 L` / `₹1.2 Cr`; `formatINR(n)` → `₹18,50,000`; `truncateAddress`; `relativeTime`; `daysUntil`.
+
+### `lib/social.ts`
+`tallyVotes(votes, viewer?)` (latest per wallet, `none` clears, case-insensitive), `hotScore`, `sortPosts(posts, 'hot'|'new'|'top', tallies)`, `buildCommentTree(comments, 'top'|'new', tallies)` (orphans lift to top level), `commentCounts`. Tested in `tests/social.test.ts`.
 
 ### `lib/pii.ts`
 `scanPII(text) → { ok: boolean, matches: { type, start, end }[] }` for emails, Indian phone numbers (10 digits starting 6–9, optional +91/0, spaces/dashes), URLs, `@handles`. Tested.
@@ -476,7 +519,9 @@ If time is short, cut in this order (last first): Verify playground "Run" → co
 
 ## 12. Do NOT build
 
-User accounts, login, LinkedIn/Google sign-in, email collection, comments/threads, upvotes, notifications, tokens/rewards, admin panel, any server or database, analytics that collect personal data, real company logos.
+User accounts, login, LinkedIn/Google sign-in, email collection, notifications, DMs, user profiles/karma pages, tokens/rewards, admin panel, any server or database, analytics that collect personal data, real company logos, Reddit's logo/colours/typeface.
+
+*(Changed 2026-10-17: comments/threads and upvotes are now **in scope** — the product is a Reddit-style community. They're Arkiv entities like everything else, anonymous, PII-checked, and never affect trust scores.)*
 
 ---
 

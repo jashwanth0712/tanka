@@ -2,6 +2,13 @@
 
 Dated log of real problems hit while building on Arkiv. Both frontend and Arkiv-layer entries go here. Newest first.
 
+## 2026-10-17 — frontend (social layer)
+
+- **New posts start "Unusual".** Under the spec'd trust formula, a fresh-wallet post with no peer group scores 15 (neutral range) + 0 (wallet age) + 15 (fresh) = 30, below the Medium threshold. So honest new posts are hidden by the default feed filter until someone confirms them. Mitigation shipped: authors always see their own posts in that tab ("Your post · visible to you"). A better fix would be a "New" grace band, or not scoring wallet age for wallets with no history at all. That needs a decision on the formula.
+- **Votes are sybil-cheap.** Any tab can mint a fresh wallet and vote. We kept votes out of the trust score entirely for that reason, so they only affect ranking. A real deployment would weight votes by wallet history, or cap per-wallet influence.
+- **Votes are append-only entities.** Every vote change is a new entity, and the latest one per (wallet, target) wins. That's simple and needs no updates or deletes, but the vote set only grows (until expiry). A per-(wallet, target) upsert would be nicer if Arkiv supports owner updates cheaply.
+- **Feed = load everything.** The feed pulls every salary, review, comment and vote, then ranks client-side so anyone can reproduce the order. Fine at hackathon scale (hundreds of entities). It needs pagination or a time window beyond a few thousand.
+
 ## 2026-10-17 — frontend
 
 - **Self-reported timestamps.** `createdAt` is an attribute the poster writes, so it can be backdated or forward-dated. Trust scoring (wallet age, burst detection, freshness) leans on it. We'd prefer a chain-derived creation time (block of creation) exposed on read; until then it's a known weakness.

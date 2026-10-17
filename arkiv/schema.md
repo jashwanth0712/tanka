@@ -42,6 +42,26 @@ Payload: JSON `{ "comment": "…" }` (optional, ≤ 280 chars, PII-checked clien
 
 Payload: none. Expiry: ~18 months. Writing a confirmation also extends the target salary to `max(current expiry, now + 18 months)` — **TODO(arkiv): confirm a non-owner can extend.**
 
+### `comment`
+| Attribute | Kind | Example |
+|---|---|---|
+| project, type, v | | `"tankha"`, `"comment"`, `1` |
+| postKey | string | `"0xabc…"` (lower-case key of the salary/review post) |
+| parentKey | string (optional) | `"0xdef…"` (lower-case key of the parent comment; absent for top-level) |
+| createdAt | numeric | ms epoch |
+
+Payload: JSON `{ "body": "…" }` (≤ 500 chars, PII-checked). Expiry: ~18 months.
+
+### `vote`
+| Attribute | Kind | Example |
+|---|---|---|
+| project, type, v | | `"tankha"`, `"vote"`, `1` |
+| targetKey | string | `"0xabc…"` (a post or a comment) |
+| dir | string | `"up"` / `"down"` / `"none"` (clears) |
+| createdAt | numeric | ms epoch |
+
+Append-only: clients take the latest vote per (owner, targetKey). `dir` is a string because numeric attributes are unsigned. Votes rank the feed. **They never feed the trust score.**
+
 ## Query examples
 
 ```
@@ -49,6 +69,8 @@ project = "tankha" && type = "salary" && level = "sde-2" && city = "hyderabad"
 project = "tankha" && type = "salary" && (company = "a" || company = "b") && ctc >= 2000000
 project = "tankha" && type = "review" && company = "kaveri-systems"
 project = "tankha" && type = "confirmation" && entryKey = "0x…"
+project = "tankha" && type = "comment" && postKey = "0x…"
+project = "tankha" && type = "vote"
 project = "tankha" && $owner = 0x…
 $key = 0x…
 ```

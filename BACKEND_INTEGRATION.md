@@ -67,6 +67,10 @@ import { salaryToEntity, reviewToEntity, confirmationToEntity,
 | `salary` | project, type, company, role, level, city | v, yoe, ctc, base?, createdAt | — | `ENTRY_TTL_MS` (~18 mo) |
 | `review` | project, type, company | v, wlb, management, growth, culture, createdAt | `{ comment? }` JSON | `ENTRY_TTL_MS` |
 | `confirmation` | project, type, entryKey | v, createdAt | — | `CONFIRMATION_TTL_MS` |
+| `comment` | project, type, postKey, parentKey? | v, createdAt | `{ body }` JSON (≤ 500 chars) | `ENTRY_TTL_MS` |
+| `vote` | project, type, targetKey, **dir** (`up`/`down`/`none`) | v, createdAt | — | `ENTRY_TTL_MS` |
+
+The app is a **Reddit-style community**: the home page is a feed of salary + review posts ranked by votes, each company is a community (`c/<slug>`), and posts have threaded comments. Votes and comments are ordinary Arkiv entities. `dir` is a string because Arkiv numeric annotations are unsigned. Votes are append-only: the client takes the **latest vote per (wallet, target)**, and `none` clears it. You never need to update or delete a vote entity.
 
 - Catalog values are **slugs** (`nimbus-infotech`, `software-engineer`, `sde-2`, `hyderabad`) — see `lib/catalog.ts`.
 - `entryKey` is stored **lower-cased**.
@@ -82,7 +86,10 @@ The UI shows the query you return in `QueryResult.query`. **Use the builders in 
 |---|---|---|
 | `searchSalaries(f)` | `salariesQuery(f)` | Return newest first. `f.limit` optional. Trust filtering and sorting happen client-side — don't do them here. Called with `{}` to load **all** live salaries (the trust index needs them; ~hundreds of entities is fine). |
 | `getSalary(key)` | `entityQuery(key)` | Fetch by key. Return `data: null` if missing/expired — the page shows "Not found — or expired". |
-| `getReviews(company)` | `reviewsQuery(company)` | Parse `payload.comment`. Newest first. |
+| `getPost(key)` | `entityQuery(key)` | Salary **or** review by key (post page). Map by the `type` attribute. `null` if missing/expired. |
+| `getReviews(company?)` | `reviewsQuery(company)` | Parse `payload.comment`. Newest first. **No `company` → every review** (the feed loads them all). |
+| `getComments(postKey?)` | `commentsQuery(postKey)` | `entityToComment` (body is in the payload). No `postKey` → every comment (feed comment counts). Order doesn't matter; the client builds the tree. |
+| `getVotes(targetKeys?)` | `votesQuery(targetKeys)` | `entityToVote`. No keys, or more than 20 → the builder returns "all votes"; filter client-side to `targetKeys` if given. Polled every ~20s. |
 | `getConfirmations(entryKey)` | `confirmationsQuery(entryKey)` | Newest first. |
 | `getConfirmationsFor(keys)` | `confirmationsForQuery(keys)` | Above `CONFIRMATIONS_OR_LIMIT` (20) keys the builder returns "all confirmations" — fetch that and **filter client-side** to `keys`. |
 | `getWalletActivity(owner)` | `walletQuery(owner)` | `firstSeenAt` = earliest `createdAt` across that owner's salaries **and** confirmations. |
@@ -105,6 +112,10 @@ const { address, signer } = requireSigner(); // throws "Connect a wallet…" if 
 | `createSalary(input)` | `salaryToEntity(input, Date.now())`, expiry `ENTRY_TTL_MS` | `{ key, txHash, block, expiresAt, owner }` |
 | `createReview(input)` | `reviewToEntity(input, Date.now())` (comment goes in payload) | same |
 | `confirmEntry(entryKey)` | `confirmationToEntity(entryKey, Date.now())` **and** extend the target entry so `expiresAt = max(current, now + CONFIRM_EXTENDS_TO_MS)` | `expiresAt` = the **entry's** new expiry (the life bar animates to it) |
+| `createComment({ postKey, parentKey?, body })` | `commentToEntity(input, Date.now())`; reject empty, > 500 chars, PII (`scanPII`), or a missing post | standard receipt |
+| `castVote(targetKey, dir)` | `voteToEntity(targetKey, dir, Date.now())` — always a **new** entity | standard receipt. The UI is optimistic, so keep this fast; don't wait for extra confirmations if Arkiv lets you return early. |
+
+Voting, commenting and confirming call `ensureIdentity()` first, which calls `useFreshWallet()` if no signer exists. That makes **burner creation + funding the hot path for every first interaction**, so it has to be fast and must not pop a wallet UI.
 
 Validation rules the mock enforces and you should too (they surface as toasts, so make the messages human):
 - `confirmEntry`: reject when signer == entry owner → `"You can't confirm your own entry."`; reject duplicate confirmation from the same wallet; reject missing/expired entry.
@@ -153,6 +164,7 @@ import { generateSeed } from "../lib/seed/generate";
 const seed = generateSeed({ now: Date.now() }); // { wallets, fraudWallet, salaries, reviews, confirmations }
 ```
 
+- The seed also returns `comments` and `votes`. Post them after the posts they reference, mapping `postKey` / `parentKey` / `targetKey` from seed keys to real keys. Parents must be written before their replies.
 - 20 synthetic wallets + 1 fraud wallet. The addresses in the seed are **fake** — generate one real keypair per seed wallet in your script (keys in `.env.local` or a gitignored file only) and map seed address → real account. Write the real addresses into `README.md`.
 - Post entries with their seed `createdAt` (backdated) and an expiry of `expiresAt - now`.
 - The fraud wallet must post its 8 Nimbus entries **within one hour** of each other and its 4 five-star reviews right after. Don't add confirmations to them.
@@ -186,6 +198,7 @@ Search for `TODO(arkiv)`:
 - [ ] Submit salary → receipt with real key, tx hash, block, working explorer link.
 - [ ] "Still accurate" on someone else's entry → confirmation written, life bar refills, trust score rises.
 - [ ] `/verify` playground "Run" returns raw entities from the chain.
+- [ ] Upvote on the feed → vote entity written, score sticks after refresh. Comment + reply on a post → both appear in the thread after refetch.
 - [ ] Nimbus fraud story reproduces on chain (§5).
 - [ ] `pnpm test` and `pnpm build` green. `arkiv/schema.md` final. Friction logged with dates.
 - [ ] No private keys anywhere in the repo, logs, attributes or payloads.

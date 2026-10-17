@@ -1,6 +1,6 @@
 # Tankha — salaries no one can delete
 
-> *Tankha* (Hindi/Urdu slang for "salary"). Anonymous salaries and workplace reviews, stored on **Arkiv**. No company can take them down. Anyone can query them.
+> *Tankha* (Hindi/Urdu slang for "salary"). A Reddit-style anonymous community for salaries and workplace reviews: a ranked feed, one community per company, votes and threaded comments. Every post, vote and comment is stored on **Arkiv**, so no company can take it down, and anyone can query it.
 
 **Live:** _TODO — Vercel URL_ · **IPFS mirror:** _TODO_ · **Demo video (≤ 3 min):** _TODO_
 
