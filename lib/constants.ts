@@ -1,6 +1,5 @@
 // App-wide constants. Values marked TODO(arkiv) are placeholders the Arkiv-layer owner must confirm.
 
-export const APP_NAME = "Tankha";
 export const PROJECT_TAG = "tankha"; // `project` attribute namespacing every entity on the shared testnet
 export const SCHEMA_VERSION = 1;
 
@@ -62,7 +61,16 @@ export const explorerAddressUrl = (addr: string) => `${EXPLORER_URL}/address/${a
 export const REPO_URL = "https://github.com/your-org/tankha";
 export const SCHEMA_URL = `${REPO_URL}/blob/main/arkiv/schema.md`;
 export const FRICTION_URL = `${REPO_URL}/blob/main/arkiv/friction.md`;
-export const DEMO_VIDEO_URL = "#"; // TODO: demo video link (≤ 3 min)
+export const DEMO_VIDEO_URL = ""; // TODO: demo video link (≤ 3 min)
+
+/** Footer / Verify links are only rendered once they point somewhere real. */
+export const REPO_IS_SET = !REPO_URL.includes("your-org");
+export const FOOTER_LINKS = [
+  { href: REPO_URL, label: "GitHub", show: REPO_IS_SET },
+  { href: SCHEMA_URL, label: "schema.md", show: REPO_IS_SET },
+  { href: FRICTION_URL, label: "friction.md", show: REPO_IS_SET },
+  { href: DEMO_VIDEO_URL, label: "Demo video", show: DEMO_VIDEO_URL !== "" },
+].filter((l) => l.show);
 
 /**
  * Frontend mirrors. Only `live: true` entries are shown on /verify — never show a judge a dead link.

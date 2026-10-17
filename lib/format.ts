@@ -65,7 +65,3 @@ export function formatDateTime(ts: number): string {
 export function formatYears(n: number): string {
   return `${n} ${n === 1 ? "yr" : "yrs"}`;
 }
-
-export function formatNumber(n: number): string {
-  return inr.format(n);
-}

@@ -1,7 +1,7 @@
 // Pure social logic: vote tallies, ranking, comment trees. Everything computed client-side from
 // Arkiv entities, so any client can reproduce the same feed order.
 
-import type { Address, Comment, EntityKey, Post, Vote, VoteDir } from "./data/types";
+import type { Address, Comment, EntityKey, Vote, VoteDir } from "./data/types";
 
 export interface Tally {
   score: number;
@@ -104,8 +104,6 @@ export function commentCounts(comments: Comment[]): Map<string, number> {
   for (const c of comments) m.set(c.postKey.toLowerCase(), (m.get(c.postKey.toLowerCase()) ?? 0) + 1);
   return m;
 }
-
-export const isSalary = (p: Post): p is Extract<Post, { kind: "salary" }> => p.kind === "salary";
 
 export function compactScore(n: number): string {
   const abs = Math.abs(n);

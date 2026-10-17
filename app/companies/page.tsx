@@ -7,37 +7,44 @@ import { CompanyCard } from "@/components/company";
 import { Segmented } from "@/components/ui/multi-select";
 import { Card, Input, Skeleton } from "@/components/ui/primitives";
 import { useAllReviews, useTrustIndex } from "@/hooks/queries";
+import { useAllDiscussions } from "@/hooks/social";
 import { COMPANIES } from "@/lib/catalog";
 import { companyStats } from "@/lib/companyStats";
 
-type Sort = "entries" | "median" | "rating";
+type Sort = "active" | "median" | "rating";
 const SORTS: { value: Sort; label: string }[] = [
-  { value: "entries", label: "Most entries" },
+  { value: "active", label: "Most active" },
   { value: "median", label: "Highest median" },
   { value: "rating", label: "Best rated" },
 ];
 
 export default function CompaniesPage() {
   const [q, setQ] = React.useState("");
-  const [sort, setSort] = React.useState<Sort>("entries");
+  const [sort, setSort] = React.useState<Sort>("active");
   const trust = useTrustIndex();
   const reviews = useAllReviews();
+  const threads = useAllDiscussions();
+  const threadCount = React.useMemo(() => {
+    const m = new Map<string, number>();
+    for (const d of threads.data?.data ?? []) m.set(d.company, (m.get(d.company) ?? 0) + 1);
+    return m;
+  }, [threads.data]);
 
   const rows = React.useMemo(() => {
     const needle = q.trim().toLowerCase();
     return COMPANIES.filter((c) => !needle || `${c.label} ${c.industry} ${c.hq}`.toLowerCase().includes(needle))
-      .map((c) => ({ company: c, stats: trust.all ? companyStats(c.id, trust.all, trust.index, reviews.byCompany.get(c.id)) : undefined }))
+      .map((c) => ({ company: c, threads: threadCount.get(c.id) ?? 0, stats: trust.all ? companyStats(c.id, trust.all, trust.index, reviews.byCompany.get(c.id)) : undefined }))
       .sort((a, b) => {
         const s = (x: typeof a) =>
-          sort === "entries" ? (x.stats?.entries ?? 0) : sort === "median" ? (x.stats?.medianCtc ?? 0) : (x.stats?.avgRating ?? 0);
+          sort === "active" ? x.threads * 3 + (x.stats?.entries ?? 0) + (x.stats?.reviewCount ?? 0) : sort === "median" ? (x.stats?.medianCtc ?? 0) : (x.stats?.avgRating ?? 0);
         return s(b) - s(a);
       });
-  }, [q, sort, trust.all, trust.index, reviews.byCompany]);
+  }, [q, sort, trust.all, trust.index, reviews.byCompany, threadCount]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
       <header className="mb-6 flex flex-col gap-2 sm:mb-8">
-        <h1 className="text-4xl font-semibold sm:text-5xl">Communities</h1>
+        <h1 className="text-3xl font-medium sm:text-4xl">Communities</h1>
         <p className="max-w-2xl text-muted">One community per company: salaries, reviews and discussion. Headline numbers come from live Arkiv entries; low-trust entries are left out of medians.</p>
       </header>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -68,7 +75,7 @@ export default function CompaniesPage() {
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map((r) => (
             <li key={r.company.id}>
-              <CompanyCard company={r.company} stats={r.stats} />
+              <CompanyCard company={r.company} stats={r.stats} discussions={threads.isLoading ? undefined : r.threads} />
             </li>
           ))}
         </ul>

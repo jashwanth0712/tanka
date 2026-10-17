@@ -10,7 +10,6 @@ const notReady = (method: string) => () =>
 export function createArkivDataSource(): DataSource {
   return {
     searchSalaries: notReady("searchSalaries"),
-    getSalary: notReady("getSalary"),
     getPost: notReady("getPost"),
     getReviews: notReady("getReviews"),
     getDiscussions: notReady("getDiscussions"),
@@ -18,8 +17,6 @@ export function createArkivDataSource(): DataSource {
     getVotes: notReady("getVotes"),
     getConfirmations: notReady("getConfirmations"),
     getConfirmationsFor: notReady("getConfirmationsFor"),
-    getWalletActivity: notReady("getWalletActivity"),
-    getRecent: notReady("getRecent"),
     getStats: notReady("getStats"),
     getNetworkStatus: notReady("getNetworkStatus"),
     runRawQuery: notReady("runRawQuery"),

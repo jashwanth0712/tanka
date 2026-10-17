@@ -12,6 +12,7 @@ import { entityQuery } from "@/lib/data/query";
 import type { Address, EntityKey, WriteReceipt } from "@/lib/data/types";
 import type { Attributes } from "@/lib/data/schema";
 import { explorerEntityUrl, explorerTxUrl } from "@/lib/constants";
+import { isMock } from "@/lib/data";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@/lib/wallet/useWallet";
@@ -90,7 +91,7 @@ export function OnChainPanel({
         className="flex w-full items-center justify-between gap-3 p-5 text-left cursor-pointer"
       >
         <span>
-          <span className="block font-display text-lg font-semibold">On-chain</span>
+          <span className="block font-display text-lg font-medium">On-chain</span>
           <span className="block text-sm text-muted">The raw Arkiv entity behind this page.</span>
         </span>
         <ChevronDown className={cn("size-5 shrink-0 text-muted transition-transform", open && "rotate-180")} aria-hidden />
@@ -119,11 +120,13 @@ export function OnChainPanel({
             </dl>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="secondary" size="sm">
-              <a href={explorerEntityUrl(entityKey)} target="_blank" rel="noreferrer">
-                <ExternalLink /> View on explorer
-              </a>
-            </Button>
+            {!isMock && (
+              <Button asChild variant="secondary" size="sm">
+                <a href={explorerEntityUrl(entityKey)} target="_blank" rel="noreferrer">
+                  <ExternalLink /> View on explorer
+                </a>
+              </Button>
+            )}
             <span className="inline-flex items-center gap-1 rounded-[10px] border border-border pl-3 text-sm">
               Copy query for this entity <CopyButton value={entityQuery(entityKey)} label="Copy query for this entity" />
             </span>
@@ -154,7 +157,7 @@ export function Receipt({ receipt, kind }: { receipt: WriteReceipt; kind: string
       <div className="text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-muted">Tankha · Arkiv receipt</p>
         <CheckCircle2 className="mx-auto mt-3 size-10 text-trust-high" aria-hidden />
-        <p className="mt-2 font-display text-2xl font-semibold">Written to Arkiv</p>
+        <p className="mt-2 font-display text-2xl font-medium">Written to Arkiv</p>
         <p className="text-xs text-muted">{kind} · {formatDateTime(printedAt)}</p>
       </div>
       <div aria-hidden className="my-5 border-t border-dashed border-border" />
@@ -168,11 +171,15 @@ export function Receipt({ receipt, kind }: { receipt: WriteReceipt; kind: string
       </dl>
       <div aria-hidden className="my-5 border-t border-dashed border-border" />
       <div className="flex flex-col gap-2 font-sans">
-        <Button asChild variant="secondary" size="sm">
-          <a href={receipt.txHash ? explorerTxUrl(receipt.txHash) : explorerEntityUrl(receipt.key)} target="_blank" rel="noreferrer">
-            <ExternalLink /> View on explorer
-          </a>
-        </Button>
+        {isMock ? (
+          <p className="text-center text-xs text-muted">Demo data — this receipt isn&apos;t on a real chain, so there&apos;s no explorer link.</p>
+        ) : (
+          <Button asChild variant="secondary" size="sm">
+            <a href={receipt.txHash ? explorerTxUrl(receipt.txHash) : explorerEntityUrl(receipt.key)} target="_blank" rel="noreferrer">
+              <ExternalLink /> View on explorer
+            </a>
+          </Button>
+        )}
         <span className="inline-flex items-center justify-center gap-1 text-xs text-muted">
           Copy query <CopyButton value={entityQuery(receipt.key)} label="Copy query for this entity" />
         </span>

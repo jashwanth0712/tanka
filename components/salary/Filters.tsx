@@ -100,7 +100,7 @@ export function FilterDrawer({ value, onApply }: { value: UIFilters; onApply: (f
       </DrawerTrigger>
       <DrawerContent>
         <div className="flex items-center justify-between px-4 pb-2 pt-3">
-          <DrawerTitle className="font-display text-xl font-semibold">Filters</DrawerTitle>
+          <DrawerTitle className="font-display text-xl font-medium">Filters</DrawerTitle>
           <Button variant="link" size="sm" onClick={() => setDraft({ ...DEFAULT_FILTERS, sort: draft.sort })}>
             Reset
           </Button>

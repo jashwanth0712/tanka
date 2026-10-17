@@ -130,10 +130,6 @@ export function entityToConfirmation(e: RawEntity): Confirmation {
   };
 }
 
-/** Attributes exactly as stored, for the on-chain panel. */
-export function salaryAttributes(s: SalaryEntry): Attributes {
-  return salaryToEntity(s, s.createdAt).attributes;
-}
 
 /** Plain-language list for the submit privacy step. */
 export const STORED_FIELDS = {

@@ -95,10 +95,3 @@ export function groupMatrix<T, R extends keyof T, C extends keyof T>(
   }
   return out;
 }
-
-/** Raw group counts (no k-anonymity) — used for "n entries" hints. */
-export function groupCounts<T>(entries: T[], key: (e: T) => string): Map<string, number> {
-  const m = new Map<string, number>();
-  for (const e of entries) m.set(key(e), (m.get(key(e)) ?? 0) + 1);
-  return m;
-}

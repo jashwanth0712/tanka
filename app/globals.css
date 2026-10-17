@@ -113,7 +113,8 @@
   *, ::before, ::after { border-color: var(--border); }
 
   /* clip (not hidden): nothing can ever pan the page sideways on touch devices, and sticky still works. */
-  html { -webkit-text-size-adjust: 100%; background: var(--bg); overflow-x: clip; }
+  /* 15px root: a calmer, more professional density. Everything rem-based scales with it. */
+  html { -webkit-text-size-adjust: 100%; background: var(--bg); overflow-x: clip; font-size: 15px; }
   body {
     /* Background lives on <html> only, so the fixed ambient layer (z-index -1) shows through. */
     background: transparent;
@@ -131,7 +132,7 @@
 
   ::selection { background: color-mix(in srgb, var(--accent-2) 35%, transparent); }
 
-  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.015em; }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.015em; }
 
   /* Thin, quiet scrollbars that match the glass. */
   * { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--text) 18%, transparent) transparent; }

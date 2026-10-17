@@ -5,7 +5,6 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import * as React from "react";
 import { getDataSource } from "@/lib/data";
 import type {
-  Address,
   CompanyId,
   EntityKey,
   Review,
@@ -20,13 +19,10 @@ import { useRpcUrl } from "./useRpc";
 export const qk = {
   salaries: (f: SalaryFilters) => ["salaries", f] as const,
   allSalaries: ["salaries", "all"] as const,
-  salary: (key: string) => ["salary", key] as const,
   reviews: (company: string) => ["reviews", company] as const,
   allReviews: ["reviews", "all"] as const,
   confirmations: (key: string) => ["confirmations", key] as const,
   allConfirmations: ["confirmations", "all"] as const,
-  wallet: (owner: string) => ["wallet", owner] as const,
-  recent: (limit: number) => ["recent", limit] as const,
   stats: ["stats"] as const,
   network: (rpc: string) => ["network", rpc] as const,
 };
@@ -51,14 +47,6 @@ export function useAllSalaries() {
   });
 }
 
-export function useSalary(key: EntityKey | undefined) {
-  return useQuery({
-    queryKey: qk.salary(key ?? ""),
-    queryFn: () => ds().getSalary(key!),
-    enabled: !!key,
-  });
-}
-
 export function useReviews(company: CompanyId | undefined) {
   return useQuery({
     queryKey: qk.reviews(company ?? ""),
@@ -73,18 +61,6 @@ export function useConfirmations(entryKey: EntityKey | undefined) {
     queryFn: () => ds().getConfirmations(entryKey!),
     enabled: !!entryKey,
   });
-}
-
-export function useWalletActivity(owner: Address | undefined) {
-  return useQuery({
-    queryKey: qk.wallet(owner ?? ""),
-    queryFn: () => ds().getWalletActivity(owner!),
-    enabled: !!owner,
-  });
-}
-
-export function useRecent(limit = 8) {
-  return useQuery({ queryKey: qk.recent(limit), queryFn: () => ds().getRecent(limit), refetchInterval: 10_000 });
 }
 
 export function useStats() {
@@ -134,11 +110,6 @@ export function useTrustIndex() {
   };
 }
 
-export function useTrust(key: EntityKey | undefined) {
-  const t = useTrustIndex();
-  return { ...t, trust: key ? t.index?.get(key) : undefined };
-}
-
 /** Company view: its salaries (from the shared "all" cache) + reviews. */
 export function useCompany(company: CompanyId | undefined) {
   const t = useTrustIndex();
@@ -158,7 +129,6 @@ export function useCreateSalary() {
     mutationFn: (input: SalaryInput) => ds().createSalary(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["salaries"] });
-      qc.invalidateQueries({ queryKey: ["recent"] });
       qc.invalidateQueries({ queryKey: qk.stats });
     },
   });
@@ -181,7 +151,7 @@ export function useConfirmEntry() {
     mutationFn: (entryKey: EntityKey) => ds().confirmEntry(entryKey),
     onSuccess: (_r, entryKey) => {
       qc.invalidateQueries({ queryKey: qk.confirmations(entryKey) });
-      qc.invalidateQueries({ queryKey: qk.salary(entryKey) });
+      qc.invalidateQueries({ queryKey: ["post", entryKey] });
       qc.invalidateQueries({ queryKey: ["confirmations"] });
       qc.invalidateQueries({ queryKey: ["salaries"] });
       qc.invalidateQueries({ queryKey: qk.stats });

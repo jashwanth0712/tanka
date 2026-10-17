@@ -5,7 +5,7 @@
 // Meta attributes: $key, $owner.
 
 import { PROJECT_TAG } from "../constants";
-import type { Address, CompanyId, EntityKey, SalaryFilters } from "./types";
+import type { CompanyId, EntityKey, SalaryFilters } from "./types";
 
 export type EntityType = "salary" | "review" | "confirmation" | "comment" | "vote" | "discussion";
 
@@ -48,7 +48,6 @@ export function votesQuery(targetKeys?: EntityKey[]): string {
 }
 export const confirmationsQuery = (entryKey: EntityKey) =>
   `${base("confirmation")} && entryKey = ${str(entryKey)}`;
-export const walletQuery = (owner: Address) => `project = ${str(PROJECT_TAG)} && $owner = ${owner}`;
 
 /** For many keys the OR-list gets long; above this we fetch all confirmations and filter client-side. */
 export const CONFIRMATIONS_OR_LIMIT = 20;
@@ -57,7 +56,6 @@ export function confirmationsForQuery(keys: EntityKey[]): string {
   return `${base("confirmation")} && ${anyOf("entryKey", keys) ?? "entryKey = \"\""}`;
 }
 
-export const recentQuery = (sinceMs: number) => `${base("salary")} && createdAt >= ${sinceMs}`;
 
 /** Presets for the /verify playground. */
 export const QUERY_PRESETS: { label: string; query: () => string }[] = [

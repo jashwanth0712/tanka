@@ -117,7 +117,7 @@ export function CountUp({ value, format = (n) => Math.round(n).toLocaleString("e
 export function EmptyState({ title, body, action }: { title: string; body?: string; action?: React.ReactNode }) {
   return (
     <Card className="flex flex-col items-start gap-3 p-8 sm:p-12">
-      <p className="font-display text-2xl font-semibold sm:text-3xl">{title}</p>
+      <p className="font-display text-2xl font-medium sm:text-2xl">{title}</p>
       {body && <p className="max-w-md text-muted">{body}</p>}
       {action}
     </Card>
@@ -145,16 +145,6 @@ export function ErrorState({ error, onRetry }: { error?: unknown; onRetry?: () =
         </Button>
       </div>
     </Card>
-  );
-}
-
-export function SectionHeading({ eyebrow, title, children }: { eyebrow?: string; title: string; children?: React.ReactNode }) {
-  return (
-    <div className="mb-6 flex flex-col gap-2 sm:mb-8">
-      {eyebrow && <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-ink">{eyebrow}</p>}
-      <h2 className="text-3xl font-semibold sm:text-4xl">{title}</h2>
-      {children && <div className="max-w-2xl text-muted">{children}</div>}
-    </div>
   );
 }
 

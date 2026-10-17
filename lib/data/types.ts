@@ -150,7 +150,6 @@ export type DiscussionInput = Omit<Discussion, "key" | "kind" | "createdAt" | "e
 export interface DataSource {
   // reads
   searchSalaries(f: SalaryFilters): Promise<QueryResult<SalaryEntry[]>>;
-  getSalary(key: EntityKey): Promise<QueryResult<SalaryEntry | null>>;
   /** Salary or review by key (post pages). */
   getPost(key: EntityKey): Promise<QueryResult<Post | null>>;
   /** Reviews for one company, or every review when `company` is omitted (feed). */
@@ -163,10 +162,6 @@ export interface DataSource {
   getVotes(targetKeys?: EntityKey[]): Promise<QueryResult<Vote[]>>;
   getConfirmations(entryKey: EntityKey): Promise<QueryResult<Confirmation[]>>;
   getConfirmationsFor(entryKeys: EntityKey[]): Promise<QueryResult<Confirmation[]>>;
-  getWalletActivity(
-    owner: Address,
-  ): Promise<QueryResult<{ firstSeenAt: number; entries: SalaryEntry[] }>>;
-  getRecent(limit: number): Promise<QueryResult<SalaryEntry[]>>;
   getStats(): Promise<Stats>;
   getNetworkStatus(rpcUrl?: string): Promise<NetworkStatus>;
   runRawQuery(query: string): Promise<unknown>; // for /verify playground

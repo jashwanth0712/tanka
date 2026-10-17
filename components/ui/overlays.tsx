@@ -15,7 +15,6 @@ const panel = "z-50 glass-strong rounded-[18px] text-text";
 /* Popover */
 export const Popover = PopoverPrimitive.Root;
 export const PopoverTrigger = PopoverPrimitive.Trigger;
-export const PopoverAnchor = PopoverPrimitive.Anchor;
 export function PopoverContent({
   className,
   align = "center",
@@ -65,9 +64,7 @@ export function Tooltip({
 
 /* Dialog */
 export const Dialog = DialogPrimitive.Root;
-export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogTitle = DialogPrimitive.Title;
-export const DialogDescription = DialogPrimitive.Description;
 export function DialogContent({
   className,
   children,
@@ -99,7 +96,6 @@ export function DialogContent({
 /* Drawer (bottom sheet) */
 export const Drawer = Vaul.Root;
 export const DrawerTrigger = Vaul.Trigger;
-export const DrawerClose = Vaul.Close;
 export const DrawerTitle = Vaul.Title;
 export function DrawerContent({ className, children, ...props }: React.ComponentProps<typeof Vaul.Content>) {
   return (

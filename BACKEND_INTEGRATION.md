@@ -86,7 +86,6 @@ The UI shows the query you return in `QueryResult.query`. **Use the builders in 
 | Method | Query builder | Notes |
 |---|---|---|
 | `searchSalaries(f)` | `salariesQuery(f)` | Return newest first. `f.limit` optional. Trust filtering and sorting happen client-side — don't do them here. Called with `{}` to load **all** live salaries (the trust index needs them; ~hundreds of entities is fine). |
-| `getSalary(key)` | `entityQuery(key)` | Fetch by key. Return `data: null` if missing/expired — the page shows "Not found — or expired". |
 | `getPost(key)` | `entityQuery(key)` | Discussion, salary **or** review by key (post page). Map by the `type` attribute. `null` if missing/expired. |
 | `getReviews(company?)` | `reviewsQuery(company)` | Parse `payload.comment`. Newest first. **No `company` → every review** (the feed loads them all). |
 | `getDiscussions(company?)` | `discussionsQuery(company)` | `entityToDiscussion` (title/body are in the payload). No `company` → every thread (feed). Newest first. |
@@ -94,8 +93,6 @@ The UI shows the query you return in `QueryResult.query`. **Use the builders in 
 | `getVotes(targetKeys?)` | `votesQuery(targetKeys)` | `entityToVote`. No keys, or more than 20 → the builder returns "all votes"; filter client-side to `targetKeys` if given. Polled every ~20s. |
 | `getConfirmations(entryKey)` | `confirmationsQuery(entryKey)` | Newest first. |
 | `getConfirmationsFor(keys)` | `confirmationsForQuery(keys)` | Above `CONFIRMATIONS_OR_LIMIT` (20) keys the builder returns "all confirmations" — fetch that and **filter client-side** to `keys`. |
-| `getWalletActivity(owner)` | `walletQuery(owner)` | `firstSeenAt` = earliest `createdAt` across that owner's salaries **and** confirmations. |
-| `getRecent(limit)` | `recentQuery(sinceMs)` | Last ~90 days, newest first, sliced to `limit`. Polled every 10s by the landing feed. |
 | `getStats()` | — | `entries` = live salaries + reviews, `companies` = distinct companies with salaries, `confirmations` = count, `latestBlock` = head block. Polled every 10s. |
 | `getNetworkStatus(rpcUrl?)` | — | Ping **the given URL** (default: `getRpcUrl()`), measure latency, return head block. Never throw — return `ok: false`. Polled every 5s per endpoint by the status pill and `/verify`. Keep it cheap (e.g. `eth_blockNumber`). |
 | `runRawQuery(query)` | — | Execute the user's raw string from the `/verify` playground and return entities as plain JSON (`{ key, owner, expiresAtBlock, attributes, payload? }` matches what the mock returns). Throw a readable `Error` on bad syntax — the message is shown to the user. |

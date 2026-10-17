@@ -192,7 +192,7 @@ export function CommentThread({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-semibold">
+        <h2 className="font-display text-xl font-medium">
           {comments.length} comment{comments.length === 1 ? "" : "s"}
         </h2>
         <label className="flex items-center gap-2 text-xs text-muted">

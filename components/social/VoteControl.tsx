@@ -48,7 +48,7 @@ export function VoteControl({ targetKey, tally, size = "md" }: { targetKey: Enti
       </button>
       <span
         aria-label={`Score ${tally.score}`}
-        className={cn("tabular min-w-6 text-center text-sm font-semibold", up ? "text-accent-fg" : down ? "text-white" : "text-text")}
+        className={cn("tabular min-w-6 text-center text-sm font-medium", up ? "text-accent-fg" : down ? "text-white" : "text-text")}
       >
         {compactScore(tally.score)}
       </span>

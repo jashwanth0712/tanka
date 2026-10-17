@@ -29,12 +29,6 @@ import { VoteControl } from "./VoteControl";
 export const postHref = (key: string) => `/post/?key=${key}`;
 export const communityHref = (company: string) => `/company/?name=${company}`;
 
-export function postTitle(p: Post) {
-  if (p.kind === "discussion") return p.title;
-  if (p.kind === "salary") return `${roleLabel(p.role)} · ${levelLabel(p.level)} · ${formatINRCompact(p.ctc)}`;
-  return `Review · ${reviewAvg(p).toFixed(1)}★ overall`;
-}
-
 const KIND_TAG: Record<Post["kind"], { label: string; cls: string }> = {
   discussion: { label: "Discussion", cls: "bg-accent/12 text-accent-ink ring-1 ring-accent/25" },
   salary: { label: "Package", cls: "bg-chain/12 text-chain ring-1 ring-chain/25" },
@@ -80,7 +74,7 @@ function SalaryBody({ p, trust, big }: { p: SalaryEntry; trust?: TrustResult; bi
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
-        <p className={cn("whitespace-nowrap font-display font-semibold leading-none tracking-tight", big ? "text-[clamp(2.5rem,13vw,4.5rem)]" : "text-[clamp(1.875rem,9vw,2.25rem)]")}>
+        <p className={cn("whitespace-nowrap font-display font-medium leading-none tracking-tight", big ? "text-[clamp(2.125rem,10vw,3.5rem)]" : "text-[clamp(1.5rem,7vw,1.875rem)]")}>
           <span className="text-gradient">
             <Money value={p.ctc} />
           </span>
@@ -213,8 +207,8 @@ export function PostCard({
 
         <Title
           className={cn(
-            "break-words font-sans font-semibold tracking-normal",
-            post.kind === "discussion" ? (full ? "text-2xl leading-snug sm:text-3xl" : "text-lg leading-snug sm:text-xl") : full ? "text-xl sm:text-2xl" : "text-base sm:text-lg",
+            "break-words font-sans font-medium tracking-normal",
+            post.kind === "discussion" ? (full ? "text-xl leading-snug sm:text-2xl" : "text-base leading-snug sm:text-lg") : full ? "text-xl sm:text-2xl" : "text-base sm:text-lg",
           )}
         >
           {full ? (

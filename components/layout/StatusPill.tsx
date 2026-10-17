@@ -44,7 +44,7 @@ export function StatusPill({ className }: { className?: string }) {
         )}
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[22rem]">
-        <p className="text-sm font-semibold">Live on Arkiv</p>
+        <p className="text-sm font-medium">Live on Arkiv</p>
         <p className="mb-3 text-xs text-muted">
           Every post, vote and comment is stored on the Arkiv network ({CHAIN_NAME}{data ? ` · block #${data.latestBlock.toLocaleString("en-IN")}` : ""}). No company can take it down.
         </p>

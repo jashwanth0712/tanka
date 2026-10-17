@@ -60,7 +60,7 @@ export function MoneyInput({
       <p className="mt-1.5 min-h-5 text-sm text-muted" aria-live="polite">
         {text && Number.isFinite(parsed) ? (
           <>
-            <span className="font-display text-base font-semibold text-text">{formatINRCompact(parsed)}</span>
+            <span className="font-display text-base font-medium text-text">{formatINRCompact(parsed)}</span>
             <span className="tabular"> · {formatINR(parsed)} per year</span>
           </>
         ) : text ? (

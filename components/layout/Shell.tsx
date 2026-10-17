@@ -7,7 +7,7 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { useMounted } from "@/hooks/useNow";
 import { isMock } from "@/lib/data";
-import { DEMO_VIDEO_URL, FRICTION_URL, REPO_URL, SCHEMA_URL } from "@/lib/constants";
+import { FOOTER_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { IdentityChip } from "@/components/social/identity";
 import { SearchTrigger, useCommandMenu } from "./CommandMenu";
@@ -31,11 +31,11 @@ export function Logo({ className }: { className?: string }) {
     <Link href="/" className={cn("group inline-flex shrink-0 items-center gap-2 rounded-md", className)} aria-label="Tankha home">
       <span
         aria-hidden
-        className="grid size-9 place-items-center rounded-[11px] bg-gradient-primary glow font-display text-lg font-semibold text-accent-fg transition-transform group-hover:-rotate-6"
+        className="grid size-9 place-items-center rounded-[11px] bg-gradient-primary glow font-display text-lg font-medium text-accent-fg transition-transform group-hover:-rotate-6"
       >
         ₹
       </span>
-      <span className="font-display text-xl font-semibold tracking-tight">Tankha</span>
+      <span className="font-display text-xl font-medium tracking-tight">Tankha</span>
     </Link>
   );
 }
@@ -59,7 +59,7 @@ export function ThemeToggle() {
 export function DemoBanner() {
   if (!isMock) return null;
   return (
-    <div role="status" className="bg-gradient-primary px-4 py-1.5 text-center text-xs font-semibold text-accent-fg">
+    <div role="status" className="bg-gradient-primary px-4 py-1.5 text-center text-xs font-medium text-accent-fg">
       Demo data — not reading from Arkiv
     </div>
   );
@@ -172,12 +172,7 @@ export function MobileTabBar() {
 }
 
 export function Footer() {
-  const links = [
-    { href: REPO_URL, label: "GitHub" },
-    { href: SCHEMA_URL, label: "schema.md" },
-    { href: FRICTION_URL, label: "friction.md" },
-    { href: DEMO_VIDEO_URL, label: "Demo video" },
-  ];
+  const links = FOOTER_LINKS;
   return (
     <footer className="mt-24 border-t border-border bg-bg/40 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 sm:px-6 md:flex-row md:items-start md:justify-between">

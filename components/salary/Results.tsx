@@ -98,7 +98,7 @@ export function SalaryTable({
               </td>
               <td className="px-3 py-3 text-muted">{cityLabel(e.city)}</td>
               <td className="tabular px-3 py-3 text-right">{e.yoe}</td>
-              <td className="px-3 py-3 text-right font-display text-base font-semibold">
+              <td className="px-3 py-3 text-right font-display text-base font-medium">
                 <Money value={e.ctc} />
               </td>
               <td className="px-3 py-3">
@@ -137,7 +137,7 @@ export function SalaryCard({ e, trust, index = 0 }: { e: SalaryEntry; trust?: Tr
               {roleLabel(e.role)} · {levelLabel(e.level)}
             </p>
           </div>
-          <p className="shrink-0 font-display text-2xl font-semibold leading-none">
+          <p className="shrink-0 font-display text-2xl font-medium leading-none">
             <Money value={e.ctc} />
           </p>
         </div>

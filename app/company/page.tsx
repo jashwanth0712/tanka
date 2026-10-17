@@ -82,7 +82,7 @@ function CommunityView() {
             <CommunityIcon company={id} size={72} />
           </span>
           <div className="min-w-0 flex-1 sm:pb-1">
-            <h1 className="truncate text-2xl font-semibold sm:text-4xl">c/{id}</h1>
+            <h1 className="truncate text-2xl font-medium sm:text-3xl">c/{id}</h1>
             <p className="flex flex-wrap items-center gap-1 text-sm text-muted">
               {company.label} · {company.industry} · <MapPin className="size-3.5" aria-hidden /> {cityLabel(company.hq)}
             </p>
@@ -98,7 +98,7 @@ function CommunityView() {
               {statItems.map(([label, value]) => (
                 <div key={label} className="bg-[var(--surface-strong)] p-3">
                   <dt className="text-xs text-muted">{label}</dt>
-                  <dd className="tabular font-display text-xl font-semibold">{value ?? <Skeleton className="mt-1 h-6 w-16" />}</dd>
+                  <dd className="tabular font-display text-xl font-medium">{value ?? <Skeleton className="mt-1 h-6 w-16" />}</dd>
                 </div>
               ))}
             </dl>
@@ -120,11 +120,11 @@ function CommunityView() {
               </TabsContent>
               <TabsContent value="packages" className="flex flex-col gap-4 pt-4">
                 <section aria-label="Salary bands">
-                  <h2 className="mb-3 text-lg font-semibold">Salary bands</h2>
+                  <h2 className="mb-3 text-lg font-medium">Salary bands</h2>
                   {data.isLoading ? <Skeleton className="h-64 w-full" /> : <SalaryMatrix company={id} entries={cleanSalaries} />}
                   <QueryReveal className="mt-2" queries={[salariesQuery({ companies: [id] })]} />
                 </section>
-                <h2 className="text-lg font-semibold">Package posts</h2>
+                <h2 className="text-lg font-medium">Package posts</h2>
                 <Feed company={id} kind="salary" />
               </TabsContent>
               <TabsContent value="reviews" className="flex flex-col gap-4 pt-4">
@@ -152,7 +152,7 @@ function CommunityView() {
                   {statItems.map(([label, value]) => (
                     <div key={label}>
                       <dt className="text-xs text-muted">{label}</dt>
-                      <dd className="tabular font-display text-xl font-semibold">{value ?? <Skeleton className="mt-1 h-6 w-16" />}</dd>
+                      <dd className="tabular font-display text-xl font-medium">{value ?? <Skeleton className="mt-1 h-6 w-16" />}</dd>
                     </div>
                   ))}
                 </dl>

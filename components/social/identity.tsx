@@ -56,7 +56,7 @@ export function Handle({ address, op, className }: { address: string; op?: boole
     <span className={cn("inline-flex min-w-0 items-center gap-1.5", className)} title={address}>
       <IdentityAvatar address={address} size={16} />
       <span className={cn("truncate text-xs font-medium", onchain && "font-mono tabular")}>{onchain ? truncateAddress(address) : displayName(address)}</span>
-      {op && <span className="rounded-full bg-gradient-primary px-1.5 text-[10px] font-semibold text-accent-fg">OP</span>}
+      {op && <span className="rounded-full bg-gradient-primary px-1.5 text-[10px] font-medium text-accent-fg">OP</span>}
     </span>
   );
 }
@@ -82,7 +82,7 @@ export function IdentityChip() {
           <div className="mt-3 flex items-center gap-2 rounded-[10px] border border-border p-2.5">
             <IdentityAvatar address={wallet.address} size={28} />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">{displayName(wallet.address)}</p>
+              <p className="truncate text-sm font-medium">{displayName(wallet.address)}</p>
               {onchain && <Mono value={wallet.address} />}
               <p className="text-xs text-muted">{wallet.isFresh ? "Anonymous · this tab only" : "Connected wallet"}</p>
             </div>

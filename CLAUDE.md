@@ -336,12 +336,9 @@ export interface NetworkStatus {
 export interface DataSource {
   // reads
   searchSalaries(f: SalaryFilters): Promise<QueryResult<SalaryEntry[]>>;
-  getSalary(key: EntityKey): Promise<QueryResult<SalaryEntry | null>>;
   getReviews(company: CompanyId): Promise<QueryResult<Review[]>>;
   getConfirmations(entryKey: EntityKey): Promise<QueryResult<Confirmation[]>>;
   getConfirmationsFor(entryKeys: EntityKey[]): Promise<QueryResult<Confirmation[]>>;
-  getWalletActivity(owner: Address): Promise<QueryResult<{ firstSeenAt: number; entries: SalaryEntry[] }>>;
-  getRecent(limit: number): Promise<QueryResult<SalaryEntry[]>>;
   getStats(): Promise<{ entries: number; companies: number; confirmations: number; latestBlock: number }>;
   getNetworkStatus(rpcUrl?: string): Promise<NetworkStatus>;
   runRawQuery(query: string): Promise<unknown>; // for /verify playground
@@ -352,6 +349,8 @@ export interface DataSource {
   confirmEntry(entryKey: EntityKey): Promise<WriteReceipt>; // also extends expiry if Arkiv allows
 }
 ```
+
+*(Removed 2026-10-18: `getSalary`, `getRecent`, `getWalletActivity` — no page used them; `getPost` replaced `getSalary` and trust derives wallet history from the full dataset.)*
 
 **Social additions (implemented in `lib/data/types.ts`, the source of truth):**
 ```ts
@@ -389,7 +388,7 @@ export interface WalletState {
 
 Rules:
 - Components never import from `lib/data/arkiv` or `lib/data/mock` directly — only `getDataSource()` and React Query hooks in `hooks/`.
-- All hooks live in `hooks/` (`useSalaries`, `useSalary`, `useCompany`, `useReviews`, `useConfirmations`, `useTrust`, `useStats`, `useNetworkStatus`, `useRecent`; social: `useFeed`, `usePost`, `useComments`, `useAllVotes`, `useTallies`, `useCastVote` (optimistic), `useCreateComment` in `hooks/social.ts`).
+- All hooks live in `hooks/` (`useSalaries`, `useAllSalaries`, `useTrustIndex`, `useCompany`, `useReviews`, `useAllReviews`, `useConfirmations`, `useStats`, `useNetworkStatus`; social: `useFeed`, `usePost`, `useComments`, `useAllVotes`, `useTallies`, `useCastVote` (optimistic), `useCreateComment` in `hooks/social.ts`).
 - Voting/commenting/confirming without a wallet silently creates a per-tab fresh wallet ("anonymous identity"). Posting with a fresh wallet drops it afterwards so the next action gets a new one.
 - Writes invalidate the relevant queries.
 - If a contract change is needed, update `lib/data/types.ts` **and** tell the teammate; keep `/arkiv/schema.md` in sync.

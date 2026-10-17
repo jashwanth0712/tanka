@@ -77,7 +77,7 @@ function TypeStep({ onPick }: { onPick: (k: Kind) => void }) {
           </span>
           <span className="rounded-full bg-accent/12 px-2.5 py-1 text-xs font-medium text-accent-ink">Most people start here</span>
         </span>
-        <span className="font-display text-2xl font-semibold">Start a discussion</span>
+        <span className="font-display text-2xl font-medium">Start a discussion</span>
         <span className="text-sm text-muted">
           Ask or share anything about your company — layoffs, culture, hikes, policies, interviews. Your thread lands in that company&apos;s community.
         </span>
@@ -88,7 +88,7 @@ function TypeStep({ onPick }: { onPick: (k: Kind) => void }) {
             <span className="grid size-11 place-items-center rounded-[14px] bg-surface-2 text-accent-ink ring-1 ring-border">
               <Icon className="size-5" aria-hidden />
             </span>
-            <span className="font-display text-xl font-semibold">{title}</span>
+            <span className="font-display text-xl font-medium">{title}</span>
             <span className="text-sm text-muted">{body}</span>
           </button>
         ))}
@@ -140,7 +140,7 @@ function Summary({ kind, salary, review, discussion }: { kind: Kind; salary?: Sa
           c/{discussion.company} · {flairLabel(discussion.flair)}
           {discussion.city ? ` · ${cityLabel(discussion.city)} office` : ""}
         </p>
-        <p className="mt-1 text-lg font-semibold leading-snug">{discussion.title}</p>
+        <p className="mt-1 text-lg font-medium leading-snug">{discussion.title}</p>
         {discussion.body && <p className="mt-2 line-clamp-4 whitespace-pre-wrap text-sm text-muted">{discussion.body}</p>}
       </div>
     );
@@ -154,7 +154,7 @@ function Summary({ kind, salary, review, discussion }: { kind: Kind; salary?: Sa
             {roleLabel(salary.role)} · {levelLabel(salary.level)} · {cityLabel(salary.city)} · {formatYears(salary.yoe)}
           </p>
         </div>
-        <p className="font-display text-3xl font-semibold">{formatINRCompact(salary.ctc)}</p>
+        <p className="font-display text-2xl font-medium">{formatINRCompact(salary.ctc)}</p>
       </div>
     );
   }
@@ -247,7 +247,7 @@ function SubmitView() {
   return (
     <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 py-8 sm:px-6 sm:py-12">
       <header className="mb-6">
-        <h1 className="text-4xl font-semibold sm:text-5xl">{step === 4 ? "Posted." : "Create a post"}</h1>
+        <h1 className="text-3xl font-medium sm:text-4xl">{step === 4 ? "Posted." : "Create a post"}</h1>
         <p className="mt-2 text-muted">No sign-up. No email. It lands in that company&apos;s community, stored on Arkiv where nobody can take it down.</p>
       </header>
       <Stepper step={step} />
@@ -317,7 +317,7 @@ function SubmitView() {
               </Card>
 
               <div>
-                <h2 className="mb-3 font-display text-xl font-semibold">Which wallet signs it?</h2>
+                <h2 className="mb-3 font-display text-xl font-medium">Which wallet signs it?</h2>
                 <WalletChoice value={walletChoice} onChange={setWalletChoice} />
                 {wallet.address && walletChoice === "connected" && !wallet.isFresh && (
                   <p className="mt-2 text-sm text-muted">Connected: <Mono value={wallet.address} /></p>

@@ -12,7 +12,7 @@ import { useNetworkStatus } from "@/hooks/queries";
 import { useRpcUrl } from "@/hooks/useRpc";
 import { getDataSource } from "@/lib/data";
 import { QUERY_PRESETS } from "@/lib/data/query";
-import { ARKIV_QUERY_METHOD, CLI_SNIPPETS, CURL_SNIPPET, LIVE_MIRRORS, RPC_ENDPOINTS, SCHEMA_URL } from "@/lib/constants";
+import { ARKIV_QUERY_METHOD, CLI_SNIPPETS, CURL_SNIPPET, LIVE_MIRRORS, REPO_IS_SET, RPC_ENDPOINTS, SCHEMA_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 function Section({ id, n, title, children, lead }: { id?: string; n: string; title: string; lead?: React.ReactNode; children: React.ReactNode }) {
@@ -20,8 +20,8 @@ function Section({ id, n, title, children, lead }: { id?: string; n: string; tit
     <section id={id} className="scroll-mt-24 border-t border-border py-10 sm:py-14">
       <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
         <div>
-          <p className="text-xs font-semibold text-accent-ink">{n}</p>
-          <h2 className="mt-1 text-2xl font-semibold sm:text-3xl">{title}</h2>
+          <p className="text-xs font-medium text-accent-ink">{n}</p>
+          <h2 className="mt-1 text-2xl font-medium sm:text-2xl">{title}</h2>
           {lead && <p className="mt-2 text-sm text-muted">{lead}</p>}
         </div>
         <div className="min-w-0">{children}</div>
@@ -185,8 +185,8 @@ export default function VerifyPage() {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <header className="grid items-center gap-10 pb-10 sm:pb-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-ink">Don&apos;t trust us</p>
-        <h1 className="mt-2 max-w-3xl text-4xl font-semibold leading-[1.02] sm:text-6xl">This site is just <span className="text-gradient">one window</span> into the data.</h1>
+        <p className="text-xs font-medium uppercase tracking-[0.14em] text-accent-ink">Don&apos;t trust us</p>
+        <h1 className="mt-2 max-w-3xl text-3xl font-medium leading-[1.02] sm:text-5xl">This site is just <span className="text-gradient">one window</span> into the data.</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted">
           Close it and the data is still there. Everything below lets you read Tankha&apos;s entries without this website — pick
           another RPC and run the queries yourself. Posts, votes and comments are all just entities.
@@ -255,9 +255,11 @@ export default function VerifyPage() {
           ))}
         </div>
         <p className="mt-3 text-xs text-muted"># = numeric attribute. Expiry is Arkiv&apos;s own entity expiration (~18 months), extended by confirmations.</p>
-        <Button asChild variant="secondary" className="mt-4">
-          <a href={SCHEMA_URL} target="_blank" rel="noreferrer"><ExternalLink /> Full schema.md</a>
-        </Button>
+        {REPO_IS_SET && (
+          <Button asChild variant="secondary" className="mt-4">
+            <a href={SCHEMA_URL} target="_blank" rel="noreferrer"><ExternalLink /> Full schema.md</a>
+          </Button>
+        )}
       </Section>
     </div>
   );

@@ -31,7 +31,7 @@ Deliberately **kept off Arkiv**: aggregates and trust scores (computed client-si
 pnpm i
 cp .env.example .env.local   # never commit real keys
 pnpm dev                     # http://localhost:3000
-pnpm test                    # vitest: trust, aggregate, pii, format, query
+pnpm test                    # vitest: 65 tests (trust, social, pii, schema, data source…)
 pnpm build                   # fully static export to ./out
 ```
 
@@ -42,6 +42,8 @@ pnpm build                   # fully static export to ./out
 | `NEXT_PUBLIC_ARKIV_EXPLORER_URL` | block explorer base URL |
 
 The Arkiv layer plugs in through one interface — see **[BACKEND_INTEGRATION.md](BACKEND_INTEGRATION.md)**.
+
+Project overview and audit: **[PROJECT_REPORT.md](PROJECT_REPORT.md)** · Remaining web3 work: **[WEB3_TODO.md](WEB3_TODO.md)**.
 
 ## Arkiv
 

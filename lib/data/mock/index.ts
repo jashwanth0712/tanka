@@ -14,14 +14,11 @@ import {
   confirmationsQuery,
   entityQuery,
   votesQuery,
-  recentQuery,
   reviewsQuery,
   salariesQuery,
-  walletQuery,
   CONFIRMATIONS_OR_LIMIT,
 } from "../query";
 import type {
-  Address,
   Comment,
   Discussion,
   Confirmation,
@@ -120,17 +117,11 @@ export function createMockDataSource(): DataSource {
 
   return {
     async searchSalaries(f) {
+      simulateActivity();
       await latency();
       const query = salariesQuery(f);
       let data = run(alive(salaries), query).sort((a, b) => b.createdAt - a.createdAt);
       if (f.limit) data = data.slice(0, f.limit);
-      return { data, query };
-    },
-
-    async getSalary(key) {
-      await latency();
-      const query = entityQuery(key);
-      const data = run(salaries, query)[0] ?? null;
       return { data, query };
     },
 
@@ -184,26 +175,6 @@ export function createMockDataSource(): DataSource {
         const set = new Set(keys.map((k) => k.toLowerCase()));
         data = data.filter((c) => set.has(c.entryKey.toLowerCase()));
       }
-      return { data, query };
-    },
-
-    async getWalletActivity(owner: Address) {
-      await latency();
-      const query = walletQuery(owner);
-      const entries = run(salaries, query);
-      const confs = run(confirmations, query);
-      const firstSeenAt = Math.min(Date.now(), ...entries.map((e) => e.createdAt), ...confs.map((c) => c.createdAt));
-      return { data: { firstSeenAt, entries }, query };
-    },
-
-    async getRecent(limit) {
-      simulateActivity();
-      await latency();
-      const since = Date.now() - 90 * 24 * 3_600_000;
-      const query = recentQuery(since);
-      const data = run(alive(salaries), query)
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .slice(0, limit);
       return { data, query };
     },
 

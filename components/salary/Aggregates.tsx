@@ -110,7 +110,7 @@ export function AggregatePanel({
   if (!s) {
     return (
       <Card className="flex flex-col items-start gap-3 p-5 sm:p-6">
-        <p className="font-display text-2xl font-semibold">Not enough data yet — add yours.</p>
+        <p className="font-display text-2xl font-medium">Not enough data yet — add yours.</p>
         <p className="max-w-md text-sm text-muted">
           We only show aggregates for groups of {K_ANONYMITY} or more, so no single person can be singled out.
           {entries.length > 0 && ` This group has ${entries.length}.`}
@@ -128,18 +128,18 @@ export function AggregatePanel({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-10">
         <div className="flex flex-col">
           <p className="text-sm font-medium text-muted">Median annual CTC</p>
-          <p className="text-gradient font-display text-5xl font-semibold leading-none tracking-tight sm:text-6xl">
+          <p className="text-gradient font-display text-4xl font-medium leading-none tracking-tight sm:text-5xl">
             <CountUp value={s.median} format={formatINRCompact} />
           </p>
           <RangeBar s={s} className="mt-5" />
           <dl className="mt-5 grid grid-cols-2 gap-4 text-sm">
             <div>
               <dt className="text-muted">Entries</dt>
-              <dd className="tabular font-display text-2xl font-semibold">{s.count}</dd>
+              <dd className="tabular font-display text-2xl font-medium">{s.count}</dd>
             </div>
             <div>
               <dt className="text-muted">Median experience</dt>
-              <dd className="tabular font-display text-2xl font-semibold">{median(entries.map((e) => e.yoe)).toFixed(1)} yrs</dd>
+              <dd className="tabular font-display text-2xl font-medium">{median(entries.map((e) => e.yoe)).toFixed(1)} yrs</dd>
             </div>
           </dl>
         </div>

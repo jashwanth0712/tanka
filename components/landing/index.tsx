@@ -32,7 +32,7 @@ export function TakedownDiagram() {
       </ul>
       <Connector />
       <div className="rounded-[18px] bg-gradient-primary p-5 text-center text-accent-fg glow">
-        <p className="font-display text-2xl font-semibold">Arkiv</p>
+        <p className="font-display text-2xl font-medium">Arkiv</p>
         <p className="font-mono text-xs text-accent-fg/80">salary · review · comment · vote · confirmation</p>
       </div>
       <figcaption className="text-center text-xs text-muted">No server of ours sits in this picture.</figcaption>

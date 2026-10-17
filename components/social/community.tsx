@@ -25,7 +25,7 @@ export function CommunityIcon({ company, size = 24 }: { company: string; size?: 
     <span
       aria-hidden
       style={{ "--h": hueOf(name), width: size, height: size, fontSize: size * 0.4 } as React.CSSProperties}
-      className="grid shrink-0 place-items-center rounded-full font-display font-semibold bg-[oklch(0.88_0.07_var(--h))] text-[oklch(0.32_0.09_var(--h))] dark:bg-[oklch(0.34_0.08_var(--h))] dark:text-[oklch(0.92_0.07_var(--h))]"
+      className="grid shrink-0 place-items-center rounded-full font-display font-medium bg-[oklch(0.88_0.07_var(--h))] text-[oklch(0.32_0.09_var(--h))] dark:bg-[oklch(0.34_0.08_var(--h))] dark:text-[oklch(0.92_0.07_var(--h))]"
     >
       {initials}
     </span>
@@ -60,7 +60,7 @@ export function LeftRail() {
       <NavItem href="/salaries/" active={path.startsWith("/salaries")}>
         <Table2 className="size-4" aria-hidden /> Package search
       </NavItem>
-      <p className="mt-5 px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">Communities</p>
+      <p className="mt-5 px-3 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted">Communities</p>
       {COMPANIES.map((c) => (
         <NavItem key={c.id} href={`/company/?name=${c.id}`} active={current === c.id}>
           <CommunityIcon company={c.id} size={22} />
@@ -106,9 +106,9 @@ export function AboutCard() {
     <Card className="overflow-hidden">
       <div className="relative h-16 bg-gradient-soft" aria-hidden><div className="hero-grid absolute inset-0 opacity-70" /></div>
       <div className="-mt-6 flex flex-col gap-3 p-4">
-        <span className="grid size-12 place-items-center rounded-[14px] border-4 border-[var(--surface-solid)] bg-gradient-primary font-display text-xl font-semibold text-accent-fg glow">₹</span>
+        <span className="grid size-12 place-items-center rounded-[14px] border-4 border-[var(--surface-solid)] bg-gradient-primary font-display text-xl font-medium text-accent-fg glow">₹</span>
         <div>
-          <p className="font-display text-lg font-semibold">Salaries no one <span className="text-gradient">can delete.</span></p>
+          <p className="font-display text-lg font-medium">Salaries no one <span className="text-gradient">can delete.</span></p>
           <p className="mt-1 text-sm text-muted">
             Anonymous company discussions, packages and reviews — every post, vote and comment is an Arkiv entity. No company can take them down.
           </p>
@@ -122,7 +122,7 @@ export function AboutCard() {
           ].map(([label, v]) => (
             <div key={label as string}>
               <dt className="flex items-center gap-1.5 text-xs text-muted"><LiveDot className="size-1.5" />{label}</dt>
-              <dd className="font-display text-xl font-semibold">
+              <dd className="font-display text-xl font-medium">
                 {v == null ? "—" : <CountUp value={v as number} />}
               </dd>
             </div>
@@ -148,7 +148,7 @@ export function RulesCard() {
   ];
   return (
     <Card className="p-4">
-      <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted">House rules</p>
+      <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-muted">House rules</p>
       <ol className="flex flex-col gap-3">
         {rules.map(({ Icon, t, d }) => (
           <li key={t} className="flex gap-3">

@@ -12,35 +12,7 @@ import { FLAG_THRESHOLD, reviewAvg } from "@/lib/companyStats";
 import type { Review, SalaryEntry } from "@/lib/data/types";
 import { formatINRCompact } from "@/lib/format";
 import { cn } from "@/lib/utils";
-
-function hueOf(s: string) {
-  let h = 0;
-  for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360;
-  return h;
-}
-
-/** Initials + deterministic hue. No logos, ever. */
-export function Monogram({ name, size = "md" }: { name: string; size?: "md" | "lg" }) {
-  const initials = name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-  return (
-    <span
-      aria-hidden
-      style={{ "--h": hueOf(name) } as React.CSSProperties}
-      className={cn(
-        "grid shrink-0 place-items-center rounded-[12px] font-display font-semibold",
-        "bg-[oklch(0.9_0.06_var(--h))] text-[oklch(0.32_0.09_var(--h))] dark:bg-[oklch(0.3_0.07_var(--h))] dark:text-[oklch(0.9_0.07_var(--h))]",
-        size === "lg" ? "size-16 text-2xl sm:size-20 sm:text-3xl" : "size-12 text-lg",
-      )}
-    >
-      {initials}
-    </span>
-  );
-}
+import { CommunityIcon } from "@/components/social/community";
 
 export function Stars({ value, className }: { value: number; className?: string }) {
   return (
@@ -51,13 +23,13 @@ export function Stars({ value, className }: { value: number; className?: string 
   );
 }
 
-export function CompanyCard({ company, stats }: { company: Company; stats?: CompanyStats }) {
+export function CompanyCard({ company, stats, discussions }: { company: Company; stats?: CompanyStats; discussions?: number }) {
   return (
     <Card className="group relative flex flex-col gap-4 p-5 transition-colors hover:border-muted/50">
       <div className="flex items-start gap-3">
-        <Monogram name={company.label} />
+        <CommunityIcon company={company.id} size={48} />
         <div className="min-w-0 flex-1">
-          <Link href={`/company/?name=${company.id}`} className="font-display text-lg font-semibold after:absolute after:inset-0 after:content-['']">
+          <Link href={`/company/?name=${company.id}`} className="font-display text-lg font-medium after:absolute after:inset-0 after:content-['']">
             {company.label}
           </Link>
           <p className="flex items-center gap-1 truncate text-sm text-muted">
@@ -72,11 +44,11 @@ export function CompanyCard({ company, stats }: { company: Company; stats?: Comp
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <div>
           <dt className="text-xs text-muted">Median CTC</dt>
-          <dd className="font-display text-2xl font-semibold">{stats?.medianCtc != null ? formatINRCompact(stats.medianCtc) : "—"}</dd>
+          <dd className="font-display text-2xl font-medium">{stats?.medianCtc != null ? formatINRCompact(stats.medianCtc) : "—"}</dd>
         </div>
         <div>
-          <dt className="text-xs text-muted">Entries</dt>
-          <dd className="tabular font-display text-2xl font-semibold">{stats?.entries ?? "—"}</dd>
+          <dt className="text-xs text-muted">Discussions</dt>
+          <dd className="tabular font-display text-2xl font-medium">{discussions ?? "—"}</dd>
         </div>
         <div>
           <dt className="text-xs text-muted">Rating</dt>
@@ -139,7 +111,7 @@ export function SalaryMatrix({ company, entries }: { company: string; entries: S
     }
     return (
       <Link href={href(role, level)} className="block rounded-md px-2 py-1 hover:bg-surface-2">
-        <span className="block font-display text-lg font-semibold leading-tight">{formatINRCompact(cell.median)}</span>
+        <span className="block font-display text-lg font-medium leading-tight">{formatINRCompact(cell.median)}</span>
         <span className="tabular text-xs text-muted">{cell.count} entries</span>
       </Link>
     );
@@ -225,22 +197,6 @@ export function RatingBars({ reviews }: { reviews: Review[] }) {
         );
       })}
     </ul>
-  );
-}
-
-export function ReviewCard({ review, now, flagged }: { review: Review; now: number; flagged?: boolean }) {
-  return (
-    <Card className={cn("p-4", flagged && "border-trust-low/40")}>
-      <div className="flex items-center justify-between gap-2">
-        <Stars value={reviewAvg(review)} />
-        <TimeAgo ts={review.createdAt} now={now} className="text-xs text-muted" />
-      </div>
-      {review.comment ? <p className="mt-2 text-sm">{review.comment}</p> : <p className="mt-2 text-sm italic text-muted">No comment.</p>}
-      <p className="tabular mt-3 text-xs text-muted">
-        WLB {review.wlb} · Mgmt {review.management} · Growth {review.growth} · Culture {review.culture}
-      </p>
-      {flagged && <p className="mt-2 text-xs font-medium text-trust-low">From a wallet flagged for a posting burst</p>}
-    </Card>
   );
 }
 

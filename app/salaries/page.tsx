@@ -65,7 +65,7 @@ function SalariesView() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
       <header className="mb-6 flex flex-col gap-2 sm:mb-8">
-        <h1 className="text-4xl font-semibold sm:text-5xl">Packages</h1>
+        <h1 className="text-3xl font-medium sm:text-4xl">Packages</h1>
         <p className="max-w-2xl text-muted">
           Every number below is an Arkiv entity. Filter it, check the query, run it yourself.
         </p>
@@ -76,7 +76,7 @@ function SalariesView() {
         <aside aria-label="Filters" className="hidden md:block">
           <div className="sticky top-24 flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg font-semibold">Filters</h2>
+              <h2 className="font-display text-lg font-medium">Filters</h2>
               {count > 0 && (
                 <Button variant="ghost" size="sm" onClick={() => setDraft({ ...DEFAULT_FILTERS, sort: filters.sort })}>
                   <RotateCcw /> Reset

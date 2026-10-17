@@ -65,7 +65,7 @@ function PostView() {
         {p.kind === "salary" && (
           <Card className="flex flex-col gap-4 p-5 sm:p-6">
             <div>
-              <h2 className="font-display text-lg font-semibold">Is this still accurate?</h2>
+              <h2 className="font-display text-lg font-medium">Is this still accurate?</h2>
               <p className="text-sm text-muted">Stale salaries mislead, so posts expire. If this matches what you know, extend it.</p>
             </div>
             <LifeBar expiresAt={p.expiresAt} createdAt={p.createdAt} size="lg" />
@@ -108,7 +108,7 @@ function PostView() {
         )}
         {p.kind === "salary" && (
           <Card className="p-4 sm:p-5">
-            <h2 className="mb-4 font-display text-lg font-semibold">Trust</h2>
+            <h2 className="mb-4 font-display text-lg font-medium">Trust</h2>
             {trust ? (
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">

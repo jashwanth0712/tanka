@@ -139,7 +139,7 @@ export function TrustRing({ trust, size = 112 }: { trust: TrustResult; size?: nu
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-3xl font-semibold">{trust.score}</span>
+        <span className="font-display text-2xl font-medium">{trust.score}</span>
         <span className={cn("flex items-center gap-1 text-xs font-medium", s.text)}>
           <s.Icon className="size-3" aria-hidden />
           {labelOf(trust)}

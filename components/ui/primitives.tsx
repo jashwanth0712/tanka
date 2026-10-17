@@ -1,21 +1,9 @@
-// Small presentational primitives: Card, Badge, Input, Textarea, Select (native), Skeleton, Separator, Label.
+// Small presentational primitives: Card, Input, Textarea, Select (native), Skeleton, Label.
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("glass rounded-[18px]", className)} {...props} />;
-}
-
-export function Badge({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full border border-border bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-muted",
-        className,
-      )}
-      {...props}
-    />
-  );
 }
 
 const control =
@@ -62,12 +50,3 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
   return <div aria-hidden className={cn("animate-pulse rounded-md bg-surface-2", className)} {...props} />;
 }
 
-export function Separator({ className, vertical }: { className?: string; vertical?: boolean }) {
-  return (
-    <div
-      role="separator"
-      aria-orientation={vertical ? "vertical" : "horizontal"}
-      className={cn("shrink-0 bg-border", vertical ? "w-px self-stretch" : "h-px w-full", className)}
-    />
-  );
-}
