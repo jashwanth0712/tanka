@@ -37,7 +37,7 @@ function Stepper({ step }: { step: Step }) {
         aria-valuemax={3}
         aria-valuenow={current}
       >
-        <motion.div className="h-full bg-accent" animate={{ width: `${step === 4 ? 100 : (current / 3) * 100}%` }} transition={{ duration: 0.3 }} />
+        <motion.div className="h-full bg-gradient-primary" animate={{ width: `${step === 4 ? 100 : (current / 3) * 100}%` }} transition={{ duration: 0.3 }} />
       </div>
       <ol className="mt-3 grid grid-cols-3 gap-2 text-xs sm:text-sm">
         {STEPS.map((s, i) => (
@@ -46,7 +46,7 @@ function Stepper({ step }: { step: Step }) {
             aria-current={current === i + 1 ? "step" : undefined}
             className={cn("flex items-center gap-1.5", i + 1 <= current ? "font-semibold text-text" : "text-muted", i === 2 && "justify-end text-right", i === 1 && "justify-center")}
           >
-            <span className={cn("grid size-5 shrink-0 place-items-center rounded-full border text-[11px]", i + 1 < current || step === 4 ? "border-accent bg-accent text-accent-fg" : i + 1 === current ? "border-accent text-accent-ink" : "border-border")}>
+            <span className={cn("grid size-5 shrink-0 place-items-center rounded-full border text-[11px]", i + 1 < current || step === 4 ? "border-transparent bg-gradient-primary text-accent-fg" : i + 1 === current ? "border-accent text-accent-ink" : "border-border")}>
               {i + 1 < current || step === 4 ? <Check className="size-3" /> : i + 1}
             </span>
             {s}
@@ -69,9 +69,9 @@ function TypeStep({ onPick }: { onPick: (k: Kind) => void }) {
           key={k}
           type="button"
           onClick={() => onPick(k)}
-          className="group flex flex-col items-start gap-3 rounded-[14px] border border-border bg-surface p-6 text-left transition-colors hover:border-accent/70 cursor-pointer"
+          className="glass group flex flex-col items-start gap-3 rounded-[18px] p-6 text-left transition-[border-color,transform] hover:-translate-y-0.5 hover:border-accent/50 cursor-pointer"
         >
-          <span className="grid size-12 place-items-center rounded-[12px] bg-accent/15 text-accent-ink">
+          <span className="grid size-12 place-items-center rounded-[14px] bg-gradient-primary text-accent-fg glow">
             <Icon className="size-6" aria-hidden />
           </span>
           <span className="font-display text-2xl font-bold">{title}</span>
@@ -97,12 +97,12 @@ function WalletChoice({ value, onChange }: { value: "fresh" | "connected"; onCha
           aria-checked={value === v}
           onClick={() => onChange(v)}
           className={cn(
-            "flex items-start gap-3 rounded-[14px] border p-4 text-left transition-colors cursor-pointer",
+            "glass flex items-start gap-3 rounded-[18px] p-4 text-left transition-colors cursor-pointer",
             value === v ? "border-accent bg-accent/5" : "border-border hover:border-muted/60",
           )}
         >
           <span className={cn("mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border-2", value === v ? "border-accent" : "border-border")}>
-            {value === v && <span className="size-2.5 rounded-full bg-accent" />}
+            {value === v && <span className="size-2.5 rounded-full bg-gradient-primary" />}
           </span>
           <span className="min-w-0">
             <span className="flex flex-wrap items-center gap-2 font-semibold">

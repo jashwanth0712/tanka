@@ -32,7 +32,7 @@ export function Logo({ className }: { className?: string }) {
     <Link href="/" className={cn("group inline-flex items-center gap-2 rounded-md", className)} aria-label="Tankha home">
       <span
         aria-hidden
-        className="grid size-8 place-items-center rounded-[9px] bg-accent font-display text-lg font-extrabold text-accent-fg transition-transform group-hover:-rotate-6"
+        className="grid size-9 place-items-center rounded-[11px] bg-gradient-primary glow font-display text-lg font-extrabold text-accent-fg transition-transform group-hover:-rotate-6"
       >
         ₹
       </span>
@@ -60,7 +60,7 @@ export function ThemeToggle() {
 export function DemoBanner() {
   if (!isMock) return null;
   return (
-    <div role="status" className="bg-accent px-4 py-1.5 text-center text-xs font-semibold text-accent-fg">
+    <div role="status" className="bg-gradient-primary px-4 py-1.5 text-center text-xs font-bold text-accent-fg">
       Demo data — not reading from Arkiv
     </div>
   );
@@ -69,7 +69,7 @@ export function DemoBanner() {
 export function Nav() {
   const path = usePathname();
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-bg/55 backdrop-blur-2xl backdrop-saturate-150">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
         <Logo />
         <nav aria-label="Main" className="ml-4 hidden items-center gap-1 md:flex">
@@ -118,7 +118,7 @@ export function MobileTabBar() {
   return (
     <nav
       aria-label="Mobile"
-      className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg/95 backdrop-blur-md md:hidden"
+      className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg/60 backdrop-blur-2xl backdrop-saturate-150 md:hidden"
     >
       <ul className="mx-auto grid h-16 max-w-md grid-cols-5">
         {TABS.map(({ href, label, Icon, raised }) => {
@@ -134,7 +134,7 @@ export function MobileTabBar() {
                 )}
               >
                 {raised ? (
-                  <span className="-mt-6 grid size-14 place-items-center rounded-full bg-accent text-accent-fg shadow-raised ring-4 ring-bg">
+                  <span className="-mt-6 grid size-14 place-items-center rounded-full bg-gradient-primary text-accent-fg glow ring-4 ring-bg">
                     <Icon className="size-6" aria-hidden />
                   </span>
                 ) : (
@@ -158,7 +158,7 @@ export function Footer() {
     { href: DEMO_VIDEO_URL, label: "Demo video" },
   ];
   return (
-    <footer className="mt-24 border-t border-border">
+    <footer className="mt-24 border-t border-border bg-bg/40 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 sm:px-6 md:flex-row md:items-start md:justify-between">
         <div className="flex max-w-sm flex-col gap-3">
           <Logo />

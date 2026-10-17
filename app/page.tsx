@@ -61,7 +61,7 @@ export default function HomePage() {
   return (
     <div className="mx-auto grid max-w-7xl gap-6 px-4 py-5 sm:px-6 sm:py-8 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
       <aside className="hidden lg:block">
-        <div className="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto pb-6">
+        <div className="glass sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-[18px] p-2">
           <React.Suspense>
             <LeftRail />
           </React.Suspense>

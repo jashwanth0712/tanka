@@ -15,7 +15,7 @@ export function TakedownDiagram() {
     <figure aria-label="Many clients talk to many RPC endpoints, all reading the same Arkiv data" className="flex flex-col items-stretch gap-3">
       <ul className="grid grid-cols-3 gap-2 sm:gap-3">
         {clients.map(({ Icon, label, sub }) => (
-          <li key={label} className="flex flex-col items-center gap-1 rounded-[14px] border border-border bg-surface p-3 text-center">
+          <li key={label} className="flex flex-col items-center gap-1 glass rounded-[18px] p-3 text-center">
             <Icon className="size-5 text-accent-ink" aria-hidden />
             <span className="text-sm font-semibold">{label}</span>
             <span className="hidden text-[11px] text-muted sm:block">{sub}</span>
@@ -31,9 +31,9 @@ export function TakedownDiagram() {
         ))}
       </ul>
       <Connector />
-      <div className="rounded-[14px] border border-accent/50 bg-accent/10 p-5 text-center">
+      <div className="rounded-[18px] bg-gradient-primary p-5 text-center text-accent-fg glow">
         <p className="font-display text-2xl font-extrabold">Arkiv</p>
-        <p className="font-mono text-xs text-muted">salary · review · comment · vote · confirmation</p>
+        <p className="font-mono text-xs text-accent-fg/80">salary · review · comment · vote · confirmation</p>
       </div>
       <figcaption className="text-center text-xs text-muted">No server of ours sits in this picture.</figcaption>
     </figure>

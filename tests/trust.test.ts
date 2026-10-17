@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bandFor, computeTrust, computeTrustIndex } from "@/lib/trust";
+import { bandFor, computeTrust, computeTrustIndex, passesTrustFilter } from "@/lib/trust";
 import type { Address, Confirmation, EntityKey, SalaryEntry } from "@/lib/data/types";
 import { DAY } from "@/lib/format";
 import { generateSeed } from "@/lib/seed/generate";
@@ -99,6 +99,24 @@ describe("trust", () => {
     const w = oldWallet(e);
     expect(run(e, { wallet: w }).parts.freshness).toBe(5);
     expect(run(e, { wallet: w, confirmations: [conf(e, A("b"), NOW - 10 * DAY)] }).parts.freshness).toBe(15);
+  });
+
+  it("gives unflagged new posts a 72h 'New' grace period", () => {
+    const fresh = entry({ createdAt: NOW - 3_600_000 });
+    const t = run(fresh, { wallet: { firstSeenAt: fresh.createdAt, entries: [fresh] } });
+    expect(t.band).toBe("low");
+    expect(t.isNew).toBe(true);
+    expect(passesTrustFilter(t, "medium")).toBe(true);
+    expect(passesTrustFilter(t, "high")).toBe(false);
+  });
+
+  it("no grace for flagged or older posts", () => {
+    const es = [0, 1, 2, 3].map((i) => entry({ createdAt: NOW - 3_600_000 + i * 60_000 }));
+    const burst = run(es[0], { wallet: { firstSeenAt: es[0].createdAt, entries: es } });
+    expect(burst.isNew).toBe(false);
+    expect(passesTrustFilter(burst, "medium")).toBe(false);
+    const old = entry({ createdAt: NOW - 4 * DAY });
+    expect(run(old, { wallet: { firstSeenAt: old.createdAt, entries: [old] } }).isNew).toBe(false);
   });
 
   it("band boundaries", () => {

@@ -2,53 +2,87 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ── Tokens: "Ledger at night" ─────────────────────────────────────────── */
+/* ── Tokens: "Glow" — vivid gradients over glass ───────────────────────── */
 :root {
-  --bg: #faf8f3;
-  --surface: #ffffff;
-  --surface-2: #f2efe7;
-  --border: #e4dfd3;
-  --text: #14161b;
-  --muted: #5d6270;
-  --accent: #c97c00;
-  /* Dark text on marigold keeps WCAG AA in light mode (white on #C97C00 is ~3:1). */
-  --accent-fg: #14161b;
-  /* Accent used as *text* on light surfaces needs to be darker to pass AA. */
-  --accent-ink: #8a5500;
-  --trust-high: #15803d;
-  --trust-mid: #a16207;
-  --trust-low: #c2410c;
-  --danger: #b91c1c;
-  --chain: #0369a1;
-  --shadow: 0 10px 30px -12px rgb(20 22 27 / 0.18);
+  --bg: #fff7f0;
+  --surface: rgb(255 255 255 / 0.55);
+  --surface-strong: rgb(255 255 255 / 0.9);
+  --surface-solid: #ffffff;
+  --surface-2: rgb(40 24 80 / 0.055);
+  --border: rgb(40 24 80 / 0.11);
+  --text: #17132a;
+  --muted: #5b5670;
+  --accent: #ff8a1f;
+  --accent-2: #ff3d8b;
+  --accent-3: #7c4dff;
+  --accent-fg: #17132a;
+  /* Accent as *text* on light glass must be darker to keep WCAG AA. */
+  --accent-ink: #b4410a;
+  --trust-high: #036548;
+  --trust-mid: #8a4a00;
+  --trust-low: #be123c;
+  --danger: #be123c;
+  --chain: #0a5c72;
+
+  --grad-primary: linear-gradient(120deg, #ffb020 0%, #ff7a45 45%, #ff4d8d 100%);
+  --grad-text: linear-gradient(100deg, #c2410c 0%, #db2777 60%, #7c3aed 100%);
+  --grad-soft: linear-gradient(120deg, rgb(255 176 32 / 0.18), rgb(255 77 141 / 0.16));
+  --glow: rgb(255 106 61 / 0.45);
+  --glass-highlight: rgb(255 255 255 / 0.75);
+  --shadow: 0 10px 40px -18px rgb(60 30 90 / 0.35);
+
+  --blob-1: rgb(255 150 50 / 0.55);
+  --blob-2: rgb(255 77 141 / 0.42);
+  --blob-3: rgb(124 77 255 / 0.36);
+  --blob-4: rgb(34 211 238 / 0.34);
+  --blob-5: rgb(255 196 0 / 0.3);
 }
 
 .dark {
-  --bg: #0b0d12;
-  --surface: #12151c;
-  --surface-2: #1a1e27;
-  --border: #262b36;
-  --text: #ecedef;
-  --muted: #8a90a0;
-  --accent: #f5a524;
-  --accent-fg: #14161b;
-  --accent-ink: #f5a524;
-  --trust-high: #22c55e;
-  --trust-mid: #eab308;
-  --trust-low: #f97316;
-  --danger: #ef4444;
-  --chain: #7dd3fc;
-  --shadow: 0 12px 40px -16px rgb(0 0 0 / 0.7);
+  --bg: #07060d;
+  --surface: rgb(22 20 38 / 0.46);
+  --surface-strong: rgb(22 20 36 / 0.9);
+  --surface-solid: #16142a;
+  --surface-2: rgb(255 255 255 / 0.065);
+  --border: rgb(255 255 255 / 0.1);
+  --text: #f3f2fa;
+  --muted: #a39fbb;
+  --accent: #ffb020;
+  --accent-2: #ff4d8d;
+  --accent-3: #8b6bff;
+  --accent-fg: #17132a;
+  --accent-ink: #ffb547;
+  --trust-high: #34d399;
+  --trust-mid: #fbbf24;
+  --trust-low: #fb7185;
+  --danger: #fb5a7a;
+  --chain: #67e8f9;
+
+  --grad-primary: linear-gradient(120deg, #ffc02e 0%, #ff7a45 45%, #ff4d8d 100%);
+  --grad-text: linear-gradient(100deg, #ffd166 0%, #ff8a5c 45%, #ff5fa2 100%);
+  --grad-soft: linear-gradient(120deg, rgb(255 176 32 / 0.16), rgb(255 77 141 / 0.14));
+  --glow: rgb(255 106 61 / 0.55);
+  --glass-highlight: rgb(255 255 255 / 0.07);
+  --shadow: 0 18px 50px -24px rgb(0 0 0 / 0.85);
+
+  --blob-1: rgb(255 122 69 / 0.55);
+  --blob-2: rgb(255 61 139 / 0.45);
+  --blob-3: rgb(124 77 255 / 0.55);
+  --blob-4: rgb(34 211 238 / 0.32);
+  --blob-5: rgb(255 77 141 / 0.28);
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
   --color-surface-2: var(--surface-2);
   --color-border: var(--border);
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-accent-3: var(--accent-3);
   --color-accent-fg: var(--accent-fg);
   --color-accent-ink: var(--accent-ink);
   --color-trust-high: var(--trust-high);
@@ -60,9 +94,6 @@
   --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
-
-  --radius-card: 14px;
-  --radius-control: 10px;
 
   --shadow-raised: var(--shadow);
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
@@ -78,9 +109,10 @@
 @layer base {
   *, ::before, ::after { border-color: var(--border); }
 
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; background: var(--bg); }
   body {
-    background: var(--bg);
+    /* Background lives on <html> only, so the fixed ambient layer (z-index -1) shows through. */
+    background: transparent;
     color: var(--text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -93,20 +125,85 @@
     border-radius: 6px;
   }
 
-  ::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+  ::selection { background: color-mix(in srgb, var(--accent-2) 35%, transparent); }
 
   h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.025em; }
+
+  /* Native <option> lists can't be translucent. */
+  option { background: var(--surface-solid); color: var(--text); }
+}
+
+@layer components {
+  /* Frosted glass card. */
+  .glass {
+    background: var(--surface);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid var(--border);
+    box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow);
+  }
+  /* Denser glass for overlays (popovers, dialogs, sticky bars) where text sits on anything. */
+  .glass-strong {
+    background: var(--surface-strong);
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
+    backdrop-filter: blur(24px) saturate(170%);
+    border: 1px solid var(--border);
+    box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow);
+  }
+  .bg-gradient-primary { background-image: var(--grad-primary); }
+  .bg-gradient-soft { background-image: var(--grad-soft); }
+  .text-gradient {
+    background-image: var(--grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glow { box-shadow: 0 10px 30px -10px var(--glow); }
 }
 
 /* Numbers line up everywhere. */
 .tabular, table, .font-mono, .font-display { font-variant-numeric: tabular-nums; }
 
-/* Faint grid for the landing hero only. */
+/* ── Ambient background: slow-drifting blurred colour fields behind the glass ── */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ambient span {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  will-change: transform;
+  animation: drift 28s ease-in-out infinite alternate;
+}
+.ambient span:nth-child(1) { width: 46vmax; height: 46vmax; left: -12vmax; top: -14vmax; background: var(--blob-1); }
+.ambient span:nth-child(2) { width: 38vmax; height: 38vmax; right: -10vmax; top: 4vmax; background: var(--blob-2); animation-duration: 34s; animation-delay: -8s; }
+.ambient span:nth-child(3) { width: 42vmax; height: 42vmax; left: 18vmax; bottom: -20vmax; background: var(--blob-3); animation-duration: 40s; animation-delay: -16s; }
+.ambient span:nth-child(4) { width: 30vmax; height: 30vmax; right: 8vmax; bottom: -8vmax; background: var(--blob-4); animation-duration: 31s; animation-delay: -4s; }
+.ambient span:nth-child(5) { width: 34vmax; height: 26vmax; left: 30vw; top: 30vh; background: var(--blob-5); animation-duration: 37s; animation-delay: -12s; }
+.ambient::after {
+  /* faint grain so the gradients don't band */
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@keyframes drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4vmax, 3vmax, 0) scale(1.08); }
+  100% { transform: translate3d(-3vmax, 5vmax, 0) scale(0.95); }
+}
+
+/* Faint grid, used on banners. */
 .hero-grid {
   background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px);
-  background-size: 44px 44px;
+    linear-gradient(to right, color-mix(in srgb, var(--text) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--text) 7%, transparent) 1px, transparent 1px);
+  background-size: 36px 36px;
   mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 30%, transparent 75%);
 }
 
@@ -123,8 +220,12 @@
 
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-/* Recharts focus outline off (bars aren't interactive). */
 .recharts-wrapper *:focus { outline: none; }
+
+/* Browsers without backdrop-filter get an opaque surface instead of unreadable text. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass, .glass-strong { background: var(--surface-solid); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
@@ -132,4 +233,5 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+  .ambient span { animation: none; }
 }

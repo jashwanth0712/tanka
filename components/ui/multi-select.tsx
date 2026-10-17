@@ -92,7 +92,7 @@ export function MultiSelect({
                     <span
                       className={cn(
                         "grid size-4 place-items-center rounded border",
-                        on ? "border-accent bg-accent text-accent-fg" : "border-border",
+                        on ? "border-transparent bg-gradient-primary text-accent-fg" : "border-border",
                       )}
                       aria-hidden
                     >
@@ -134,7 +134,7 @@ export function Segmented<T extends string>({
           onClick={() => onChange(o.value)}
           className={cn(
             "h-9 rounded-[7px] px-2 text-xs font-semibold transition-colors cursor-pointer",
-            value === o.value ? "bg-surface text-text shadow-sm" : "text-muted hover:text-text",
+            value === o.value ? "bg-gradient-soft text-text ring-1 ring-accent/40" : "text-muted hover:text-text",
           )}
         >
           {o.label}

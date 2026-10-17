@@ -4,6 +4,9 @@ import { DAY } from "./format";
 
 export type TrustBand = "high" | "medium" | "low";
 
+/** New posts get 72 hours to collect confirmations before a low score hides them. */
+export const NEW_GRACE_MS = 72 * 60 * 60 * 1000;
+
 export interface TrustParts {
   confirmations: number; // 0–40
   rangeFit: number; // 0–30
@@ -19,6 +22,11 @@ export interface TrustFlag {
 export interface TrustResult {
   score: number;
   band: TrustBand;
+  /**
+   * Grace period: a post under 72h old that scores Low only because nobody has had time to confirm it
+   * (and has no Unusual/Burst flags) is shown as "New" instead of "Unusual" and isn't hidden.
+   */
+  isNew: boolean;
   parts: TrustParts;
   flags: TrustFlag[];
   /** Extra numbers for the breakdown UI. */
@@ -101,9 +109,11 @@ export function computeTrust({ entry, peers, confirmations, wallet, now = Date.n
 
   const parts: TrustParts = { confirmations: confirmationsPts, rangeFit, walletHistory, freshness };
   const score = confirmationsPts + rangeFit + walletHistory + freshness;
+  const band = bandFor(score);
   return {
     score,
-    band: bandFor(score),
+    band,
+    isNew: band === "low" && flags.length === 0 && now - entry.createdAt < NEW_GRACE_MS,
     parts,
     flags,
     detail: {
@@ -183,5 +193,5 @@ export type TrustFilter = "all" | "medium" | "high";
 export function passesTrustFilter(t: TrustResult | undefined, f: TrustFilter): boolean {
   if (!t || f === "all") return true;
   if (f === "high") return t.band === "high";
-  return t.band !== "low";
+  return t.band !== "low" || t.isNew;
 }

@@ -89,7 +89,7 @@ function SalariesView() {
 
         <section aria-label="Results" className="flex min-w-0 flex-col gap-4">
           {/* Mobile sticky filter bar */}
-          <div className="sticky top-16 z-30 -mx-4 flex gap-2 border-b border-border bg-bg/90 px-4 py-2 backdrop-blur md:hidden">
+          <div className="sticky top-16 z-30 -mx-4 flex gap-2 border-b border-border bg-bg/60 px-4 py-2 backdrop-blur-2xl md:hidden">
             <FilterDrawer value={filters} onApply={setFilters} />
             <label className="sr-only" htmlFor="sort-mobile">
               Sort

@@ -19,7 +19,7 @@ export function RangeBar({ s, className }: { s: Summary; className?: string }) {
     <div className={className}>
       <div className="relative h-2.5 rounded-full bg-surface-2" role="img" aria-label={`Middle 50% earn ${formatINR(s.p25)} to ${formatINR(s.p75)}; median ${formatINR(s.median)}`}>
         <div
-          className="absolute inset-y-0 rounded-full bg-accent/70"
+          className="absolute inset-y-0 rounded-full bg-gradient-primary"
           style={{ left: `${pos(s.p25)}%`, width: `${Math.max(2, pos(s.p75) - pos(s.p25))}%` }}
         />
         <div className="absolute -inset-y-1 w-0.5 rounded-full bg-text" style={{ left: `calc(${pos(s.median)}% - 1px)` }} />
@@ -40,7 +40,7 @@ function HistTooltip({ active, payload }: { active?: boolean; payload?: { payloa
   if (!active || !payload?.length) return null;
   const b = payload[0].payload;
   return (
-    <div className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs shadow-raised">
+    <div className="glass-strong rounded-lg px-2.5 py-1.5 text-xs">
       <p className="tabular text-muted">
         {formatINRCompact(b.start)} – {formatINRCompact(b.end)}
       </p>
@@ -71,7 +71,13 @@ export function Histogram({ values }: { values: number[] }) {
           />
           <YAxis hide allowDecimals={false} />
           <Tooltip content={<HistTooltip />} cursor={{ fill: "var(--surface-2)" }} isAnimationActive={false} />
-          <Bar dataKey="count" fill="var(--accent)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+          <defs>
+            <linearGradient id="hist-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent-2)" />
+              <stop offset="100%" stopColor="var(--accent)" />
+            </linearGradient>
+          </defs>
+          <Bar dataKey="count" fill="url(#hist-fill)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -122,7 +128,7 @@ export function AggregatePanel({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-10">
         <div className="flex flex-col">
           <p className="text-sm font-medium text-muted">Median annual CTC</p>
-          <p className="font-display text-5xl font-extrabold leading-none tracking-tight sm:text-6xl">
+          <p className="text-gradient font-display text-5xl font-extrabold leading-none tracking-tight sm:text-6xl">
             <CountUp value={s.median} format={formatINRCompact} />
           </p>
           <RangeBar s={s} className="mt-5" />

@@ -32,8 +32,8 @@ function Section({ id, n, title, children, lead }: { id?: string; n: string; tit
 
 function CodeBlock({ code, label }: { code: string; label: string }) {
   return (
-    <div className="relative rounded-[10px] border border-border bg-bg">
-      <pre className="overflow-x-auto p-4 pr-12 font-mono text-xs leading-relaxed text-chain">
+    <div className="relative rounded-[12px] border border-border bg-bg/60">
+      <pre tabIndex={0} aria-label={label} className="overflow-x-auto p-4 pr-12 font-mono text-xs leading-relaxed text-chain">
         <code>{code}</code>
       </pre>
       <CopyButton value={code} label={`Copy ${label}`} className="absolute right-2 top-2" />
@@ -50,7 +50,7 @@ function RpcStatusTable() {
           <RpcRow key={e.url} url={e.url} label={e.label} selected={selected === e.url} />
         ))}
       </Card>
-      <details className="rounded-[14px] border border-border bg-surface p-4">
+      <details className="glass rounded-[18px] p-4">
         <summary className="cursor-pointer text-sm font-semibold">Switch endpoint or add your own</summary>
         <div className="mt-4 max-w-md">
           <RpcSwitcher />
@@ -157,9 +157,9 @@ function Playground() {
         </p>
       )}
       {result && (
-        <details open className="rounded-[10px] border border-border bg-bg">
+        <details open className="rounded-[12px] border border-border bg-bg/60">
           <summary className="cursor-pointer px-4 py-2.5 text-sm font-medium">Raw results (JSON)</summary>
-          <pre className="max-h-[420px] overflow-auto border-t border-border p-4 font-mono text-[11px] leading-relaxed text-muted">
+          <pre tabIndex={0} aria-label="Raw query results" className="max-h-[420px] overflow-auto border-t border-border p-4 font-mono text-[11px] leading-relaxed text-muted">
             {JSON.stringify(result.rows.slice(0, 50), null, 2)}
             {result.rows.length > 50 && `\n… ${result.rows.length - 50} more`}
           </pre>
@@ -176,7 +176,7 @@ export default function VerifyPage() {
       <header className="grid items-center gap-10 pb-10 sm:pb-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div>
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent-ink">Don&apos;t trust us</p>
-        <h1 className="mt-2 max-w-3xl text-4xl font-extrabold leading-[1.02] sm:text-6xl">This site is just one window into the data.</h1>
+        <h1 className="mt-2 max-w-3xl text-4xl font-extrabold leading-[1.02] sm:text-6xl">This site is just <span className="text-gradient">one window</span> into the data.</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted">
           Close it and the data is still there. Everything below lets you read Tankha&apos;s entries without this website — pick
           another RPC, run the queries yourself, use the CLI or plain curl. Posts, votes and comments are all just entities.

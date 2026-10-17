@@ -116,7 +116,7 @@ export function CountUp({ value, format = (n) => Math.round(n).toLocaleString("e
 
 export function EmptyState({ title, body, action }: { title: string; body?: string; action?: React.ReactNode }) {
   return (
-    <Card className="flex flex-col items-start gap-3 border-dashed p-8 sm:p-12">
+    <Card className="flex flex-col items-start gap-3 p-8 sm:p-12">
       <p className="font-display text-2xl font-bold sm:text-3xl">{title}</p>
       {body && <p className="max-w-md text-muted">{body}</p>}
       {action}

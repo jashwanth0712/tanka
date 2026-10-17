@@ -81,7 +81,7 @@ export function OnChainPanel({
   const [open, setOpen] = React.useState(false);
   const id = React.useId();
   return (
-    <div className="rounded-[14px] border border-border bg-surface">
+    <div className="glass rounded-[18px]">
       <button
         type="button"
         aria-expanded={open}
@@ -107,7 +107,7 @@ export function OnChainPanel({
           </dl>
           <div>
             <p className="mb-2 text-sm font-medium">Attributes</p>
-            <dl className="overflow-hidden rounded-[10px] border border-border bg-bg font-mono text-xs">
+            <dl className="overflow-hidden rounded-[12px] border border-border bg-bg/60 font-mono text-xs">
               {Object.entries(attributes).map(([k, v]) => (
                 <div key={k} className="flex gap-3 border-b border-border px-3 py-2 last:border-0">
                   <dt className="w-24 shrink-0 text-muted">{k}</dt>
@@ -149,7 +149,7 @@ export function Receipt({ receipt, kind }: { receipt: WriteReceipt; kind: string
       initial={{ clipPath: "inset(0 0 100% 0)", opacity: 0.4 }}
       animate={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="receipt mx-auto w-full max-w-md bg-surface px-6 py-9 font-mono text-sm shadow-raised"
+      className="receipt glass-strong mx-auto w-full max-w-md px-6 py-9 font-mono text-sm"
     >
       <div className="text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-muted">Tankha · Arkiv receipt</p>

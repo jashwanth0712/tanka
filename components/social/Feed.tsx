@@ -87,7 +87,7 @@ export function Feed({ company }: { company?: string }) {
         <IdentityAvatar address={wallet.address} size={32} />
         <Link
           href="/submit/"
-          className="flex h-10 flex-1 items-center rounded-full border border-border bg-surface-2 px-4 text-sm text-muted hover:border-muted/50"
+          className="flex h-10 min-w-0 flex-1 items-center truncate rounded-full border border-border bg-surface-2 px-4 text-sm text-muted transition-colors hover:border-accent/40"
         >
           {company ? `Post to c/${company}…` : "Share a salary or review, anonymously…"}
         </Link>
@@ -108,7 +108,7 @@ export function Feed({ company }: { company?: string }) {
               onClick={() => setParam("sort", value, "hot")}
               className={cn(
                 "inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-colors cursor-pointer",
-                sort === value ? "bg-surface-2 text-text" : "text-muted hover:bg-surface-2/60 hover:text-text",
+                sort === value ? "bg-gradient-soft text-text ring-1 ring-accent/40" : "text-muted hover:bg-surface-2 hover:text-text",
               )}
             >
               <Icon className="size-4" aria-hidden /> {label}
@@ -121,7 +121,7 @@ export function Feed({ company }: { company?: string }) {
             aria-label="Trust filter"
             value={trust}
             onChange={(e) => setParam("trust", e.target.value, "medium")}
-            className="h-9 rounded-full border border-border bg-surface px-3 text-xs font-semibold text-text cursor-pointer"
+            className="glass h-9 rounded-full px-3 text-xs font-semibold text-text cursor-pointer"
           >
             {TRUSTS.map((t) => (
               <option key={t.value} value={t.value}>{t.label}</option>

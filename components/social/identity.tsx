@@ -40,7 +40,7 @@ export function Handle({ address, op, className }: { address: string; op?: boole
     <span className={cn("inline-flex items-center gap-1.5", className)}>
       <IdentityAvatar address={address} size={16} />
       <span className="text-xs font-semibold tabular">{truncateAddress(address)}</span>
-      {op && <span className="rounded bg-accent/15 px-1 text-[10px] font-bold text-accent-ink">OP</span>}
+      {op && <span className="rounded-full bg-gradient-primary px-1.5 text-[10px] font-extrabold text-accent-fg">OP</span>}
     </span>
   );
 }
@@ -54,7 +54,7 @@ export function IdentityChip() {
   return (
     <Popover>
       <PopoverTrigger
-        className="grid size-9 place-items-center rounded-full border border-border bg-surface hover:bg-surface-2 cursor-pointer"
+        className="glass grid size-9 place-items-center rounded-full hover:bg-surface-2 cursor-pointer"
         aria-label={wallet.address ? `Your anonymous identity ${truncateAddress(wallet.address)}` : "Your anonymous identity"}
       >
         {wallet.address ? <IdentityAvatar address={wallet.address} size={22} /> : <UserRound className="size-4 text-muted" aria-hidden />}

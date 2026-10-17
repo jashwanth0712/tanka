@@ -10,7 +10,7 @@ import * as React from "react";
 import { Drawer as Vaul } from "vaul";
 import { cn } from "@/lib/utils";
 
-const panel = "z-50 rounded-[14px] border border-border bg-surface text-text shadow-raised";
+const panel = "z-50 glass-strong rounded-[18px] text-text";
 
 /* Popover */
 export const Popover = PopoverPrimitive.Root;
@@ -54,7 +54,7 @@ export function Tooltip({
           side={side}
           sideOffset={6}
           collisionPadding={8}
-          className="z-50 max-w-64 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-text shadow-raised"
+          className="z-50 max-w-64 glass-strong rounded-lg px-2.5 py-1.5 text-xs text-text"
         >
           {content}
         </TooltipPrimitive.Content>
@@ -75,7 +75,7 @@ export function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px]" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-md" />
       <DialogPrimitive.Content
         className={cn(
           panel,
@@ -104,10 +104,10 @@ export const DrawerTitle = Vaul.Title;
 export function DrawerContent({ className, children, ...props }: React.ComponentProps<typeof Vaul.Content>) {
   return (
     <Vaul.Portal>
-      <Vaul.Overlay className="fixed inset-0 z-50 bg-black/60" />
+      <Vaul.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-md" />
       <Vaul.Content
         className={cn(
-          "fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col rounded-t-[18px] border-t border-border bg-surface outline-none",
+          "glass-strong fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col rounded-t-[24px] outline-none",
           className,
         )}
         {...props}
@@ -133,7 +133,7 @@ export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        "-mb-px inline-flex h-11 shrink-0 items-center gap-2 border-b-2 border-transparent px-3 text-sm font-semibold text-muted transition-colors hover:text-text data-[state=active]:border-accent data-[state=active]:text-text cursor-pointer",
+        "-mb-px inline-flex h-11 shrink-0 items-center gap-2 border-b-2 border-transparent px-3 text-sm font-semibold text-muted transition-colors hover:text-text data-[state=active]:border-accent-2 data-[state=active]:text-text cursor-pointer",
         className,
       )}
       {...props}
@@ -151,13 +151,13 @@ export function Slider({ className, ...props }: React.ComponentProps<typeof Slid
       {...props}
     >
       <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-surface-2">
-        <SliderPrimitive.Range className="absolute h-full bg-accent" />
+        <SliderPrimitive.Range className="absolute h-full bg-gradient-primary" />
       </SliderPrimitive.Track>
       {Array.from({ length: count }, (_, i) => (
         <SliderPrimitive.Thumb
           key={i}
           aria-label={props["aria-label"] ? `${props["aria-label"]} ${i === 0 ? "min" : "max"}` : undefined}
-          className="block size-5 rounded-full border-2 border-accent bg-surface shadow-raised transition-transform hover:scale-110 cursor-grab active:cursor-grabbing"
+          className="block size-5 rounded-full border-2 border-accent bg-[var(--surface-solid)] glow transition-transform hover:scale-110 cursor-grab active:cursor-grabbing"
         />
       ))}
     </SliderPrimitive.Root>

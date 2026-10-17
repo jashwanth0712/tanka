@@ -36,7 +36,7 @@ export function QueryReveal({ queries, className, note }: { queries: (string | u
             <div className="mt-2 flex flex-col gap-2">
               {list.length === 0 && <p className="text-muted">Loading…</p>}
               {list.map((q) => (
-                <div key={q} className="flex items-start gap-2 rounded-[10px] border border-border bg-bg p-3">
+                <div key={q} className="flex items-start gap-2 rounded-[12px] border border-border bg-bg/60 p-3">
                   <code className="min-w-0 flex-1 break-all font-mono text-xs leading-relaxed text-chain">{q}</code>
                   <CopyButton value={q} label="Copy query" />
                 </div>

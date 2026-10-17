@@ -118,7 +118,7 @@ function CommentItem({
           className="group flex w-5 shrink-0 flex-col items-center pt-1 cursor-pointer"
         >
           <span className="text-[11px] leading-none text-muted group-hover:text-text">{collapsed ? "+" : "−"}</span>
-          {!collapsed && <span className="mt-1 w-px flex-1 bg-border group-hover:bg-accent" />}
+          {!collapsed && <span className="mt-1 w-px flex-1 bg-border transition-colors group-hover:bg-accent-2" />}
         </button>
         <div className="min-w-0 flex-1 pb-3">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
@@ -200,7 +200,7 @@ export function CommentThread({
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as "top" | "new")}
-            className="h-9 rounded-full border border-border bg-surface px-3 text-xs font-semibold text-text cursor-pointer"
+            className="glass h-9 rounded-full px-3 text-xs font-semibold text-text cursor-pointer"
           >
             <option value="top">Top</option>
             <option value="new">New</option>

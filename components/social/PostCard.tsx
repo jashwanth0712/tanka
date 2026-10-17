@@ -38,7 +38,9 @@ function SalaryBody({ p, trust, big }: { p: SalaryEntry; trust?: TrustResult; bi
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
         <p className={cn("font-display font-extrabold leading-none tracking-tight", big ? "text-6xl sm:text-7xl" : "text-4xl")}>
-          <Money value={p.ctc} />
+          <span className="text-gradient">
+            <Money value={p.ctc} />
+          </span>
           <span className="ml-2 align-middle font-sans text-xs font-medium tracking-normal text-muted">/ yr</span>
         </p>
       </div>
@@ -93,6 +95,7 @@ function ConfirmPill({ p }: { p: SalaryEntry }) {
   return (
     <button
       type="button"
+      aria-label={done ? "Confirmed still accurate" : "Confirm this salary is still accurate"}
       disabled={confirm.isPending || done}
       onClick={async (e) => {
         e.preventDefault();
@@ -143,7 +146,7 @@ export function PostCard({
 
   const Title = full ? "h1" : "h2";
   const body = (
-    <Card className={cn("relative transition-colors", !full && "hover:border-muted/50", lowTrust && "border-trust-low/40")}>
+    <Card className={cn("relative transition-[border-color,transform,box-shadow] duration-200", !full && "hover:-translate-y-0.5 hover:border-accent/35", lowTrust && "border-trust-low/40")}>
       <div className={cn("flex flex-col gap-3", full ? "p-5 sm:p-7" : "p-4 sm:p-5")}>
         <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
           {showCommunity && (
@@ -161,7 +164,7 @@ export function PostCard({
               Your post · visible to you
             </span>
           )}
-          <span className={cn("ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold", post.kind === "salary" ? "bg-chain/10 text-chain" : "bg-accent/12 text-accent-ink")}>
+          <span className={cn("ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold", post.kind === "salary" ? "bg-chain/12 text-chain ring-1 ring-chain/25" : "bg-accent-2/12 text-accent-ink ring-1 ring-accent-2/25")}>
             {post.kind === "salary" ? "Salary" : "Review"}
           </span>
         </header>

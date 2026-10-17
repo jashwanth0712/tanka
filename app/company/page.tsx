@@ -71,11 +71,11 @@ function CommunityView() {
       <div
         aria-hidden
         style={{ "--h": hueOf(company.label) } as React.CSSProperties}
-        className="hero-grid h-20 bg-[oklch(0.86_0.06_var(--h))] sm:h-28 dark:bg-[oklch(0.3_0.07_var(--h))]"
+        className="relative h-24 bg-[linear-gradient(120deg,oklch(0.75_0.16_var(--h)),var(--accent-2)_70%,var(--accent-3))] sm:h-32 dark:bg-[linear-gradient(120deg,oklch(0.45_0.16_var(--h)),color-mix(in_srgb,var(--accent-2)_70%,black)_70%,color-mix(in_srgb,var(--accent-3)_70%,black))]"
       />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <header className="-mt-8 flex flex-col gap-3 sm:-mt-10 sm:flex-row sm:items-end">
-          <span className="w-fit rounded-full border-4 border-bg">
+        <header className="relative z-10 -mt-8 flex flex-col gap-3 sm:-mt-10 sm:flex-row sm:items-end">
+          <span className="w-fit rounded-full border-4 border-[var(--bg)] glow">
             <CommunityIcon company={id} size={72} />
           </span>
           <div className="min-w-0 flex-1 sm:pb-1">
@@ -91,9 +91,9 @@ function CommunityView() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="flex min-w-0 flex-col gap-4">
-            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-[14px] border border-border bg-border sm:grid-cols-4 lg:hidden">
+            <dl className="glass grid grid-cols-2 gap-px overflow-hidden rounded-[18px] bg-border sm:grid-cols-4 lg:hidden">
               {statItems.map(([label, value]) => (
-                <div key={label} className="bg-surface p-3">
+                <div key={label} className="bg-[var(--surface-strong)] p-3">
                   <dt className="text-xs text-muted">{label}</dt>
                   <dd className="tabular font-display text-xl font-bold">{value ?? <Skeleton className="mt-1 h-6 w-16" />}</dd>
                 </div>

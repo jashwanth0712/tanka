@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-[14px] border border-border bg-surface", className)} {...props} />;
+  return <div className={cn("glass rounded-[18px]", className)} {...props} />;
 }
 
 export function Badge({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) {
@@ -19,7 +19,7 @@ export function Badge({ className, ...props }: React.HTMLAttributes<HTMLSpanElem
 }
 
 const control =
-  "w-full rounded-[10px] border border-border bg-surface-2 px-3 text-base sm:text-sm text-text placeholder:text-muted/80 transition-colors hover:border-muted/50 focus-visible:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:opacity-50";
+  "w-full rounded-[12px] border border-border bg-surface-2 backdrop-blur-sm px-3 text-base sm:text-sm text-text placeholder:text-muted/80 transition-colors hover:border-muted/50 focus-visible:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:opacity-50";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => <input ref={ref} className={cn(control, "h-11", className)} {...props} />,

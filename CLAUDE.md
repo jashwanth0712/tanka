@@ -88,10 +88,16 @@ Global UI:
 
 ---
 
-## 4. Design system — "Ledger at night"
+## 4. Design system — "Glow" (vivid gradients over frosted glass)
 
 ### Direction
-A friendly social feed with on-chain precision. Reads like a modern community app (Reddit-style cards, vote pills, threads) with big bold salary numbers, monospace only for on-chain data, and one warm accent (marigold — a nod to India) against deep ink. **Not** the generic purple-gradient web3 look, and **not** a clone of Reddit's branding (no Reddit logo, colours or typeface).
+A vibrant social feed with on-chain precision. Frosted-glass cards (semi-transparent, `backdrop-filter: blur(18px) saturate(160%)`) float over slow-drifting, heavily blurred colour fields (marigold, hot pink, violet, cyan). Primary actions, the logo, the active upvote and big salary numbers use a **marigold → coral → pink gradient** with a soft glow. Monospace only for on-chain data. **Not** a clone of Reddit's branding (no Reddit logo, colours or typeface).
+
+Rules for the glass:
+- `.glass` for cards, rails, chips and pills; `.glass-strong` (≈90% opaque) for overlays (popovers, dialogs, drawers, toasts, receipt) where text can land on anything.
+- The ambient layer (`.ambient`, 5 blurred blobs, fixed, `z-index:-1`) is the only decoration. The page background lives on `<html>` and `body` is transparent, otherwise the blobs are hidden.
+- `@supports not (backdrop-filter)` falls back to opaque surfaces. Blob drift stops under `prefers-reduced-motion`.
+- Every text/background pair must pass **WCAG AA as measured by axe-core** in both themes (glass tints change the effective background, so check, don't assume).
 
 ### Typography (Google Fonts via `next/font`)
 - **One sans for everything:** `Plus Jakarta Sans` (400–800) — UI, feed text, headlines and big numbers. (Social apps use a single friendly sans; the old Bricolage/Inter pairing read like a finance terminal.)
@@ -102,28 +108,31 @@ A friendly social feed with on-chain precision. Reads like a modern community ap
 ### Color tokens (`app/globals.css`)
 Define on `:root` (light) and `.dark` (dark, default):
 
+Source of truth: `app/globals.css`.
+
 | Token | Dark | Light | Use |
 |---|---|---|---|
-| `--bg` | `#0B0D12` | `#FAF8F3` | page |
-| `--surface` | `#12151C` | `#FFFFFF` | cards |
-| `--surface-2` | `#1A1E27` | `#F2EFE7` | inputs, hover |
-| `--border` | `#262B36` | `#E4DFD3` | hairlines |
-| `--text` | `#ECEDEF` | `#14161B` | primary |
-| `--muted` | `#8A90A0` | `#5D6270` | secondary |
-| `--accent` | `#F5A524` (marigold) | `#C97C00` | CTAs, highlights, focus |
-| `--accent-fg` | `#14161B` | `#FFFFFF` | text on accent |
-| `--trust-high` | `#22C55E` | `#15803D` | trust ≥ 70 |
-| `--trust-mid` | `#EAB308` | `#A16207` | 40–69 |
-| `--trust-low` | `#F97316` | `#C2410C` | < 40 |
-| `--danger` | `#EF4444` | `#B91C1C` | errors, flags |
-| `--chain` | `#7DD3FC` | `#0369A1` | on-chain data (keys, blocks) |
+| `--bg` | `#07060D` | `#FFF7F0` | page (on `<html>`) |
+| `--surface` | `rgb(22 20 38 / .46)` | `rgb(255 255 255 / .55)` | glass cards |
+| `--surface-strong` | `rgb(22 20 36 / .9)` | `rgb(255 255 255 / .9)` | overlays |
+| `--surface-2` | `rgb(255 255 255 / .065)` | `rgb(40 24 80 / .055)` | inputs, chips, hover |
+| `--border` | `rgb(255 255 255 / .1)` | `rgb(40 24 80 / .11)` | hairlines |
+| `--text` / `--muted` | `#F3F2FA` / `#A39FBB` | `#17132A` / `#5B5670` | text |
+| `--accent` / `--accent-2` / `--accent-3` | `#FFB020` / `#FF4D8D` / `#8B6BFF` | `#FF8A1F` / `#FF3D8B` / `#7C4DFF` | marigold / pink / violet |
+| `--grad-primary` | marigold → coral → pink | same | CTAs, logo, active upvote, OP badge |
+| `--grad-text` | `#FFD166 → #FF8A5C → #FF5FA2` | `#C2410C → #DB2777 → #7C3AED` | big salary numbers |
+| `--accent-fg` | `#17132A` | `#17132A` | text on gradients |
+| `--accent-ink` | `#FFB547` | `#B4410A` | accent-coloured text |
+| `--trust-high/mid/low` | `#34D399 / #FBBF24 / #FB7185` | `#036548 / #8A4A00 / #BE123C` | trust bands |
+| `--chain` | `#67E8F9` | `#0A5C72` | on-chain data, "New" trust badge |
+| active downvote | `--accent-3` fill, white text | same | |
 
 Contrast must meet **WCAG AA**. Never rely on color alone — trust badges always include an icon + label.
 
 ### Shape, depth, texture
-- Radius: 14px cards, 10px inputs/buttons, 999px pills.
-- Borders over shadows. One soft shadow for raised elements only.
-- Subtle background: faint grid or noise texture on the landing hero only (CSS, < 5KB).
+- Radius: 18px cards, 12px inputs, 999px buttons and pills.
+- Glass = 1px translucent border + inner top highlight + soft drop shadow. Gradient elements get a coloured glow (`.glow`).
+- Background: the ambient blob layer + 5% SVG grain. Community banners use a hue → pink → violet gradient with a faint grid.
 - Spacing on a 4px grid; section padding 64–96px desktop, 40–56px mobile.
 
 ### Signature elements (these make it memorable)
@@ -421,7 +430,9 @@ Input: the entry, peer entries (same company + role + level), confirmations for 
 | Wallet history | wallet first seen ≥ 7 days before this entry → 15; ≥ 1 day → 8; else 0. **Burst:** > 3 entries for the same company within 24h → 0 and flag **Burst** | 15 |
 | Freshness | age from last confirmation (or creation): < 6 mo → 15; < 12 mo → 10; else 5 | 15 |
 
-Bands: **High ≥ 70**, **Medium 40–69**, **Low < 40**. Return `{ score, band, parts: {...}, flags: string[] }`.
+Bands: **High ≥ 70**, **Medium 40–69**, **Low < 40**. Return `{ score, band, isNew, parts: {...}, flags: string[] }`.
+
+**New-post grace (decided 2026-10-17):** a post under **72 h** old that scores Low **and has no Unusual/Burst flag** gets `isNew = true`. It shows a cyan "✦ New" badge instead of "Unusual" and passes the Medium+ filter. Without this, every honest fresh-wallet post (≈30 points: neutral range fit + 0 wallet age + fresh) would be hidden by default. Flagged posts (the Nimbus burst) get no grace.
 Write tests for: neutral with few peers, outlier flagged, owner self-confirm ignored, burst detection, band boundaries.
 
 > Note for the README / friction log: `createdAt` from attributes is self-reported; prefer chain-derived timestamps if the Arkiv layer can provide them.

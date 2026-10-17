@@ -21,7 +21,7 @@ export function StatusPill({ className }: { className?: string }) {
       <PopoverTrigger
         className={cn(
           "inline-flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-medium transition-colors cursor-pointer",
-          down ? "border-danger/50 bg-danger/10 text-danger" : "border-border bg-surface hover:bg-surface-2",
+          down ? "border-danger/50 bg-danger/10 text-danger" : "glass hover:bg-surface-2",
           className,
         )}
         aria-label="Network status and RPC settings"

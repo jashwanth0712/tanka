@@ -34,7 +34,7 @@ export function VoteControl({ targetKey, tally, size = "md" }: { targetKey: Enti
     <div
       className={cn(
         "relative z-10 inline-flex items-center rounded-full border transition-colors",
-        up ? "border-accent/50 bg-accent/12" : down ? "border-chain/50 bg-chain/10" : "border-border bg-surface-2",
+        up ? "border-transparent bg-gradient-primary glow" : down ? "border-transparent bg-accent-3 shadow-[0_10px_30px_-12px_var(--accent-3)]" : "border-border bg-surface-2",
       )}
     >
       <button
@@ -42,13 +42,13 @@ export function VoteControl({ targetKey, tally, size = "md" }: { targetKey: Enti
         aria-label="Upvote"
         aria-pressed={up}
         onClick={(e) => cast(e, "up")}
-        className={cn("grid place-items-center rounded-full hover:bg-accent/15 cursor-pointer", size === "sm" ? "size-8" : "size-9", up ? "text-accent-ink" : "text-muted hover:text-accent-ink")}
+        className={cn("grid place-items-center rounded-full transition-colors hover:bg-accent/15 cursor-pointer", size === "sm" ? "size-8" : "size-9", up ? "text-accent-fg hover:bg-white/20" : down ? "text-white/80 hover:text-white" : "text-muted hover:text-accent-ink")}
       >
         <ArrowBigUp className={cn(icon, up && "fill-current")} />
       </button>
       <span
         aria-label={`Score ${tally.score}`}
-        className={cn("tabular min-w-6 text-center text-sm font-bold", up ? "text-accent-ink" : down ? "text-chain" : "text-text")}
+        className={cn("tabular min-w-6 text-center text-sm font-bold", up ? "text-accent-fg" : down ? "text-white" : "text-text")}
       >
         {compactScore(tally.score)}
       </span>
@@ -57,7 +57,7 @@ export function VoteControl({ targetKey, tally, size = "md" }: { targetKey: Enti
         aria-label="Downvote"
         aria-pressed={down}
         onClick={(e) => cast(e, "down")}
-        className={cn("grid place-items-center rounded-full hover:bg-chain/15 cursor-pointer", size === "sm" ? "size-8" : "size-9", down ? "text-chain" : "text-muted hover:text-chain")}
+        className={cn("grid place-items-center rounded-full transition-colors hover:bg-accent-3/15 cursor-pointer", size === "sm" ? "size-8" : "size-9", down ? "text-white hover:bg-white/15" : up ? "text-accent-fg/70 hover:text-accent-fg" : "text-muted hover:text-accent-3")}
       >
         <ArrowBigDown className={cn(icon, down && "fill-current")} />
       </button>

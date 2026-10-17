@@ -95,7 +95,7 @@ export function SearchTrigger({ className, wide }: { className?: string; wide?: 
       type="button"
       onClick={() => open(true)}
       className={cn(
-        "inline-flex h-9 items-center gap-2 rounded-full border border-border bg-surface px-3 text-sm text-muted transition-colors hover:bg-surface-2 hover:text-text cursor-pointer",
+        "glass inline-flex h-9 items-center gap-2 rounded-full px-3 text-sm text-muted transition-colors hover:bg-surface-2 hover:text-text cursor-pointer",
         wide && "h-14 w-full rounded-[14px] px-4 text-base",
         className,
       )}

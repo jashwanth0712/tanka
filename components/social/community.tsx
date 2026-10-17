@@ -39,7 +39,7 @@ function NavItem({ href, active, children }: { href: string; active?: boolean; c
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex min-h-10 items-center gap-3 rounded-[10px] px-3 text-sm font-medium transition-colors",
-        active ? "bg-surface-2 text-text" : "text-muted hover:bg-surface-2/60 hover:text-text",
+        active ? "bg-gradient-soft text-text ring-1 ring-accent/30" : "text-muted hover:bg-surface-2 hover:text-text",
       )}
     >
       {children}
@@ -86,7 +86,7 @@ export function CommunityChips() {
           <li key={c.id}>
             <Link
               href={`/company/?name=${c.id}`}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-surface pl-1 pr-3 text-xs font-semibold hover:bg-surface-2"
+              className="glass inline-flex h-9 items-center gap-1.5 rounded-full pl-1 pr-3 text-xs font-semibold hover:bg-surface-2"
             >
               <CommunityIcon company={c.id} size={26} /> c/{c.id}
             </Link>
@@ -102,11 +102,11 @@ export function AboutCard() {
   const { data } = useStats();
   return (
     <Card className="overflow-hidden">
-      <div className="hero-grid h-14 bg-accent/15" aria-hidden />
+      <div className="relative h-16 bg-gradient-primary" aria-hidden><div className="hero-grid absolute inset-0 opacity-60" /></div>
       <div className="-mt-6 flex flex-col gap-3 p-4">
-        <span className="grid size-12 place-items-center rounded-[12px] border-4 border-surface bg-accent font-display text-xl font-extrabold text-accent-fg">₹</span>
+        <span className="grid size-12 place-items-center rounded-[14px] border-4 border-[var(--surface-solid)] bg-gradient-primary font-display text-xl font-extrabold text-accent-fg glow">₹</span>
         <div>
-          <p className="font-display text-lg font-bold">Salaries no one can delete.</p>
+          <p className="font-display text-lg font-extrabold">Salaries no one <span className="text-gradient">can delete.</span></p>
           <p className="mt-1 text-sm text-muted">
             Anonymous salaries, reviews and discussion — every post, vote and comment is an Arkiv entity. No company can take them down.
           </p>

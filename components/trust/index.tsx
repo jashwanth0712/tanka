@@ -1,20 +1,25 @@
 "use client";
 
-import { Flag, ShieldCheck, TriangleAlert } from "lucide-react";
+import { Flag, ShieldCheck, Sparkles, TriangleAlert } from "lucide-react";
 import { motion } from "motion/react";
 import * as React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays";
 import { BAND_LABEL, MAX_PARTS, type TrustBand, type TrustResult } from "@/lib/trust";
 import { cn } from "@/lib/utils";
 
-const BAND_STYLE: Record<TrustBand, { text: string; bg: string; Icon: typeof ShieldCheck; stroke: string }> = {
+type BadgeKind = TrustBand | "new";
+const kindOf = (t: TrustResult): BadgeKind => (t.isNew ? "new" : t.band);
+const labelOf = (t: TrustResult) => (t.isNew ? "New" : BAND_LABEL[t.band]);
+
+const BAND_STYLE: Record<BadgeKind, { text: string; bg: string; Icon: typeof ShieldCheck; stroke: string }> = {
   high: { text: "text-trust-high", bg: "bg-trust-high/12 border-trust-high/30", Icon: ShieldCheck, stroke: "var(--trust-high)" },
   medium: { text: "text-trust-mid", bg: "bg-trust-mid/12 border-trust-mid/30", Icon: TriangleAlert, stroke: "var(--trust-mid)" },
   low: { text: "text-trust-low", bg: "bg-trust-low/12 border-trust-low/30", Icon: Flag, stroke: "var(--trust-low)" },
+  new: { text: "text-chain", bg: "bg-chain/12 border-chain/30", Icon: Sparkles, stroke: "var(--chain)" },
 };
 
 export function TrustPill({ trust, size = "md" }: { trust: TrustResult; size?: "sm" | "md" }) {
-  const s = BAND_STYLE[trust.band];
+  const s = BAND_STYLE[kindOf(trust)];
   return (
     <span
       className={cn(
@@ -25,7 +30,7 @@ export function TrustPill({ trust, size = "md" }: { trust: TrustResult; size?: "
       )}
     >
       <s.Icon className={size === "sm" ? "size-3" : "size-3.5"} aria-hidden />
-      {BAND_LABEL[trust.band]} <span className="tabular">{trust.score}</span>
+      {labelOf(trust)} <span className="tabular">{trust.score}</span>
     </span>
   );
 }
@@ -37,13 +42,16 @@ export function TrustBadge({ trust, size }: { trust?: TrustResult; size?: "sm" |
     <Popover>
       <PopoverTrigger
         className="rounded-full cursor-pointer"
-        aria-label={`Trust ${BAND_LABEL[trust.band]} ${trust.score} of 100. Show breakdown`}
+        aria-label={`Trust ${labelOf(trust)} ${trust.score} of 100. Show breakdown`}
         onClick={(e) => e.stopPropagation()}
       >
         <TrustPill trust={trust} size={size} />
       </PopoverTrigger>
       <PopoverContent className="w-80" onClick={(e) => e.stopPropagation()}>
         <p className="mb-3 text-sm font-semibold">Trust score {trust.score}/100</p>
+        {trust.isNew && (
+          <p className="-mt-2 mb-3 text-xs text-chain">New post: it has 72 hours to collect confirmations before a low score hides it.</p>
+        )}
         <TrustBreakdown trust={trust} compact />
         <p className="mt-3 text-xs text-muted">Computed in your browser from Arkiv data only. No identities.</p>
       </PopoverContent>
@@ -109,7 +117,7 @@ export function TrustBreakdown({ trust }: { trust: TrustResult; compact?: boolea
 }
 
 export function TrustRing({ trust, size = 112 }: { trust: TrustResult; size?: number }) {
-  const s = BAND_STYLE[trust.band];
+  const s = BAND_STYLE[kindOf(trust)];
   const r = (size - 12) / 2;
   const c = 2 * Math.PI * r;
   return (
@@ -134,7 +142,7 @@ export function TrustRing({ trust, size = 112 }: { trust: TrustResult; size?: nu
         <span className="font-display text-3xl font-bold">{trust.score}</span>
         <span className={cn("flex items-center gap-1 text-xs font-semibold", s.text)}>
           <s.Icon className="size-3" aria-hidden />
-          {BAND_LABEL[trust.band]}
+          {labelOf(trust)}
         </span>
       </div>
     </div>

@@ -32,7 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               <Toaster
                 position="top-center"
                 toastOptions={{
-                  className: "!bg-surface !text-text !border-border !rounded-[14px]",
+                  className: "glass-strong !bg-[var(--surface-strong)] !text-text !border-border !rounded-[16px]",
                 }}
               />
             </TooltipProvider>

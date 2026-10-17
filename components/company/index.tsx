@@ -98,7 +98,7 @@ export function CompanyCard({ company, stats }: { company: Company; stats?: Comp
 
 export function FlagBanner({ pct, showing, onToggle }: { pct: number; showing: boolean; onToggle: () => void }) {
   return (
-    <div role="status" className="flex flex-col gap-3 rounded-[14px] border border-trust-mid/50 bg-trust-mid/10 p-4 sm:flex-row sm:items-center sm:p-5">
+    <div role="status" className="glass flex flex-col gap-3 rounded-[18px] border-trust-mid/50 bg-trust-mid/10 p-4 sm:flex-row sm:items-center sm:p-5">
       <AlertTriangle className="size-6 shrink-0 text-trust-mid" aria-hidden />
       <div className="flex-1">
         <p className="font-semibold">We detected a burst of low-trust entries for this company.</p>
@@ -218,7 +218,7 @@ export function RatingBars({ reviews }: { reviews: Review[] }) {
           <li key={k} className="grid grid-cols-[minmax(0,130px)_1fr_auto] items-center gap-3 text-sm sm:grid-cols-[160px_1fr_auto]">
             <span className="text-muted">{label}</span>
             <span className="h-2 overflow-hidden rounded-full bg-surface-2" aria-hidden>
-              <span className="block h-full rounded-full bg-accent" style={{ width: `${(avg / 5) * 100}%` }} />
+              <span className="block h-full rounded-full bg-gradient-primary" style={{ width: `${(avg / 5) * 100}%` }} />
             </span>
             <span className="tabular w-8 text-right font-semibold">{avg.toFixed(1)}</span>
           </li>
