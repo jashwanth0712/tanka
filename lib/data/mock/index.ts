@@ -1,7 +1,8 @@
 // In-memory mock DataSource backed by the deterministic seed. Simulates network latency and
 // evaluates the same Arkiv query strings the real source sends, so "Show query" is honest in demo mode.
 
-import { CHAIN_NAME, CONFIRM_EXTENDS_TO_MS, CONFIRMATION_TTL_MS, DEFAULT_RPC, ENTRY_TTL_MS, PROJECT_TAG } from "../../constants";
+import { CHAIN_NAME, CONFIRM_EXTENDS_TO_MS, CONFIRMATION_TTL_MS, DEFAULT_RPC, ENTRY_TTL_MS } from "../../constants";
+import { confirmationToEntity, reviewToEntity, salaryToEntity } from "../schema";
 import { COMPANIES } from "../../catalog";
 import { generateSeed, entityKey, mulberry32 } from "../../seed/generate";
 import { requireSigner } from "../../wallet/session";
@@ -36,38 +37,25 @@ const latency = () => sleep(150 + Math.random() * 250);
 
 type AnyEntity = SalaryEntry | Review | Confirmation;
 
+function draftOf(e: AnyEntity) {
+  if ("kind" in e && e.kind === "salary") return salaryToEntity(e, e.createdAt);
+  if ("kind" in e && e.kind === "review") return reviewToEntity(e, e.createdAt);
+  return confirmationToEntity((e as Confirmation).entryKey, e.createdAt);
+}
+
+/** Stored attributes plus the $key / $owner meta attributes queries can match on. */
 function attrsOf(e: AnyEntity): Attrs {
-  const common = { project: PROJECT_TAG, $key: e.key.toLowerCase(), $owner: e.owner.toLowerCase(), createdAt: e.createdAt };
-  if ("kind" in e && e.kind === "salary") {
-    return {
-      ...common,
-      type: "salary",
-      company: e.company,
-      role: e.role,
-      level: e.level,
-      city: e.city,
-      yoe: e.yoe,
-      ctc: e.ctc,
-      ...(e.baseSalary != null ? { base: e.baseSalary } : {}),
-    };
-  }
-  if ("kind" in e && e.kind === "review") {
-    return { ...common, type: "review", company: e.company, wlb: e.wlb, management: e.management, growth: e.growth, culture: e.culture };
-  }
-  return { ...common, type: "confirmation", entryKey: (e as Confirmation).entryKey.toLowerCase() };
+  return { ...draftOf(e).attributes, $key: e.key.toLowerCase(), $owner: e.owner.toLowerCase() };
 }
 
 /** Shape the playground shows for raw results — mirrors what an Arkiv entity looks like. */
 function rawEntity(e: AnyEntity) {
-  const attrs = attrsOf(e);
-  const { $key, $owner, ...annotations } = attrs;
-  const payload =
-    "kind" in e && e.kind === "review" && e.comment ? { comment: e.comment } : undefined;
+  const { attributes, payload } = draftOf(e);
   return {
-    key: $key,
-    owner: $owner,
+    key: e.key.toLowerCase(),
+    owner: e.owner.toLowerCase(),
     expiresAtBlock: blockAt("expiresAt" in e ? e.expiresAt : e.createdAt + CONFIRMATION_TTL_MS),
-    attributes: annotations,
+    attributes,
     ...(payload ? { payload } : {}),
   };
 }
@@ -84,7 +72,7 @@ export function createMockDataSource(): DataSource {
 
   const run = <T extends AnyEntity>(xs: T[], query: string) => {
     const pred = compileQuery(query);
-    return xs.filter((x) => pred(attrsOf(x)));
+    return xs.filter((x) => pred(attrsOf(x))).map((x) => ({ ...x })); // copies: callers never share mutable state
   };
 
   const txHash = () => entityKey(rng) as `0x${string}`;
