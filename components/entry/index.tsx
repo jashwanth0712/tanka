@@ -136,6 +136,7 @@ export function OnChainPanel({
 
 /** Receipt-style card shown after a write. */
 export function Receipt({ receipt, kind }: { receipt: WriteReceipt; kind: string }) {
+  const [printedAt] = React.useState(() => Date.now());
   const rows: [string, React.ReactNode][] = [
     ["Entity key", <Mono key="k" value={receipt.key} />],
     ...(receipt.txHash ? [["Tx hash", <Mono key="t" value={receipt.txHash} />] as [string, React.ReactNode]] : []),
@@ -154,7 +155,7 @@ export function Receipt({ receipt, kind }: { receipt: WriteReceipt; kind: string
         <p className="text-xs uppercase tracking-[0.3em] text-muted">Tankha · Arkiv receipt</p>
         <CheckCircle2 className="mx-auto mt-3 size-10 text-trust-high" aria-hidden />
         <p className="mt-2 font-display text-2xl font-bold">Written to Arkiv</p>
-        <p className="text-xs text-muted">{kind} · {formatDateTime(Date.now())}</p>
+        <p className="text-xs text-muted">{kind} · {formatDateTime(printedAt)}</p>
       </div>
       <div aria-hidden className="my-5 border-t border-dashed border-border" />
       <dl className="flex flex-col gap-2.5">

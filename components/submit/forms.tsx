@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input, Label, NativeSelect, Textarea } from "@/components/ui/primitives";
 import { CITIES, COMPANIES, LEVELS, ROLES, type CatalogItem } from "@/lib/catalog";
@@ -105,10 +105,9 @@ export function ReviewDetails({ defaults, onNext }: { defaults?: Partial<ReviewF
     register,
     control,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<ReviewForm>({ resolver: zodResolver(reviewSchema), defaultValues: { comment: "", ...defaults }, mode: "onTouched" });
-  const comment = watch("comment") ?? "";
+  const comment = useWatch({ control, name: "comment" }) ?? "";
 
   return (
     <form onSubmit={handleSubmit((v) => onNext({ ...v, comment: v.comment?.trim() || undefined }))} noValidate className="flex flex-col gap-5">

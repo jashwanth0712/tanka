@@ -1,3 +1,14 @@
+import { Hero, HowItWorks, LiveFeed, LiveStats, TakedownDiagram, TopCompanies } from "@/components/landing";
+
 export default function Home() {
-  return <div className="p-8">Home</div>;
+  return (
+    <>
+      <Hero />
+      <LiveStats />
+      <LiveFeed />
+      <HowItWorks />
+      <TakedownDiagram />
+      <TopCompanies />
+    </>
+  );
 }

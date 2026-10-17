@@ -4,8 +4,8 @@ import { Building2, Home, Moon, Plus, ShieldCheck, Sun, Table2 } from "lucide-re
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import * as React from "react";
 import { Button } from "@/components/ui/button";
+import { useMounted } from "@/hooks/useNow";
 import { isMock } from "@/lib/data";
 import { DEMO_VIDEO_URL, FRICTION_URL, REPO_URL, SCHEMA_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -42,8 +42,7 @@ export function Logo({ className }: { className?: string }) {
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
+  const mounted = useMounted();
   const dark = !mounted || resolvedTheme === "dark";
   return (
     <Button

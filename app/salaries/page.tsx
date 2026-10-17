@@ -28,7 +28,14 @@ function SalariesView() {
 
   // Sidebar edits are local and pushed to the URL with a short debounce (sliders fire a lot).
   const [draft, setDraft] = React.useState<UIFilters>(filters);
-  React.useEffect(() => setDraft(filters), [filters]);
+  const [shown, setShown] = React.useState(PAGE);
+  // When the URL changes (back/forward, drawer, sort), reset local state during render.
+  const [syncedFilters, setSyncedFilters] = React.useState(filters);
+  if (syncedFilters !== filters) {
+    setSyncedFilters(filters);
+    setDraft(filters);
+    setShown(PAGE);
+  }
   React.useEffect(() => {
     if (draft === filters) return;
     const id = setTimeout(() => setFilters(draft), 250);
@@ -38,8 +45,6 @@ function SalariesView() {
   const queryFilters = React.useMemo(() => toQueryFilters(filters), [filters]);
   const salaries = useSalaries(queryFilters);
   const trust = useTrustIndex();
-  const [shown, setShown] = React.useState(PAGE);
-  React.useEffect(() => setShown(PAGE), [filters]);
 
   const all = salaries.data?.data;
   const visible = React.useMemo(() => {

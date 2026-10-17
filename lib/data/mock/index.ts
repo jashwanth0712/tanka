@@ -4,7 +4,7 @@
 import { CHAIN_NAME, CONFIRM_EXTENDS_TO_MS, CONFIRMATION_TTL_MS, DEFAULT_RPC, ENTRY_TTL_MS } from "../../constants";
 import { confirmationToEntity, reviewToEntity, salaryToEntity } from "../schema";
 import { COMPANIES } from "../../catalog";
-import { generateSeed, entityKey, mulberry32 } from "../../seed/generate";
+import { generateSeed, entityKey, mulberry32, typicalCtc } from "../../seed/generate";
 import { requireSigner } from "../../wallet/session";
 import {
   confirmationsForQuery,
@@ -77,6 +77,27 @@ export function createMockDataSource(): DataSource {
 
   const txHash = () => entityKey(rng) as `0x${string}`;
 
+  // "Occasional writes": every ~30s someone (a seed wallet) posts, so the live feed moves in demo mode.
+  let lastSim = Date.now();
+  const simulateActivity = () => {
+    const now = Date.now();
+    if (now - lastSim < 25_000 + rng() * 15_000) return;
+    lastSim = now;
+    const template = salaries[Math.floor(rng() * salaries.length)];
+    if (template.owner === seed.fraudWallet) return;
+    const pick = <T,>(xs: T[]) => xs[Math.floor(rng() * xs.length)];
+    salaries.unshift({
+      ...template,
+      key: entityKey(rng),
+      ctc: Math.round((typicalCtc(template.company, template.role, template.level) * (0.8 + rng() * 0.4)) / 10_000) * 10_000,
+      yoe: Math.max(0, template.yoe + Math.round(rng() * 2 - 1)),
+      baseSalary: undefined,
+      createdAt: now,
+      expiresAt: now + ENTRY_TTL_MS,
+      owner: pick(seed.wallets),
+    });
+  };
+
   return {
     async searchSalaries(f) {
       await latency();
@@ -126,6 +147,7 @@ export function createMockDataSource(): DataSource {
     },
 
     async getRecent(limit) {
+      simulateActivity();
       await latency();
       const since = Date.now() - 90 * 24 * 3_600_000;
       const query = recentQuery(since);

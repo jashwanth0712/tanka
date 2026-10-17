@@ -84,12 +84,15 @@ export function FilterFields({ value, onChange }: { value: UIFilters; onChange: 
 export function FilterDrawer({ value, onApply }: { value: UIFilters; onApply: (f: UIFilters) => void }) {
   const [open, setOpen] = React.useState(false);
   const [draft, setDraft] = React.useState(value);
-  React.useEffect(() => {
-    if (open) setDraft(value);
-  }, [open, value]);
   const count = activeFilterCount(value);
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer
+      open={open}
+      onOpenChange={(o) => {
+        if (o) setDraft(value);
+        setOpen(o);
+      }}
+    >
       <DrawerTrigger asChild>
         <Button variant="secondary" className="flex-1">
           <SlidersHorizontal /> Filters{count > 0 && <span className="tabular">({count})</span>}

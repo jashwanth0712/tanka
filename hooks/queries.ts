@@ -1,7 +1,7 @@
 "use client";
 // All React Query hooks. Components never touch the data source directly.
 
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { getDataSource } from "@/lib/data";
 import type {
@@ -41,7 +41,12 @@ export function useSalaries(f: SalaryFilters) {
 
 /** Every live salary — the basis for trust scores and company aggregates. */
 export function useAllSalaries() {
-  return useQuery({ queryKey: qk.allSalaries, queryFn: () => ds().searchSalaries({}), staleTime: 30_000 });
+  return useQuery({
+    queryKey: qk.allSalaries,
+    queryFn: () => ds().searchSalaries({}),
+    staleTime: 30_000,
+    refetchInterval: 30_000,
+  });
 }
 
 export function useSalary(key: EntityKey | undefined) {
@@ -179,5 +184,16 @@ export function useConfirmEntry() {
       qc.invalidateQueries({ queryKey: ["salaries"] });
       qc.invalidateQueries({ queryKey: qk.stats });
     },
+  });
+}
+
+/** Reviews for every catalog company (one Arkiv query per company). */
+export function useAllReviews(companies: CompanyId[]) {
+  return useQueries({
+    queries: companies.map((c) => ({ queryKey: qk.reviews(c), queryFn: () => ds().getReviews(c) })),
+    combine: (results) => ({
+      byCompany: new Map(companies.map((c, i) => [c, results[i].data?.data ?? []])),
+      isLoading: results.some((r) => r.isLoading),
+    }),
   });
 }

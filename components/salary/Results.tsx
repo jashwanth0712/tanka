@@ -18,6 +18,37 @@ import { cn } from "@/lib/utils";
 
 const entryHref = (key: string) => `/entry/?key=${key}`;
 
+function Th({
+  children,
+  k,
+  sort,
+  onSort,
+  className,
+}: {
+  children: React.ReactNode;
+  k?: SortKey;
+  sort?: SortKey;
+  onSort?: (s: SortKey) => void;
+  className?: string;
+}) {
+  return (
+    <th
+      scope="col"
+      aria-sort={k && sort === k ? "descending" : undefined}
+      className={cn("px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted", className)}
+    >
+      {k && onSort ? (
+        <button type="button" onClick={() => onSort(k)} className={cn("inline-flex items-center gap-1 hover:text-text cursor-pointer", sort === k && "text-text")}>
+          {children}
+          <ArrowDown className={cn("size-3", sort !== k && "opacity-0")} aria-hidden />
+        </button>
+      ) : (
+        children
+      )}
+    </th>
+  );
+}
+
 export function SalaryTable({
   rows,
   trust,
@@ -31,22 +62,7 @@ export function SalaryTable({
 }) {
   const router = useRouter();
   const now = useNow();
-  const Th = ({ children, k, className }: { children: React.ReactNode; k?: SortKey; className?: string }) => (
-    <th
-      scope="col"
-      aria-sort={k && sort === k ? "descending" : undefined}
-      className={cn("px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted", className)}
-    >
-      {k ? (
-        <button type="button" onClick={() => onSort(k)} className={cn("inline-flex items-center gap-1 hover:text-text cursor-pointer", sort === k && "text-text")}>
-          {children}
-          <ArrowDown className={cn("size-3", sort !== k && "opacity-0")} aria-hidden />
-        </button>
-      ) : (
-        children
-      )}
-    </th>
-  );
+  const s = { sort, onSort };
 
   return (
     <Card className="overflow-hidden">
@@ -57,10 +73,10 @@ export function SalaryTable({
             <Th>Role · Level</Th>
             <Th>City</Th>
             <Th className="text-right">YoE</Th>
-            <Th k="ctc" className="text-right">CTC</Th>
-            <Th k="trust">Trust</Th>
+            <Th k="ctc" {...s} className="text-right">CTC</Th>
+            <Th k="trust" {...s}>Trust</Th>
             <Th>Life</Th>
-            <Th k="newest" className="pr-5">Posted</Th>
+            <Th k="newest" {...s} className="pr-5">Posted</Th>
           </tr>
         </thead>
         <tbody>

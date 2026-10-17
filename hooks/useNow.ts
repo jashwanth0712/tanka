@@ -1,13 +1,28 @@
 "use client";
-import * as React from "react";
+import { useSyncExternalStore } from "react";
 
-/** Current time, re-rendering every `intervalMs`. Returns 0 until mounted to keep SSR output stable. */
+const noop = () => () => {};
+
+/**
+ * Current time quantised to `intervalMs`, re-rendering each tick.
+ * Returns 0 on the server and during hydration so SSR output stays stable.
+ */
 export function useNow(intervalMs = 60_000) {
-  const [now, setNow] = React.useState(0);
-  React.useEffect(() => {
-    setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), intervalMs);
-    return () => clearInterval(id);
-  }, [intervalMs]);
-  return now;
+  return useSyncExternalStore(
+    (cb) => {
+      const id = setInterval(cb, intervalMs);
+      return () => clearInterval(id);
+    },
+    () => Math.floor(Date.now() / intervalMs) * intervalMs,
+    () => 0,
+  );
+}
+
+/** true after hydration. */
+export function useMounted() {
+  return useSyncExternalStore(
+    noop,
+    () => true,
+    () => false,
+  );
 }
