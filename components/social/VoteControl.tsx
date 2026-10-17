@@ -34,7 +34,7 @@ export function VoteControl({ targetKey, tally, size = "md" }: { targetKey: Enti
     <div
       className={cn(
         "relative z-10 inline-flex items-center rounded-full border transition-colors",
-        up ? "border-transparent bg-gradient-primary glow" : down ? "border-transparent bg-accent-3 shadow-[0_10px_30px_-12px_var(--accent-3)]" : "border-border bg-surface-2",
+        up ? "border-transparent bg-gradient-primary glow" : down ? "border-transparent bg-accent-3" : "border-border bg-surface-2",
       )}
     >
       <button
@@ -48,7 +48,7 @@ export function VoteControl({ targetKey, tally, size = "md" }: { targetKey: Enti
       </button>
       <span
         aria-label={`Score ${tally.score}`}
-        className={cn("tabular min-w-6 text-center text-sm font-bold", up ? "text-accent-fg" : down ? "text-white" : "text-text")}
+        className={cn("tabular min-w-6 text-center text-sm font-semibold", up ? "text-accent-fg" : down ? "text-white" : "text-text")}
       >
         {compactScore(tally.score)}
       </span>

@@ -107,7 +107,7 @@ export function Feed({ company }: { company?: string }) {
               aria-selected={sort === value}
               onClick={() => setParam("sort", value, "hot")}
               className={cn(
-                "inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-colors cursor-pointer",
+                "inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-medium transition-colors cursor-pointer",
                 sort === value ? "bg-gradient-soft text-text ring-1 ring-accent/40" : "text-muted hover:bg-surface-2 hover:text-text",
               )}
             >
@@ -121,7 +121,7 @@ export function Feed({ company }: { company?: string }) {
             aria-label="Trust filter"
             value={trust}
             onChange={(e) => setParam("trust", e.target.value, "medium")}
-            className="glass h-9 rounded-full px-3 text-xs font-semibold text-text cursor-pointer"
+            className="glass h-9 rounded-full px-3 text-xs font-medium text-text cursor-pointer"
           >
             {TRUSTS.map((t) => (
               <option key={t.value} value={t.value}>{t.label}</option>
@@ -133,7 +133,7 @@ export function Feed({ company }: { company?: string }) {
       {feed.hidden > 0 && trust !== "all" && (
         <p className="flex flex-wrap items-center gap-1.5 text-sm text-muted">
           <EyeOff className="size-4" aria-hidden />
-          <span className="tabular font-semibold text-trust-low">{feed.hidden}</span> low-trust post{feed.hidden === 1 ? "" : "s"} hidden ·
+          <span className="tabular font-medium text-trust-low">{feed.hidden}</span> low-trust post{feed.hidden === 1 ? "" : "s"} hidden ·
           <button type="button" onClick={() => setParam("trust", "all", "medium")} className="font-medium text-accent-ink hover:underline cursor-pointer">
             show them
           </button>

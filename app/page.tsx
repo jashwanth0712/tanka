@@ -44,13 +44,13 @@ function IntroCard() {
       <p className="relative inline-flex items-center gap-2 font-mono text-[11px] text-muted">
         <LiveDot className="size-1.5" /> Live on Arkiv · Tiramisu
       </p>
-      <h1 className="relative mt-1 pr-6 text-2xl font-extrabold leading-tight sm:text-3xl">
+      <h1 className="relative mt-1 pr-6 text-2xl font-semibold leading-tight sm:text-3xl">
         Salaries no one <span className="text-accent-ink">can delete.</span>
       </h1>
       <p className="relative mt-1 text-sm text-muted">
         Anonymous salaries, reviews and discussion. Every post, vote and comment is an Arkiv entity — no company can take it down.
       </p>
-      <Link href="/verify/" className="relative mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-ink hover:underline">
+      <Link href="/verify/" className="relative mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-accent-ink hover:underline">
         <ScanSearch className="size-4" aria-hidden /> Verify it yourself
       </Link>
     </Card>
@@ -59,7 +59,7 @@ function IntroCard() {
 
 export default function HomePage() {
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-5 sm:px-6 sm:py-8 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
+    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-5 sm:px-6 sm:py-8 lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[250px_minmax(0,1fr)_300px]">
       <aside className="hidden lg:block">
         <div className="glass sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-[18px] p-2">
           <React.Suspense>

@@ -32,11 +32,11 @@ export function Logo({ className }: { className?: string }) {
     <Link href="/" className={cn("group inline-flex items-center gap-2 rounded-md", className)} aria-label="Tankha home">
       <span
         aria-hidden
-        className="grid size-9 place-items-center rounded-[11px] bg-gradient-primary glow font-display text-lg font-extrabold text-accent-fg transition-transform group-hover:-rotate-6"
+        className="grid size-9 place-items-center rounded-[11px] bg-gradient-primary glow font-display text-lg font-semibold text-accent-fg transition-transform group-hover:-rotate-6"
       >
         ₹
       </span>
-      <span className="font-display text-xl font-extrabold tracking-tight">Tankha</span>
+      <span className="font-display text-xl font-semibold tracking-tight">Tankha</span>
     </Link>
   );
 }
@@ -60,7 +60,7 @@ export function ThemeToggle() {
 export function DemoBanner() {
   if (!isMock) return null;
   return (
-    <div role="status" className="bg-gradient-primary px-4 py-1.5 text-center text-xs font-bold text-accent-fg">
+    <div role="status" className="bg-gradient-primary px-4 py-1.5 text-center text-xs font-semibold text-accent-fg">
       Demo data — not reading from Arkiv
     </div>
   );

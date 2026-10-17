@@ -20,8 +20,8 @@ function Section({ id, n, title, children, lead }: { id?: string; n: string; tit
     <section id={id} className="scroll-mt-24 border-t border-border py-10 sm:py-14">
       <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
         <div>
-          <p className="text-xs font-bold text-accent-ink">{n}</p>
-          <h2 className="mt-1 text-2xl font-bold sm:text-3xl">{title}</h2>
+          <p className="text-xs font-semibold text-accent-ink">{n}</p>
+          <h2 className="mt-1 text-2xl font-semibold sm:text-3xl">{title}</h2>
           {lead && <p className="mt-2 text-sm text-muted">{lead}</p>}
         </div>
         <div className="min-w-0">{children}</div>
@@ -51,7 +51,7 @@ function RpcStatusTable() {
         ))}
       </Card>
       <details className="glass rounded-[18px] p-4">
-        <summary className="cursor-pointer text-sm font-semibold">Switch endpoint or add your own</summary>
+        <summary className="cursor-pointer text-sm font-medium">Switch endpoint or add your own</summary>
         <div className="mt-4 max-w-md">
           <RpcSwitcher />
         </div>
@@ -71,7 +71,7 @@ function RpcRow({ url, label, selected }: { url: string; label: string; selected
           <p className="flex items-center gap-2 font-medium">
             {label}
             {selected && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent-ink">
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-medium text-accent-ink">
                 <Check className="size-3" aria-hidden /> In use
               </span>
             )}
@@ -147,7 +147,7 @@ function Playground() {
         <CopyButton value={query} label="Copy query" />
         {result && (
           <span className="text-sm text-muted" aria-live="polite">
-            <span className="tabular font-semibold text-text">{result.rows.length}</span> entities in {result.ms} ms
+            <span className="tabular font-medium text-text">{result.rows.length}</span> entities in {result.ms} ms
           </span>
         )}
       </div>
@@ -175,8 +175,8 @@ export default function VerifyPage() {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <header className="grid items-center gap-10 pb-10 sm:pb-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div>
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent-ink">Don&apos;t trust us</p>
-        <h1 className="mt-2 max-w-3xl text-4xl font-extrabold leading-[1.02] sm:text-6xl">This site is just <span className="text-gradient">one window</span> into the data.</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-ink">Don&apos;t trust us</p>
+        <h1 className="mt-2 max-w-3xl text-4xl font-semibold leading-[1.02] sm:text-6xl">This site is just <span className="text-gradient">one window</span> into the data.</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted">
           Close it and the data is still there. Everything below lets you read Tankha&apos;s entries without this website — pick
           another RPC, run the queries yourself, use the CLI or plain curl. Posts, votes and comments are all just entities.
@@ -230,7 +230,7 @@ export default function VerifyPage() {
             { t: "vote", a: ["targetKey", "dir (up/down/none)", "createdAt #"] },
           ].map((e) => (
             <Card key={e.t} className="p-4">
-              <p className="font-mono text-sm font-semibold text-chain">type = &quot;{e.t}&quot;</p>
+              <p className="font-mono text-sm font-medium text-chain">type = &quot;{e.t}&quot;</p>
               <ul className="mt-3 flex flex-col gap-1 font-mono text-xs text-muted">
                 {["project", "v #", ...e.a].map((a) => <li key={a}>{a}</li>)}
               </ul>

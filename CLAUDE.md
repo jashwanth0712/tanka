@@ -88,10 +88,10 @@ Global UI:
 
 ---
 
-## 4. Design system — "Glow" (vivid gradients over frosted glass)
+## 4. Design system — "Glass" (Apple-like premium, emerald accent, frosted surfaces)
 
 ### Direction
-A vibrant social feed with on-chain precision. Frosted-glass cards (semi-transparent, `backdrop-filter: blur(18px) saturate(160%)`) float over slow-drifting, heavily blurred colour fields (marigold, hot pink, violet, cyan). Primary actions, the logo, the active upvote and big salary numbers use a **marigold → coral → pink gradient** with a soft glow. Monospace only for on-chain data. **Not** a clone of Reddit's branding (no Reddit logo, colours or typeface).
+Premium and corporate-friendly: Apple-like neutrals (`#F5F5F7` / true black, graphite greys), **one brand accent — emerald green** (money, not the generic blue), frosted-glass cards (`backdrop-filter: blur(18px) saturate(160%)`) over soft, heavily blurred mint/aqua/sky colour fields. No loud gradients: buttons get a subtle top-to-bottom emerald, salary numbers a quiet metallic shade. Monospace only for on-chain data. **Not** a clone of Reddit's branding.
 
 Rules for the glass:
 - `.glass` for cards, rails, chips and pills; `.glass-strong` (≈90% opaque) for overlays (popovers, dialogs, drawers, toasts, receipt) where text can land on anything.
@@ -100,7 +100,7 @@ Rules for the glass:
 - Every text/background pair must pass **WCAG AA as measured by axe-core** in both themes (glass tints change the effective background, so check, don't assume).
 
 ### Typography (Google Fonts via `next/font`)
-- **One sans for everything:** `Plus Jakarta Sans` (400–800) — UI, feed text, headlines and big numbers. (Social apps use a single friendly sans; the old Bricolage/Inter pairing read like a finance terminal.)
+- **One sans for everything:** `Poppins` (300–600, latin + devanagari, so ₹ renders natively) — UI, feed text, headlines, numbers. Keep it **sharp and classic**: body 400, labels 500, headings/numbers 600. Never 700+; Poppins gets chunky.
 - **Mono:** `JetBrains Mono` — **only** on-chain data: entity keys, tx hashes, block numbers, queries, raw attributes. Wallet handles in the feed use the sans. Never use mono for UI labels.
 - All numbers use `font-variant-numeric: tabular-nums`.
 - Scale: 12 / 14 / 16 / 18 / 24 / 32 / 48 / 72 (hero, desktop) / 44 (hero, mobile).
@@ -112,20 +112,20 @@ Source of truth: `app/globals.css`.
 
 | Token | Dark | Light | Use |
 |---|---|---|---|
-| `--bg` | `#07060D` | `#FFF7F0` | page (on `<html>`) |
-| `--surface` | `rgb(22 20 38 / .46)` | `rgb(255 255 255 / .55)` | glass cards |
-| `--surface-strong` | `rgb(22 20 36 / .9)` | `rgb(255 255 255 / .9)` | overlays |
-| `--surface-2` | `rgb(255 255 255 / .065)` | `rgb(40 24 80 / .055)` | inputs, chips, hover |
-| `--border` | `rgb(255 255 255 / .1)` | `rgb(40 24 80 / .11)` | hairlines |
-| `--text` / `--muted` | `#F3F2FA` / `#A39FBB` | `#17132A` / `#5B5670` | text |
-| `--accent` / `--accent-2` / `--accent-3` | `#FFB020` / `#FF4D8D` / `#8B6BFF` | `#FF8A1F` / `#FF3D8B` / `#7C4DFF` | marigold / pink / violet |
-| `--grad-primary` | marigold → coral → pink | same | CTAs, logo, active upvote, OP badge |
-| `--grad-text` | `#FFD166 → #FF8A5C → #FF5FA2` | `#C2410C → #DB2777 → #7C3AED` | big salary numbers |
-| `--accent-fg` | `#17132A` | `#17132A` | text on gradients |
-| `--accent-ink` | `#FFB547` | `#B4410A` | accent-coloured text |
-| `--trust-high/mid/low` | `#34D399 / #FBBF24 / #FB7185` | `#036548 / #8A4A00 / #BE123C` | trust bands |
-| `--chain` | `#67E8F9` | `#0A5C72` | on-chain data, "New" trust badge |
-| active downvote | `--accent-3` fill, white text | same | |
+| `--bg` | `#000000` | `#F5F5F7` | page (on `<html>`) |
+| `--surface` | `rgb(28 28 30 / .58)` | `rgb(255 255 255 / .68)` | glass cards |
+| `--surface-strong` | `rgb(28 28 30 / .92)` | `rgb(255 255 255 / .92)` | overlays |
+| `--surface-2` | `rgb(255 255 255 / .07)` | `rgb(0 0 0 / .045)` | inputs, chips, hover |
+| `--border` | `rgb(255 255 255 / .1)` | `rgb(0 0 0 / .09)` | hairlines |
+| `--text` / `--muted` | `#F5F5F7` / `#A1A1A6` | `#1D1D1F` / `#58585D` | text (light muted is darker than Apple's `#6E6E73`, which fails AA on glass) |
+| `--accent` (brand) | `#2FD69A` | `#00875F` | emerald: focus, rings, active states |
+| `--grad-primary` | `#078A61 → #036B4B` | same | primary buttons, logo, active upvote (white text) |
+| `--accent-2` | `#2DD4BF` | `#0F766E` | teal: tab underline, thread hover |
+| `--accent-3` | `#636366` | `#636366` | graphite: active downvote |
+| `--accent-ink` | `#4FE0A9` | `#00704F` | links / accent text |
+| `--star` | `#FF9F0A` | `#E8860C` | star ratings only |
+| `--trust-high/mid/low` | `#A3E635 / #FF9F0A / #FF6961` | `#266510 / #9A5200 / #C4122F` | trust bands (High is a yellower green so it never reads as the brand colour) |
+| `--chain` | `#64D2FF` | `#00668F` | on-chain data, "New" trust badge |
 
 Contrast must meet **WCAG AA**. Never rely on color alone — trust badges always include an icon + label.
 

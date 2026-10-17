@@ -139,7 +139,7 @@ function CommentItem({
                 <button
                   type="button"
                   onClick={() => setReplying((r) => !r)}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-muted hover:bg-surface-2 hover:text-text cursor-pointer"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium text-muted hover:bg-surface-2 hover:text-text cursor-pointer"
                 >
                   <MessageSquare className="size-3.5" aria-hidden /> Reply
                 </button>
@@ -192,7 +192,7 @@ export function CommentThread({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-bold">
+        <h2 className="font-display text-xl font-semibold">
           {comments.length} comment{comments.length === 1 ? "" : "s"}
         </h2>
         <label className="flex items-center gap-2 text-xs text-muted">
@@ -200,7 +200,7 @@ export function CommentThread({
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as "top" | "new")}
-            className="glass h-9 rounded-full px-3 text-xs font-semibold text-text cursor-pointer"
+            className="glass h-9 rounded-full px-3 text-xs font-medium text-text cursor-pointer"
           >
             <option value="top">Top</option>
             <option value="new">New</option>

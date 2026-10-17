@@ -37,7 +37,7 @@ export default function CompaniesPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
       <header className="mb-6 flex flex-col gap-2 sm:mb-8">
-        <h1 className="text-4xl font-extrabold sm:text-5xl">Communities</h1>
+        <h1 className="text-4xl font-semibold sm:text-5xl">Communities</h1>
         <p className="max-w-2xl text-muted">One community per company: salaries, reviews and discussion. Headline numbers come from live Arkiv entries; low-trust entries are left out of medians.</p>
       </header>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">

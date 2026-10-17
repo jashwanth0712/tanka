@@ -90,7 +90,7 @@ export function OnChainPanel({
         className="flex w-full items-center justify-between gap-3 p-5 text-left cursor-pointer"
       >
         <span>
-          <span className="block font-display text-lg font-bold">On-chain</span>
+          <span className="block font-display text-lg font-semibold">On-chain</span>
           <span className="block text-sm text-muted">The raw Arkiv entity behind this page.</span>
         </span>
         <ChevronDown className={cn("size-5 shrink-0 text-muted transition-transform", open && "rotate-180")} aria-hidden />
@@ -154,7 +154,7 @@ export function Receipt({ receipt, kind }: { receipt: WriteReceipt; kind: string
       <div className="text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-muted">Tankha · Arkiv receipt</p>
         <CheckCircle2 className="mx-auto mt-3 size-10 text-trust-high" aria-hidden />
-        <p className="mt-2 font-display text-2xl font-bold">Written to Arkiv</p>
+        <p className="mt-2 font-display text-2xl font-semibold">Written to Arkiv</p>
         <p className="text-xs text-muted">{kind} · {formatDateTime(printedAt)}</p>
       </div>
       <div aria-hidden className="my-5 border-t border-dashed border-border" />

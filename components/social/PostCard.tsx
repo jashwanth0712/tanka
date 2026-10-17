@@ -37,7 +37,7 @@ function SalaryBody({ p, trust, big }: { p: SalaryEntry; trust?: TrustResult; bi
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
-        <p className={cn("font-display font-extrabold leading-none tracking-tight", big ? "text-6xl sm:text-7xl" : "text-4xl")}>
+        <p className={cn("font-display font-semibold leading-none tracking-tight", big ? "text-6xl sm:text-7xl" : "text-4xl")}>
           <span className="text-gradient">
             <Money value={p.ctc} />
           </span>
@@ -71,14 +71,14 @@ function ReviewBody({ p, flagged, full }: { p: Review; flagged?: boolean; full?:
         {DIMS.map(([k, label]) => (
           <li key={k} className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1 text-xs">
             <span className="text-muted">{label}</span>
-            <Star className="size-3 fill-accent text-accent" aria-hidden />
-            <span className="tabular font-semibold">{p[k]}</span>
+            <Star className="size-3 fill-star text-star" aria-hidden />
+            <span className="tabular font-medium">{p[k]}</span>
           </li>
         ))}
       </ul>
       {p.comment && <p className={cn("text-[15px] leading-relaxed", !full && "line-clamp-4")}>{p.comment}</p>}
       {flagged && (
-        <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-trust-low">
+        <p className="inline-flex items-center gap-1.5 text-xs font-medium text-trust-low">
           <Flag className="size-3.5" aria-hidden /> From a wallet flagged for a posting burst
         </p>
       )}
@@ -110,7 +110,7 @@ function ConfirmPill({ p }: { p: SalaryEntry }) {
         }
       }}
       className={cn(
-        "relative z-10 inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-colors cursor-pointer disabled:cursor-default",
+        "relative z-10 inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-medium transition-colors cursor-pointer disabled:cursor-default",
         done ? "text-trust-high" : "text-muted hover:bg-surface-2 hover:text-text",
       )}
     >
@@ -150,7 +150,7 @@ export function PostCard({
       <div className={cn("flex flex-col gap-3", full ? "p-5 sm:p-7" : "p-4 sm:p-5")}>
         <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
           {showCommunity && (
-            <Link href={communityHref(post.company)} className="relative z-10 inline-flex items-center gap-1.5 font-semibold text-text hover:underline">
+            <Link href={communityHref(post.company)} className="relative z-10 inline-flex items-center gap-1.5 font-medium text-text hover:underline">
               <CommunityIcon company={post.company} size={20} />
               c/{post.company}
             </Link>
@@ -160,16 +160,16 @@ export function PostCard({
           <span aria-hidden>·</span>
           <TimeAgo ts={post.createdAt} now={now} />
           {isMyPost(post.key) && (
-            <span className="rounded-full bg-trust-high/12 px-2 py-0.5 text-[11px] font-semibold text-trust-high" title="New posts start with low trust until others confirm them. You always see your own.">
+            <span className="rounded-full bg-trust-high/12 px-2 py-0.5 text-[11px] font-medium text-trust-high" title="New posts start with low trust until others confirm them. You always see your own.">
               Your post · visible to you
             </span>
           )}
-          <span className={cn("ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold", post.kind === "salary" ? "bg-chain/12 text-chain ring-1 ring-chain/25" : "bg-accent-2/12 text-accent-ink ring-1 ring-accent-2/25")}>
+          <span className={cn("ml-auto rounded-full px-2 py-0.5 text-[11px] font-medium", post.kind === "salary" ? "bg-chain/12 text-chain ring-1 ring-chain/25" : "bg-accent-2/12 text-accent-ink ring-1 ring-accent-2/25")}>
             {post.kind === "salary" ? "Salary" : "Review"}
           </span>
         </header>
 
-        <Title className={cn("font-sans font-bold tracking-normal", full ? "text-xl sm:text-2xl" : "text-base sm:text-lg")}>
+        <Title className={cn("font-sans font-semibold tracking-normal", full ? "text-xl sm:text-2xl" : "text-base sm:text-lg")}>
           {full ? (
             post.kind === "salary" ? `${roleLabel(post.role)} · ${levelLabel(post.level)} at ${companyName(post.company)}` : `Review of ${companyName(post.company)}`
           ) : (
@@ -185,7 +185,7 @@ export function PostCard({
           <VoteControl targetKey={post.key} tally={tally} size="sm" />
           <Link
             href={full ? "#comments" : `${href}#comments`}
-            className="relative z-10 inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-muted hover:bg-surface-2 hover:text-text"
+            className="relative z-10 inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-medium text-muted hover:bg-surface-2 hover:text-text"
           >
             <MessageSquare className="size-4" aria-hidden />
             <span className="tabular">{comments}</span>
@@ -205,7 +205,7 @@ export function PostCard({
                 toast.error("Couldn't copy link");
               }
             }}
-            className="relative z-10 ml-auto inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-muted hover:bg-surface-2 hover:text-text cursor-pointer"
+            className="relative z-10 ml-auto inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-medium text-muted hover:bg-surface-2 hover:text-text cursor-pointer"
           >
             <Share2 className="size-4" aria-hidden />
             <span className="hidden sm:inline">Share</span>

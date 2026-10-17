@@ -23,7 +23,7 @@ export function TrustPill({ trust, size = "md" }: { trust: TrustResult; size?: "
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border font-semibold whitespace-nowrap",
+        "inline-flex items-center gap-1 rounded-full border font-medium whitespace-nowrap",
         s.bg,
         s.text,
         size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-xs",
@@ -48,7 +48,7 @@ export function TrustBadge({ trust, size }: { trust?: TrustResult; size?: "sm" |
         <TrustPill trust={trust} size={size} />
       </PopoverTrigger>
       <PopoverContent className="w-80" onClick={(e) => e.stopPropagation()}>
-        <p className="mb-3 text-sm font-semibold">Trust score {trust.score}/100</p>
+        <p className="mb-3 text-sm font-medium">Trust score {trust.score}/100</p>
         {trust.isNew && (
           <p className="-mt-2 mb-3 text-xs text-chain">New post: it has 72 hours to collect confirmations before a low score hides it.</p>
         )}
@@ -105,7 +105,7 @@ export function TrustBreakdown({ trust }: { trust: TrustResult; compact?: boolea
           {trust.flags.map((f) => (
             <li
               key={f.kind}
-              className="inline-flex items-center gap-1 rounded-full border border-trust-low/40 bg-trust-low/10 px-2 py-0.5 text-xs font-semibold text-trust-low"
+              className="inline-flex items-center gap-1 rounded-full border border-trust-low/40 bg-trust-low/10 px-2 py-0.5 text-xs font-medium text-trust-low"
             >
               <Flag className="size-3" aria-hidden /> {f.label}
             </li>
@@ -139,8 +139,8 @@ export function TrustRing({ trust, size = 112 }: { trust: TrustResult; size?: nu
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-3xl font-bold">{trust.score}</span>
-        <span className={cn("flex items-center gap-1 text-xs font-semibold", s.text)}>
+        <span className="font-display text-3xl font-semibold">{trust.score}</span>
+        <span className={cn("flex items-center gap-1 text-xs font-medium", s.text)}>
           <s.Icon className="size-3" aria-hidden />
           {labelOf(trust)}
         </span>

@@ -95,7 +95,7 @@ export function RpcSwitcher() {
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <p className="text-sm font-semibold">RPC endpoint</p>
+        <p className="text-sm font-medium">RPC endpoint</p>
         <p className="text-xs text-muted">If one endpoint is blocked, switch. The data is the same everywhere.</p>
       </div>
       <ul className="flex flex-col gap-2">

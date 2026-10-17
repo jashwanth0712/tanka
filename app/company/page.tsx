@@ -71,7 +71,7 @@ function CommunityView() {
       <div
         aria-hidden
         style={{ "--h": hueOf(company.label) } as React.CSSProperties}
-        className="relative h-24 bg-[linear-gradient(120deg,oklch(0.75_0.16_var(--h)),var(--accent-2)_70%,var(--accent-3))] sm:h-32 dark:bg-[linear-gradient(120deg,oklch(0.45_0.16_var(--h)),color-mix(in_srgb,var(--accent-2)_70%,black)_70%,color-mix(in_srgb,var(--accent-3)_70%,black))]"
+        className="relative h-24 sm:h-32 bg-[linear-gradient(120deg,oklch(0.88_0.05_var(--h)),oklch(0.94_0.025_calc(var(--h)+60)))] dark:bg-[linear-gradient(120deg,oklch(0.32_0.07_var(--h)),oklch(0.18_0.03_calc(var(--h)+60)))]"
       />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <header className="relative z-10 -mt-8 flex flex-col gap-3 sm:-mt-10 sm:flex-row sm:items-end">
@@ -79,7 +79,7 @@ function CommunityView() {
             <CommunityIcon company={id} size={72} />
           </span>
           <div className="min-w-0 flex-1 sm:pb-1">
-            <h1 className="truncate text-2xl font-extrabold sm:text-4xl">c/{id}</h1>
+            <h1 className="truncate text-2xl font-semibold sm:text-4xl">c/{id}</h1>
             <p className="flex flex-wrap items-center gap-1 text-sm text-muted">
               {company.label} · {company.industry} · <MapPin className="size-3.5" aria-hidden /> {cityLabel(company.hq)}
             </p>
@@ -95,7 +95,7 @@ function CommunityView() {
               {statItems.map(([label, value]) => (
                 <div key={label} className="bg-[var(--surface-strong)] p-3">
                   <dt className="text-xs text-muted">{label}</dt>
-                  <dd className="tabular font-display text-xl font-bold">{value ?? <Skeleton className="mt-1 h-6 w-16" />}</dd>
+                  <dd className="tabular font-display text-xl font-semibold">{value ?? <Skeleton className="mt-1 h-6 w-16" />}</dd>
                 </div>
               ))}
             </dl>
@@ -136,7 +136,7 @@ function CommunityView() {
           <aside className="hidden lg:block">
             <div className="sticky top-20 flex flex-col gap-4">
               <Card className="p-4">
-                <p className="font-semibold">About c/{id}</p>
+                <p className="font-medium">About c/{id}</p>
                 <p className="mt-1 text-sm text-muted">
                   Salaries, reviews and discussion about {company.label}. Anonymous, on Arkiv, impossible for {company.label} to take down.
                 </p>
@@ -144,7 +144,7 @@ function CommunityView() {
                   {statItems.map(([label, value]) => (
                     <div key={label}>
                       <dt className="text-xs text-muted">{label}</dt>
-                      <dd className="tabular font-display text-xl font-bold">{value ?? <Skeleton className="mt-1 h-6 w-16" />}</dd>
+                      <dd className="tabular font-display text-xl font-semibold">{value ?? <Skeleton className="mt-1 h-6 w-16" />}</dd>
                     </div>
                   ))}
                 </dl>

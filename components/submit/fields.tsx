@@ -60,7 +60,7 @@ export function MoneyInput({
       <p className="mt-1.5 min-h-5 text-sm text-muted" aria-live="polite">
         {text && Number.isFinite(parsed) ? (
           <>
-            <span className="font-display text-base font-bold text-text">{formatINRCompact(parsed)}</span>
+            <span className="font-display text-base font-semibold text-text">{formatINRCompact(parsed)}</span>
             <span className="tabular"> · {formatINR(parsed)} per year</span>
           </>
         ) : text ? (
@@ -101,7 +101,7 @@ export function StarRating({
               className="grid size-11 place-items-center rounded-md transition-transform hover:scale-110 cursor-pointer"
             >
               <Star
-                className={cn("size-6", value != null && n <= value ? "fill-accent text-accent" : "text-border")}
+                className={cn("size-6", value != null && n <= value ? "fill-star text-star" : "text-border")}
                 aria-hidden
               />
             </button>
@@ -139,7 +139,7 @@ export function PIIScanner({ text }: { text: string }) {
   const kinds = [...new Set(res.matches.map((m) => PII_LABEL[m.type]))];
   return (
     <div role="alert" className="mt-2 rounded-[10px] border border-danger/40 bg-danger/5 p-3">
-      <p className="flex items-center gap-1.5 text-sm font-semibold text-danger">
+      <p className="flex items-center gap-1.5 text-sm font-medium text-danger">
         <ShieldAlert className="size-4" aria-hidden /> Remove personal details to continue
       </p>
       <p className="mt-1 text-xs text-muted">Found: {kinds.join(", ")}</p>

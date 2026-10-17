@@ -44,7 +44,7 @@ function Stepper({ step }: { step: Step }) {
           <li
             key={s}
             aria-current={current === i + 1 ? "step" : undefined}
-            className={cn("flex items-center gap-1.5", i + 1 <= current ? "font-semibold text-text" : "text-muted", i === 2 && "justify-end text-right", i === 1 && "justify-center")}
+            className={cn("flex items-center gap-1.5", i + 1 <= current ? "font-medium text-text" : "text-muted", i === 2 && "justify-end text-right", i === 1 && "justify-center")}
           >
             <span className={cn("grid size-5 shrink-0 place-items-center rounded-full border text-[11px]", i + 1 < current || step === 4 ? "border-transparent bg-gradient-primary text-accent-fg" : i + 1 === current ? "border-accent text-accent-ink" : "border-border")}>
               {i + 1 < current || step === 4 ? <Check className="size-3" /> : i + 1}
@@ -74,7 +74,7 @@ function TypeStep({ onPick }: { onPick: (k: Kind) => void }) {
           <span className="grid size-12 place-items-center rounded-[14px] bg-gradient-primary text-accent-fg glow">
             <Icon className="size-6" aria-hidden />
           </span>
-          <span className="font-display text-2xl font-bold">{title}</span>
+          <span className="font-display text-2xl font-semibold">{title}</span>
           <span className="text-sm text-muted">{body}</span>
         </button>
       ))}
@@ -105,9 +105,9 @@ function WalletChoice({ value, onChange }: { value: "fresh" | "connected"; onCha
             {value === v && <span className="size-2.5 rounded-full bg-gradient-primary" />}
           </span>
           <span className="min-w-0">
-            <span className="flex flex-wrap items-center gap-2 font-semibold">
+            <span className="flex flex-wrap items-center gap-2 font-medium">
               <Icon className="size-4" aria-hidden /> {title}
-              {tag && <span className="rounded-full bg-trust-high/15 px-2 py-0.5 text-[11px] font-semibold text-trust-high">{tag}</span>}
+              {tag && <span className="rounded-full bg-trust-high/15 px-2 py-0.5 text-[11px] font-medium text-trust-high">{tag}</span>}
             </span>
             <span className="mt-1 block text-sm text-muted">{body}</span>
           </span>
@@ -122,19 +122,19 @@ function Summary({ kind, salary, review }: { kind: Kind; salary?: SalaryForm; re
     return (
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-semibold">{companyName(salary.company)}</p>
+          <p className="font-medium">{companyName(salary.company)}</p>
           <p className="text-sm text-muted">
             {roleLabel(salary.role)} · {levelLabel(salary.level)} · {cityLabel(salary.city)} · {salary.yoe} yrs
           </p>
         </div>
-        <p className="font-display text-3xl font-bold">{formatINRCompact(salary.ctc)}</p>
+        <p className="font-display text-3xl font-semibold">{formatINRCompact(salary.ctc)}</p>
       </div>
     );
   }
   if (review) {
     return (
       <div>
-        <p className="font-semibold">{companyName(review.company)}</p>
+        <p className="font-medium">{companyName(review.company)}</p>
         <p className="tabular text-sm text-muted">
           WLB {review.wlb} · Mgmt {review.management} · Growth {review.growth} · Culture {review.culture}
         </p>
@@ -201,7 +201,7 @@ export default function SubmitPage() {
   return (
     <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 py-8 sm:px-6 sm:py-12">
       <header className="mb-6">
-        <h1 className="text-4xl font-extrabold sm:text-5xl">{step === 4 ? "Posted." : "Create a post"}</h1>
+        <h1 className="text-4xl font-semibold sm:text-5xl">{step === 4 ? "Posted." : "Create a post"}</h1>
         <p className="mt-2 text-muted">No sign-up. No email. Just the number. It lands in the community feed for that company.</p>
       </header>
       <Stepper step={step} />
@@ -248,14 +248,14 @@ export default function SubmitPage() {
 
               <Card className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
                 <div>
-                  <p className="flex items-center gap-1.5 text-sm font-semibold"><ShieldCheck className="size-4 text-trust-high" aria-hidden /> What gets stored</p>
+                  <p className="flex items-center gap-1.5 text-sm font-medium"><ShieldCheck className="size-4 text-trust-high" aria-hidden /> What gets stored</p>
                   <ul className="mt-2 flex flex-col gap-1 text-sm text-muted">
                     {STORED_FIELDS[kind].map((f) => <li key={f}>· {f}</li>)}
                     <li>· the posting wallet address</li>
                   </ul>
                 </div>
                 <div>
-                  <p className="flex items-center gap-1.5 text-sm font-semibold"><EyeOff className="size-4 text-accent-ink" aria-hidden /> What never gets stored</p>
+                  <p className="flex items-center gap-1.5 text-sm font-medium"><EyeOff className="size-4 text-accent-ink" aria-hidden /> What never gets stored</p>
                   <ul className="mt-2 flex flex-col gap-1 text-sm text-muted">
                     <li>· your name</li>
                     <li>· your email</li>
@@ -269,7 +269,7 @@ export default function SubmitPage() {
               </Card>
 
               <div>
-                <h2 className="mb-3 font-display text-xl font-bold">Which wallet signs it?</h2>
+                <h2 className="mb-3 font-display text-xl font-semibold">Which wallet signs it?</h2>
                 <WalletChoice value={walletChoice} onChange={setWalletChoice} />
                 {wallet.address && walletChoice === "connected" && !wallet.isFresh && (
                   <p className="mt-2 text-sm text-muted">Connected: <Mono value={wallet.address} /></p>

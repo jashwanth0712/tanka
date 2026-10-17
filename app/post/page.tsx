@@ -55,7 +55,7 @@ function PostView() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="flex min-w-0 flex-col gap-5">
-        <button type="button" onClick={() => router.back()} className="-ml-1 inline-flex w-fit items-center gap-1.5 rounded-md px-1 py-1 text-sm font-semibold text-muted hover:text-text cursor-pointer">
+        <button type="button" onClick={() => router.back()} className="-ml-1 inline-flex w-fit items-center gap-1.5 rounded-md px-1 py-1 text-sm font-medium text-muted hover:text-text cursor-pointer">
           <ArrowLeft className="size-4" aria-hidden /> Back
         </button>
         <PostCard post={p} full trust={trust} tally={tallyFor(feed.tallies, p.key)} comments={list.length} flagged={flagged} />
@@ -63,7 +63,7 @@ function PostView() {
         {p.kind === "salary" && (
           <Card className="flex flex-col gap-4 p-5 sm:p-6">
             <div>
-              <h2 className="font-display text-lg font-bold">Is this still accurate?</h2>
+              <h2 className="font-display text-lg font-semibold">Is this still accurate?</h2>
               <p className="text-sm text-muted">Stale salaries mislead, so posts expire. If this matches what you know, extend it.</p>
             </div>
             <LifeBar expiresAt={p.expiresAt} createdAt={p.createdAt} size="lg" />
@@ -95,7 +95,7 @@ function PostView() {
             <Link href={`/company/?name=${company.id}`} className="flex items-center gap-3 hover:underline">
               <CommunityIcon company={company.id} size={40} />
               <span>
-                <span className="block font-semibold">c/{company.id}</span>
+                <span className="block font-medium">c/{company.id}</span>
                 <span className="block text-xs text-muted">{company.label} · {company.industry}</span>
               </span>
             </Link>
@@ -106,7 +106,7 @@ function PostView() {
         )}
         {p.kind === "salary" && (
           <Card className="p-4 sm:p-5">
-            <h2 className="mb-4 font-display text-lg font-bold">Trust</h2>
+            <h2 className="mb-4 font-display text-lg font-semibold">Trust</h2>
             {trust ? (
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">

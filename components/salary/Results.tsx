@@ -35,7 +35,7 @@ function Th({
     <th
       scope="col"
       aria-sort={k && sort === k ? "descending" : undefined}
-      className={cn("px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted", className)}
+      className={cn("px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted", className)}
     >
       {k && onSort ? (
         <button type="button" onClick={() => onSort(k)} className={cn("inline-flex items-center gap-1 hover:text-text cursor-pointer", sort === k && "text-text")}>
@@ -97,7 +97,7 @@ export function SalaryTable({
               </td>
               <td className="px-3 py-3 text-muted">{cityLabel(e.city)}</td>
               <td className="tabular px-3 py-3 text-right">{e.yoe}</td>
-              <td className="px-3 py-3 text-right font-display text-base font-bold">
+              <td className="px-3 py-3 text-right font-display text-base font-semibold">
                 <Money value={e.ctc} />
               </td>
               <td className="px-3 py-3">
@@ -129,14 +129,14 @@ export function SalaryCard({ e, trust, index = 0 }: { e: SalaryEntry; trust?: Tr
       <Card className="relative p-4 transition-colors hover:border-muted/50">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <Link href={entryHref(e.key)} className="font-semibold after:absolute after:inset-0 after:content-['']">
+            <Link href={entryHref(e.key)} className="font-medium after:absolute after:inset-0 after:content-['']">
               {companyName(e.company)}
             </Link>
             <p className="truncate text-sm text-muted">
               {roleLabel(e.role)} · {levelLabel(e.level)}
             </p>
           </div>
-          <p className="shrink-0 font-display text-2xl font-bold leading-none">
+          <p className="shrink-0 font-display text-2xl font-semibold leading-none">
             <Money value={e.ctc} />
           </p>
         </div>

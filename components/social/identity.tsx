@@ -39,8 +39,8 @@ export function Handle({ address, op, className }: { address: string; op?: boole
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
       <IdentityAvatar address={address} size={16} />
-      <span className="text-xs font-semibold tabular">{truncateAddress(address)}</span>
-      {op && <span className="rounded-full bg-gradient-primary px-1.5 text-[10px] font-extrabold text-accent-fg">OP</span>}
+      <span className="text-xs font-medium tabular">{truncateAddress(address)}</span>
+      {op && <span className="rounded-full bg-gradient-primary px-1.5 text-[10px] font-semibold text-accent-fg">OP</span>}
     </span>
   );
 }
@@ -60,7 +60,7 @@ export function IdentityChip() {
         {wallet.address ? <IdentityAvatar address={wallet.address} size={22} /> : <UserRound className="size-4 text-muted" aria-hidden />}
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80">
-        <p className="text-sm font-semibold">Your anonymous identity</p>
+        <p className="text-sm font-medium">Your anonymous identity</p>
         {wallet.address ? (
           <div className="mt-3 flex items-center gap-2 rounded-[10px] border border-border p-2.5">
             <IdentityAvatar address={wallet.address} size={28} />

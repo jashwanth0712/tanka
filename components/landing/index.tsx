@@ -17,7 +17,7 @@ export function TakedownDiagram() {
         {clients.map(({ Icon, label, sub }) => (
           <li key={label} className="flex flex-col items-center gap-1 glass rounded-[18px] p-3 text-center">
             <Icon className="size-5 text-accent-ink" aria-hidden />
-            <span className="text-sm font-semibold">{label}</span>
+            <span className="text-sm font-medium">{label}</span>
             <span className="hidden text-[11px] text-muted sm:block">{sub}</span>
           </li>
         ))}
@@ -32,7 +32,7 @@ export function TakedownDiagram() {
       </ul>
       <Connector />
       <div className="rounded-[18px] bg-gradient-primary p-5 text-center text-accent-fg glow">
-        <p className="font-display text-2xl font-extrabold">Arkiv</p>
+        <p className="font-display text-2xl font-semibold">Arkiv</p>
         <p className="font-mono text-xs text-accent-fg/80">salary · review · comment · vote · confirmation</p>
       </div>
       <figcaption className="text-center text-xs text-muted">No server of ours sits in this picture.</figcaption>

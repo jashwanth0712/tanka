@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { JetBrains_Mono, Poppins } from "next/font/google";
 import { CommandMenuProvider } from "@/components/layout/CommandMenu";
 import { DemoBanner, Footer, MobileTabBar, Nav } from "@/components/layout/Shell";
 import { Providers } from "./providers";
 import "./globals.css";
 
 // One friendly sans for everything (feed, headlines, numbers). Mono only for on-chain data.
-const sans = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-jakarta", display: "swap" });
+const sans = Poppins({ subsets: ["latin", "devanagari"], weight: ["300", "400", "500", "600"], variable: "--font-poppins", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-jetbrains", display: "swap" });
 
 export const metadata: Metadata = {
@@ -21,8 +21,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#07060D" },
-    { media: "(prefers-color-scheme: light)", color: "#FFF7F0" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#F5F5F7" },
   ],
 };
 

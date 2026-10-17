@@ -32,7 +32,7 @@ export function Monogram({ name, size = "md" }: { name: string; size?: "md" | "l
       aria-hidden
       style={{ "--h": hueOf(name) } as React.CSSProperties}
       className={cn(
-        "grid shrink-0 place-items-center rounded-[12px] font-display font-extrabold",
+        "grid shrink-0 place-items-center rounded-[12px] font-display font-semibold",
         "bg-[oklch(0.9_0.06_var(--h))] text-[oklch(0.32_0.09_var(--h))] dark:bg-[oklch(0.3_0.07_var(--h))] dark:text-[oklch(0.9_0.07_var(--h))]",
         size === "lg" ? "size-16 text-2xl sm:size-20 sm:text-3xl" : "size-12 text-lg",
       )}
@@ -45,8 +45,8 @@ export function Monogram({ name, size = "md" }: { name: string; size?: "md" | "l
 export function Stars({ value, className }: { value: number; className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-1", className)} aria-label={`${value.toFixed(1)} out of 5`}>
-      <Star className="size-4 fill-accent text-accent" aria-hidden />
-      <span className="tabular font-semibold">{value.toFixed(1)}</span>
+      <Star className="size-4 fill-star text-star" aria-hidden />
+      <span className="tabular font-medium">{value.toFixed(1)}</span>
     </span>
   );
 }
@@ -57,7 +57,7 @@ export function CompanyCard({ company, stats }: { company: Company; stats?: Comp
       <div className="flex items-start gap-3">
         <Monogram name={company.label} />
         <div className="min-w-0 flex-1">
-          <Link href={`/company/?name=${company.id}`} className="font-display text-lg font-bold after:absolute after:inset-0 after:content-['']">
+          <Link href={`/company/?name=${company.id}`} className="font-display text-lg font-semibold after:absolute after:inset-0 after:content-['']">
             {company.label}
           </Link>
           <p className="flex items-center gap-1 truncate text-sm text-muted">
@@ -72,11 +72,11 @@ export function CompanyCard({ company, stats }: { company: Company; stats?: Comp
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <div>
           <dt className="text-xs text-muted">Median CTC</dt>
-          <dd className="font-display text-2xl font-bold">{stats?.medianCtc != null ? formatINRCompact(stats.medianCtc) : "—"}</dd>
+          <dd className="font-display text-2xl font-semibold">{stats?.medianCtc != null ? formatINRCompact(stats.medianCtc) : "—"}</dd>
         </div>
         <div>
           <dt className="text-xs text-muted">Entries</dt>
-          <dd className="tabular font-display text-2xl font-bold">{stats?.entries ?? "—"}</dd>
+          <dd className="tabular font-display text-2xl font-semibold">{stats?.entries ?? "—"}</dd>
         </div>
         <div>
           <dt className="text-xs text-muted">Rating</dt>
@@ -84,11 +84,11 @@ export function CompanyCard({ company, stats }: { company: Company; stats?: Comp
         </div>
         <div>
           <dt className="text-xs text-muted">High trust</dt>
-          <dd className="tabular font-semibold">{stats?.highTrustPct != null ? `${stats.highTrustPct}%` : "—"}</dd>
+          <dd className="tabular font-medium">{stats?.highTrustPct != null ? `${stats.highTrustPct}%` : "—"}</dd>
         </div>
       </dl>
       {stats && stats.flaggedPct > FLAG_THRESHOLD && (
-        <p className="flex items-center gap-1.5 text-xs font-semibold text-trust-low">
+        <p className="flex items-center gap-1.5 text-xs font-medium text-trust-low">
           <AlertTriangle className="size-3.5" aria-hidden /> Burst of low-trust entries detected
         </p>
       )}
@@ -101,7 +101,7 @@ export function FlagBanner({ pct, showing, onToggle }: { pct: number; showing: b
     <div role="status" className="glass flex flex-col gap-3 rounded-[18px] border-trust-mid/50 bg-trust-mid/10 p-4 sm:flex-row sm:items-center sm:p-5">
       <AlertTriangle className="size-6 shrink-0 text-trust-mid" aria-hidden />
       <div className="flex-1">
-        <p className="font-semibold">We detected a burst of low-trust entries for this company.</p>
+        <p className="font-medium">We detected a burst of low-trust entries for this company.</p>
         <p className="text-sm text-muted">
           {Math.round(pct * 100)}% of its entries are flagged Unusual or Burst. They&apos;re {showing ? "shown below, marked" : "hidden by default"} — and so are reviews from the same wallets.
         </p>
@@ -110,7 +110,7 @@ export function FlagBanner({ pct, showing, onToggle }: { pct: number; showing: b
         type="button"
         aria-pressed={showing}
         onClick={onToggle}
-        className="h-10 shrink-0 rounded-[10px] border border-trust-mid/50 px-4 text-sm font-semibold hover:bg-trust-mid/10 cursor-pointer"
+        className="h-10 shrink-0 rounded-[10px] border border-trust-mid/50 px-4 text-sm font-medium hover:bg-trust-mid/10 cursor-pointer"
       >
         {showing ? "Hide them" : "Show them"}
       </button>
@@ -139,7 +139,7 @@ export function SalaryMatrix({ company, entries }: { company: string; entries: S
     }
     return (
       <Link href={href(role, level)} className="block rounded-md px-2 py-1 hover:bg-surface-2">
-        <span className="block font-display text-lg font-bold leading-tight">{formatINRCompact(cell.median)}</span>
+        <span className="block font-display text-lg font-semibold leading-tight">{formatINRCompact(cell.median)}</span>
         <span className="tabular text-xs text-muted">{cell.count} entries</span>
       </Link>
     );
@@ -153,9 +153,9 @@ export function SalaryMatrix({ company, entries }: { company: string; entries: S
           <table className="w-full text-sm">
             <thead className="border-b border-border bg-surface-2/50">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted">Role</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted">Role</th>
                 {levels.map((l) => (
-                  <th key={l.id} scope="col" className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted">
+                  <th key={l.id} scope="col" className="px-2 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted">
                     {l.label}
                   </th>
                 ))}
@@ -181,7 +181,7 @@ export function SalaryMatrix({ company, entries }: { company: string; entries: S
         {roles.map((r) => (
           <li key={r.id}>
             <Card className="p-4">
-              <p className="mb-2 font-semibold">{r.label}</p>
+              <p className="mb-2 font-medium">{r.label}</p>
               <ul className="grid grid-cols-2 gap-2">
                 {levels
                   .filter((l) => matrix.get(r.id)?.has(l.id))
@@ -220,7 +220,7 @@ export function RatingBars({ reviews }: { reviews: Review[] }) {
             <span className="h-2 overflow-hidden rounded-full bg-surface-2" aria-hidden>
               <span className="block h-full rounded-full bg-gradient-primary" style={{ width: `${(avg / 5) * 100}%` }} />
             </span>
-            <span className="tabular w-8 text-right font-semibold">{avg.toFixed(1)}</span>
+            <span className="tabular w-8 text-right font-medium">{avg.toFixed(1)}</span>
           </li>
         );
       })}
@@ -239,7 +239,7 @@ export function ReviewCard({ review, now, flagged }: { review: Review; now: numb
       <p className="tabular mt-3 text-xs text-muted">
         WLB {review.wlb} · Mgmt {review.management} · Growth {review.growth} · Culture {review.culture}
       </p>
-      {flagged && <p className="mt-2 text-xs font-semibold text-trust-low">From a wallet flagged for a posting burst</p>}
+      {flagged && <p className="mt-2 text-xs font-medium text-trust-low">From a wallet flagged for a posting burst</p>}
     </Card>
   );
 }
