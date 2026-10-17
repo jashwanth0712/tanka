@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Tokens: "Ledger at night" ─────────────────────────────────────────── */
+:root {
+  --bg: #faf8f3;
+  --surface: #ffffff;
+  --surface-2: #f2efe7;
+  --border: #e4dfd3;
+  --text: #14161b;
+  --muted: #5d6270;
+  --accent: #c97c00;
+  /* Dark text on marigold keeps WCAG AA in light mode (white on #C97C00 is ~3:1). */
+  --accent-fg: #14161b;
+  /* Accent used as *text* on light surfaces needs to be darker to pass AA. */
+  --accent-ink: #8a5500;
+  --trust-high: #15803d;
+  --trust-mid: #a16207;
+  --trust-low: #c2410c;
+  --danger: #b91c1c;
+  --chain: #0369a1;
+  --shadow: 0 10px 30px -12px rgb(20 22 27 / 0.18);
+}
+
+.dark {
+  --bg: #0b0d12;
+  --surface: #12151c;
+  --surface-2: #1a1e27;
+  --border: #262b36;
+  --text: #ecedef;
+  --muted: #8a90a0;
+  --accent: #f5a524;
+  --accent-fg: #14161b;
+  --accent-ink: #f5a524;
+  --trust-high: #22c55e;
+  --trust-mid: #eab308;
+  --trust-low: #f97316;
+  --danger: #ef4444;
+  --chain: #7dd3fc;
+  --shadow: 0 12px 40px -16px rgb(0 0 0 / 0.7);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-ink: var(--accent-ink);
+  --color-trust-high: var(--trust-high);
+  --color-trust-mid: var(--trust-mid);
+  --color-trust-low: var(--trust-low);
+  --color-danger: var(--danger);
+  --color-chain: var(--chain);
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+
+  --radius-card: 14px;
+  --radius-control: 10px;
+
+  --shadow-raised: var(--shadow);
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent); }
+    50% { box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 0%, transparent); }
+  }
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+@layer base {
+  *, ::before, ::after { border-color: var(--border); }
+
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
+}
+
+/* Numbers line up everywhere. */
+.tabular, table, .font-mono, .font-display { font-variant-numeric: tabular-nums; }
+
+/* Faint grid for the landing hero only. */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 30%, transparent 75%);
+}
+
+/* Receipt perforated top/bottom edge. */
+.receipt {
+  --hole: 7px;
+  -webkit-mask:
+    radial-gradient(circle var(--hole) at 50% 0, #0000 98%, #000) top / calc(var(--hole) * 3) 51% repeat-x,
+    radial-gradient(circle var(--hole) at 50% 100%, #0000 98%, #000) bottom / calc(var(--hole) * 3) 51% repeat-x;
+  mask:
+    radial-gradient(circle var(--hole) at 50% 0, #0000 98%, #000) top / calc(var(--hole) * 3) 51% repeat-x,
+    radial-gradient(circle var(--hole) at 50% 100%, #0000 98%, #000) bottom / calc(var(--hole) * 3) 51% repeat-x;
+}
+
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Recharts focus outline off (bars aren't interactive). */
+.recharts-wrapper *:focus { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
