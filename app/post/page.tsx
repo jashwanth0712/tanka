@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, Skeleton } from "@/components/ui/primitives";
 import { useConfirmations } from "@/hooks/queries";
 import { useComments, useFeed, usePost } from "@/hooks/social";
+import { useOnchain } from "@/hooks/useOnchain";
 import { getCompany } from "@/lib/catalog";
 import { postAttributes } from "@/lib/data/schema";
 import type { EntityKey } from "@/lib/data/types";
@@ -30,6 +31,7 @@ function PostView() {
   // The feed hook gives us trust, tallies and flagged wallets from the shared cache.
   const feed = useFeed({ sort: "new", trust: "all" });
   const p = post.data?.data;
+  const [onchain] = useOnchain();
   const confs = useConfirmations(p?.kind === "salary" ? p.key : undefined);
 
   if (!valid) {
@@ -86,7 +88,7 @@ function PostView() {
           </Card>
         </section>
 
-        <OnChainPanel entityKey={p.key} owner={p.owner} expiresAt={p.expiresAt} attributes={postAttributes(p)} />
+        {onchain && <OnChainPanel entityKey={p.key} owner={p.owner} expiresAt={p.expiresAt} attributes={postAttributes(p)} />}
       </div>
 
       <aside className="flex min-w-0 flex-col gap-4">

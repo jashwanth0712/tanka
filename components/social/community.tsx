@@ -60,9 +60,6 @@ export function LeftRail() {
       <NavItem href="/salaries/" active={path.startsWith("/salaries")}>
         <Table2 className="size-4" aria-hidden /> Package search
       </NavItem>
-      <NavItem href="/verify/" active={path.startsWith("/verify")}>
-        <ScanSearch className="size-4" aria-hidden /> Verify it yourself
-      </NavItem>
       <p className="mt-5 px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">Communities</p>
       {COMPANIES.map((c) => (
         <NavItem key={c.id} href={`/company/?name=${c.id}`} active={current === c.id}>
@@ -73,6 +70,11 @@ export function LeftRail() {
       <Link href="/companies/" className="mt-1 px-3 py-2 text-xs font-medium text-accent-ink hover:underline">
         All communities →
       </Link>
+      <div className="mt-3 border-t border-border pt-2">
+        <NavItem href="/verify/" active={path.startsWith("/verify")}>
+          <ScanSearch className="size-4" aria-hidden /> Verify it yourself
+        </NavItem>
+      </div>
     </nav>
   );
 }
@@ -113,15 +115,15 @@ export function AboutCard() {
         </div>
         <dl className="grid grid-cols-2 gap-3 border-y border-border py-3 text-sm">
           {[
-            ["Posts", data?.entries],
+            ["Discussions", data?.discussions],
             ["Comments", data?.comments],
+            ["Posts", data?.entries],
             ["Confirmations", data?.confirmations],
-            ["Block", data?.latestBlock],
           ].map(([label, v]) => (
             <div key={label as string}>
               <dt className="flex items-center gap-1.5 text-xs text-muted"><LiveDot className="size-1.5" />{label}</dt>
-              <dd className={cn("font-display text-xl font-semibold", label === "Block" && "font-mono text-base font-normal text-chain")}>
-                {v == null ? "—" : label === "Block" ? `#${(v as number).toLocaleString("en-IN")}` : <CountUp value={v as number} />}
+              <dd className="font-display text-xl font-semibold">
+                {v == null ? "—" : <CountUp value={v as number} />}
               </dd>
             </div>
           ))}

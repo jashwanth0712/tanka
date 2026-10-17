@@ -189,7 +189,8 @@ Search for `TODO(arkiv)`:
 - `RPC_ENDPOINTS` — at least 2 real Tiramisu endpoints (the RPC switcher is a demo moment).
 - `EXPLORER_URL` and the `explorer*Url` path formats.
 - `REPO_URL`, `MIRRORS` (Vercel + IPFS CID once pinned), `DEMO_VIDEO_URL`.
-- `CLI_SNIPPETS` and `CURL_SNIPPET` — exact install/usage commands and the JSON-RPC method name for queries.
+- `CLI_SNIPPETS` (null hides the CLI section on /verify) and `ARKIV_QUERY_METHOD` (null hides the curl section). Set them only once the commands really work.
+- `MIRRORS[].live` — flip to `true` per mirror once the Vercel URL / IPFS CID is real; only live mirrors are shown.
 
 ---
 

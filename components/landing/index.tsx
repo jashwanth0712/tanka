@@ -8,7 +8,7 @@ import { RPC_ENDPOINTS } from "@/lib/constants";
 export function TakedownDiagram() {
   const clients = [
     { Icon: Globe, label: "This website", sub: "Vercel · IPFS mirrors" },
-    { Icon: Terminal, label: "CLI", sub: "pnpm tankha query" },
+    { Icon: Terminal, label: "Scripts", sub: "any Arkiv SDK client" },
     { Icon: Laptop, label: "Any client", sub: "curl · scripts · your app" },
   ];
   return (

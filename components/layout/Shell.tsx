@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Home, Moon, Plus, ShieldCheck, Sun, Table2 } from "lucide-react";
+import { Building2, Home, Moon, Plus, Search, Sun, Table2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -10,13 +10,12 @@ import { isMock } from "@/lib/data";
 import { DEMO_VIDEO_URL, FRICTION_URL, REPO_URL, SCHEMA_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { IdentityChip } from "@/components/social/identity";
-import { SearchTrigger } from "./CommandMenu";
+import { SearchTrigger, useCommandMenu } from "./CommandMenu";
 import { StatusPill } from "./StatusPill";
 
 const NAV = [
-  { href: "/salaries/", label: "Packages" },
   { href: "/companies/", label: "Communities" },
-  { href: "/verify/", label: "Verify" },
+  { href: "/salaries/", label: "Packages" },
 ];
 
 function isActive(path: string, href: string) {
@@ -110,11 +109,12 @@ const TABS = [
   { href: "/salaries/", label: "Packages", Icon: Table2 },
   { href: "/submit/", label: "Post", Icon: Plus, raised: true },
   { href: "/companies/", label: "Communities", short: "Groups", Icon: Building2 },
-  { href: "/verify/", label: "Verify", Icon: ShieldCheck },
+  { href: "#search", label: "Search", Icon: Search },
 ];
 
 export function MobileTabBar() {
   const path = usePathname();
+  const openSearch = useCommandMenu();
   return (
     <nav
       aria-label="Mobile"
@@ -122,7 +122,21 @@ export function MobileTabBar() {
     >
       <ul className="mx-auto grid h-16 max-w-md grid-cols-5">
         {TABS.map(({ href, label, short, Icon, raised }: (typeof TABS)[number] & { short?: string }) => {
-          const active = isActive(path, href);
+          const active = href !== "#search" && isActive(path, href);
+          if (href === "#search") {
+            return (
+              <li key={href} className="flex">
+                <button
+                  type="button"
+                  onClick={() => openSearch(true)}
+                  className="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium text-muted min-[380px]:text-[11px] cursor-pointer"
+                >
+                  <Icon className="size-5" aria-hidden />
+                  <span>{label}</span>
+                </button>
+              </li>
+            );
+          }
           return (
             <li key={href} className="flex">
               <Link

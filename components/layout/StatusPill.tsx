@@ -4,10 +4,12 @@ import { Check, Plus, Trash2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 import { LiveDot } from "@/components/common";
+import { OnchainSwitch } from "@/components/common/OnchainSwitch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/primitives";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays";
 import { useNetworkStatus } from "@/hooks/queries";
+import { useOnchain } from "@/hooks/useOnchain";
 import { useRpcState } from "@/hooks/useRpc";
 import { CHAIN_NAME, RPC_ENDPOINTS } from "@/lib/constants";
 import { addCustomRpc, isValidRpcUrl, removeCustomRpc, setRpcUrl } from "@/lib/rpc";
@@ -15,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 export function StatusPill({ className }: { className?: string }) {
   const { data, isError } = useNetworkStatus();
+  const [onchain] = useOnchain();
   const down = isError || (data && !data.ok);
   return (
     <Popover>
@@ -24,7 +27,7 @@ export function StatusPill({ className }: { className?: string }) {
           down ? "border-danger/50 bg-danger/10 text-danger" : "glass hover:bg-surface-2",
           className,
         )}
-        aria-label="Network status and RPC settings"
+        aria-label="Live on Arkiv — network status and settings"
       >
         <LiveDot ok={!down} />
         {down ? (
@@ -33,13 +36,19 @@ export function StatusPill({ className }: { className?: string }) {
           </span>
         ) : (
           <span className="tabular whitespace-nowrap">
-            <span className="hidden xl:inline">{CHAIN_NAME}</span>
-            <span className="hidden text-muted xl:inline"> · block </span>
-            <span className="hidden font-mono text-chain min-[400px]:inline">#{data ? data.latestBlock.toLocaleString("en-IN") : "…"}</span>
+            {!onchain && <span className="hidden min-[400px]:inline">Live</span>}
+            {onchain && <span className="hidden xl:inline">{CHAIN_NAME}</span>}
+            {onchain && <span className="hidden text-muted xl:inline"> · block </span>}
+            {onchain && <span className="hidden font-mono text-chain min-[400px]:inline">#{data ? data.latestBlock.toLocaleString("en-IN") : "…"}</span>}
           </span>
         )}
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[22rem]">
+        <p className="text-sm font-semibold">Live on Arkiv</p>
+        <p className="mb-3 text-xs text-muted">
+          Every post, vote and comment is stored on the Arkiv network ({CHAIN_NAME}{data ? ` · block #${data.latestBlock.toLocaleString("en-IN")}` : ""}). No company can take it down.
+        </p>
+        <OnchainSwitch compact className="mb-3 -mx-2" />
         <RpcSwitcher />
       </PopoverContent>
     </Popover>

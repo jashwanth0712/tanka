@@ -64,27 +64,35 @@ export const SCHEMA_URL = `${REPO_URL}/blob/main/arkiv/schema.md`;
 export const FRICTION_URL = `${REPO_URL}/blob/main/arkiv/friction.md`;
 export const DEMO_VIDEO_URL = "#"; // TODO: demo video link (≤ 3 min)
 
-export const MIRRORS: { label: string; url: string; kind: string }[] = [
-  { label: "Vercel", url: "https://tankha.vercel.app", kind: "Primary" },
-  { label: "IPFS (ipfs.io gateway)", url: "https://ipfs.io/ipfs/<CID>", kind: "Mirror" },
-  { label: "IPFS (dweb.link gateway)", url: "https://<CID>.ipfs.dweb.link", kind: "Mirror" },
+/**
+ * Frontend mirrors. Only `live: true` entries are shown on /verify — never show a judge a dead link.
+ * TODO(arkiv/deploy): set the real Vercel URL and IPFS CID, then flip `live`.
+ */
+export const MIRRORS: { label: string; url: string; kind: string; live: boolean }[] = [
+  { label: "Vercel", url: "https://tankha.vercel.app", kind: "Primary", live: false },
+  { label: "IPFS (ipfs.io gateway)", url: "https://ipfs.io/ipfs/<CID>", kind: "Mirror", live: false },
+  { label: "IPFS (dweb.link gateway)", url: "https://<CID>.ipfs.dweb.link", kind: "Mirror", live: false },
 ];
+export const LIVE_MIRRORS = MIRRORS.filter((m) => m.live);
 
-// TODO(arkiv): teammate supplies the exact CLI + JSON-RPC shapes.
-export const CLI_SNIPPETS = {
-  install: "git clone " + "https://github.com/your-org/tankha && cd tankha/cli && pnpm i",
-  examples: [
-    `pnpm tankha query 'project = "tankha" && type = "salary" && company = "nimbus-infotech"'`,
-    `pnpm tankha get <entity-key>`,
-    `pnpm tankha stats`,
-  ],
-};
+/**
+ * CLI commands for /verify. `null` hides the section until the CLI in /cli actually exists.
+ * TODO(arkiv): fill with real, tested commands.
+ * Example shape: { install: "git clone <repo> && cd tankha/cli && pnpm i", examples: ["pnpm tankha query '<query>'"] }
+ */
+export const CLI_SNIPPETS: { install: string; examples: string[] } | null = null;
 
-export const CURL_SNIPPET = (rpc: string) => `curl -s ${rpc} \\
+/**
+ * JSON-RPC method that runs an Arkiv query. `null` hides the curl section until confirmed.
+ * TODO(arkiv): set the real method name (and adjust params shape in CURL_SNIPPET if needed).
+ */
+export const ARKIV_QUERY_METHOD: string | null = null;
+
+export const CURL_SNIPPET = (rpc: string, method: string) => `curl -s ${rpc} \\
   -H 'content-type: application/json' \\
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
-    "method": "arkiv_query",
-    "params": ["project = \\"tankha\\" && type = \\"salary\\" && level = \\"sde-2\\""]
+    "method": "${method}",
+    "params": ["project = \\"tankha\\" && type = \\"discussion\\" && flair = \\"layoffs\\""]
   }'`;

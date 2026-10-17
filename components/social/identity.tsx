@@ -5,10 +5,13 @@ import { useTheme } from "next-themes";
 import * as React from "react";
 import { toast } from "sonner";
 import { Mono } from "@/components/common";
+import { OnchainSwitch } from "@/components/common/OnchainSwitch";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/overlays";
 import { useMounted } from "@/hooks/useNow";
+import { useOnchain } from "@/hooks/useOnchain";
 import { truncateAddress } from "@/lib/format";
+import { displayName } from "@/lib/pseudonym";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@/lib/wallet/useWallet";
 
@@ -46,11 +49,13 @@ export function IdentityAvatar({ address, size = 20, className }: { address?: st
   );
 }
 
+/** Poster handle: a friendly pseudonym ("Quiet Heron · 8fbe"), or the raw address in on-chain mode. */
 export function Handle({ address, op, className }: { address: string; op?: boolean; className?: string }) {
+  const [onchain] = useOnchain();
   return (
-    <span className={cn("inline-flex items-center gap-1.5", className)}>
+    <span className={cn("inline-flex min-w-0 items-center gap-1.5", className)} title={address}>
       <IdentityAvatar address={address} size={16} />
-      <span className="text-xs font-medium tabular">{truncateAddress(address)}</span>
+      <span className={cn("truncate text-xs font-medium", onchain && "font-mono tabular")}>{onchain ? truncateAddress(address) : displayName(address)}</span>
       {op && <span className="rounded-full bg-gradient-primary px-1.5 text-[10px] font-semibold text-accent-fg">OP</span>}
     </span>
   );
@@ -59,6 +64,7 @@ export function Handle({ address, op, className }: { address: string; op?: boole
 /** Nav chip: the anonymous identity this tab signs votes/comments with. */
 export function IdentityChip() {
   const wallet = useWallet();
+  const [onchain] = useOnchain();
   const { resolvedTheme, setTheme } = useTheme();
   const mounted = useMounted();
   const dark = !mounted || resolvedTheme === "dark";
@@ -66,7 +72,7 @@ export function IdentityChip() {
     <Popover>
       <PopoverTrigger
         className="glass grid size-9 place-items-center rounded-full hover:bg-surface-2 cursor-pointer"
-        aria-label={wallet.address ? `Your anonymous identity ${truncateAddress(wallet.address)}` : "Your anonymous identity"}
+        aria-label={wallet.address ? `Your anonymous identity ${displayName(wallet.address)}` : "Your anonymous identity"}
       >
         {wallet.address ? <IdentityAvatar address={wallet.address} size={22} /> : <UserRound className="size-4 text-muted" aria-hidden />}
       </PopoverTrigger>
@@ -76,15 +82,16 @@ export function IdentityChip() {
           <div className="mt-3 flex items-center gap-2 rounded-[10px] border border-border p-2.5">
             <IdentityAvatar address={wallet.address} size={28} />
             <div className="min-w-0">
-              <Mono value={wallet.address} />
-              <p className="text-xs text-muted">{wallet.isFresh ? "Fresh wallet · this tab only" : "Connected wallet"}</p>
+              <p className="truncate text-sm font-semibold">{displayName(wallet.address)}</p>
+              {onchain && <Mono value={wallet.address} />}
+              <p className="text-xs text-muted">{wallet.isFresh ? "Anonymous · this tab only" : "Connected wallet"}</p>
             </div>
           </div>
         ) : (
           <p className="mt-1 text-sm text-muted">None yet. One is created the first time you vote, comment or confirm — no sign-up.</p>
         )}
         <p className="mt-3 text-xs text-muted">
-          Votes and comments are signed by this address. It isn&apos;t linked to your name, email or device, and it&apos;s forgotten when you close the tab.
+          This is the name people see on your votes and comments. It isn&apos;t linked to your name, email or device, and it&apos;s forgotten when you close the tab.
         </p>
         <div className="mt-3 flex flex-col gap-2">
           <Button
@@ -104,6 +111,9 @@ export function IdentityChip() {
           <Button variant="ghost" size="sm" className="sm:hidden" onClick={() => setTheme(dark ? "light" : "dark")}>
             {dark ? <Sun /> : <Moon />} {dark ? "Light theme" : "Dark theme"}
           </Button>
+        </div>
+        <div className="mt-3 border-t border-border pt-2">
+          <OnchainSwitch />
         </div>
       </PopoverContent>
     </Popover>

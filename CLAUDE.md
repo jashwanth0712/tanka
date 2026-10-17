@@ -80,9 +80,11 @@ Use latest stable versions. Do not add libraries beyond this list without a clea
 ```
 
 Global UI:
-- **Top nav (desktop):** logo, Salaries, Communities, Verify, ⌘K search, Arkiv status pill, theme toggle, primary CTA "Create", **identity chip** (the tab's anonymous wallet; "Start a new identity").
-- **Bottom tab bar (mobile ≤ 768px):** Home, Salaries, Post (raised center button), Communities, Verify. Theme toggle lives in the identity popover below 640px.
-- **Arkiv status pill:** pulsing dot + "Tiramisu · block #1,234,567" updating every ~5s. Click → popover with RPC in use and "Switch RPC". Red + "RPC unreachable — switch endpoint" when down.
+- **On-chain details are opt-in (decided 2026-10-18).** It's a social app first, so by default users see no query boxes, raw entities, block numbers or wallet hex. A **"Show on-chain details"** switch (profile menu, status-pill menu, and the home intro card for judges; persisted in localStorage) turns all of them on: every "Show query", the post page's raw on-chain panel, the block number in the status pill, and raw addresses instead of pseudonyms. The Verify page always shows everything.
+- **Pseudonyms, not wallet hex:** posters appear as a stable, anonymous `Adjective Animal · last4` name derived from their address (`lib/pseudonym.ts`), e.g. "Calm Badger · d0b8". On-chain mode shows the address.
+- **Top nav (desktop):** logo, Communities, Packages, ⌘K search, "Live" status pill, theme toggle, primary CTA "Create", **identity chip** (the tab's pseudonym; "Start a new identity", on-chain switch). Verify is **not** in the top nav; it lives at the bottom of the left rail, in the About card, the intro card and the footer.
+- **Bottom tab bar (mobile ≤ 768px):** Home, Packages, Post (raised center button), Communities, **Search** (opens the command palette). Theme toggle lives in the identity popover below 640px.
+- **Arkiv status pill:** pulsing dot + "Live" (block number "Tiramisu · block #1,234,567" only in on-chain mode), updating every ~5s. Click → popover with RPC in use and "Switch RPC". Red + "RPC unreachable — switch endpoint" when down.
 - **Settings popover (from status pill):** list of RPC endpoints + custom RPC input (stored in localStorage, wrapped in try/catch). This is a *censorship-resistance feature*: if one endpoint is blocked, users switch.
 - **Demo-data banner:** if `NEXT_PUBLIC_DATA_SOURCE=mock`, show a slim amber banner "Demo data — not reading from Arkiv". Never ship production with mock.
 
@@ -240,9 +242,10 @@ The page that wins the censorship-resistance argument.
 1. **Intro:** "This site is just one window into the data. Close it and the data is still there."
 2. **RPC endpoints:** list with live status (latency, latest block), currently-selected marker, "Use this".
 3. **Query playground:** pick a preset (e.g., "All SDE-2 salaries in Hyderabad", "Nimbus Infotech entries", "Entries expiring this month"), shows the Arkiv query string, "Run" executes it live and shows raw results (mono, collapsible JSON).
-4. **Use the CLI:** copyable install + example commands (teammate supplies exact commands; leave placeholders in a constants file).
-5. **Use any HTTP client:** copyable `curl` JSON-RPC example (teammate supplies the method name/shape).
-6. **Mirrors:** links to every deployment of the frontend (Vercel, IPFS gateway(s)) — placeholders in constants.
+4. **Use the CLI:** copyable install + example commands. **Hidden until real** — set `CLI_SNIPPETS` in `lib/constants.ts` (null = hidden). Never show judges commands that don't work.
+5. **Use any HTTP client:** copyable `curl` JSON-RPC example. **Hidden until** `ARKIV_QUERY_METHOD` is set.
+6. **Mirrors:** links to every deployment of the frontend (Vercel, IPFS gateway(s)). Only entries with `live: true` are shown; the section disappears when none are live.
+Section numbers renumber themselves to match what's shown.
 7. **Schema:** rendered summary of entity types + link to `/arkiv/schema.md` on GitHub.
 
 ---
@@ -522,8 +525,8 @@ If time is short, cut in this order (last first): Verify playground "Run" → co
 ## 11. Quality bar — "what impresses a judge"
 
 - [ ] Opens fast on mobile; looks intentional at 360px.
-- [ ] Within 10 seconds a judge sees: live block number, real Arkiv-backed numbers, a trust badge, a life bar.
-- [ ] Every number traces back to a visible query ("Show query").
+- [ ] Within 10 seconds a judge sees: the "Live on Arkiv" pill, real Arkiv-backed numbers, a trust badge, a life bar, and the intro card's **Verify it yourself** + **Show on-chain details** switch (which reveals block numbers and queries everywhere). The demo video should flip that switch.
+- [ ] Every number traces back to a query ("Show query", visible with on-chain details on).
 - [ ] Fraud story works: Nimbus shows the flag banner; planted entries are hidden under "Medium+".
 - [ ] Submitting produces an on-chain receipt with a working explorer link.
 - [ ] Switching RPC works and is visible.

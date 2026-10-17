@@ -12,7 +12,7 @@ import { useNetworkStatus } from "@/hooks/queries";
 import { useRpcUrl } from "@/hooks/useRpc";
 import { getDataSource } from "@/lib/data";
 import { QUERY_PRESETS } from "@/lib/data/query";
-import { CLI_SNIPPETS, CURL_SNIPPET, MIRRORS, RPC_ENDPOINTS, SCHEMA_URL } from "@/lib/constants";
+import { ARKIV_QUERY_METHOD, CLI_SNIPPETS, CURL_SNIPPET, LIVE_MIRRORS, RPC_ENDPOINTS, SCHEMA_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 function Section({ id, n, title, children, lead }: { id?: string; n: string; title: string; lead?: React.ReactNode; children: React.ReactNode }) {
@@ -169,6 +169,16 @@ function Playground() {
   );
 }
 
+const SHOWN = [
+  "rpc",
+  "query",
+  ...(CLI_SNIPPETS ? ["cli"] : []),
+  ...(ARKIV_QUERY_METHOD ? ["curl"] : []),
+  ...(LIVE_MIRRORS.length ? ["mirrors"] : []),
+  "schema",
+];
+const num = (id: string) => String(SHOWN.indexOf(id) + 1).padStart(2, "0");
+
 export default function VerifyPage() {
   const rpc = useRpcUrl();
   return (
@@ -179,50 +189,57 @@ export default function VerifyPage() {
         <h1 className="mt-2 max-w-3xl text-4xl font-semibold leading-[1.02] sm:text-6xl">This site is just <span className="text-gradient">one window</span> into the data.</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted">
           Close it and the data is still there. Everything below lets you read Tankha&apos;s entries without this website — pick
-          another RPC, run the queries yourself, use the CLI or plain curl. Posts, votes and comments are all just entities.
+          another RPC and run the queries yourself. Posts, votes and comments are all just entities.
         </p>
         </div>
         <TakedownDiagram />
       </header>
 
-      <Section id="rpc" n="01" title="RPC endpoints" lead="Live status of every endpoint we know. If one is blocked in your network, switch — the data is identical.">
+      <Section id="rpc" n={num("rpc")} title="RPC endpoints" lead="Live status of every endpoint we know. If one is blocked in your network, switch — the data is identical.">
         <RpcStatusTable />
       </Section>
 
-      <Section n="02" title="Query playground" lead="Pick a preset or write your own. Results come straight from the selected RPC — the same entities this site renders.">
+      <Section n={num("query")} title="Query playground" lead="Pick a preset or write your own. Results come straight from the selected RPC — the same entities this site renders.">
         <Playground />
       </Section>
 
-      <Section n="03" title="Use the CLI" lead="A tiny Node CLI in this repo talks to Arkiv directly.">
-        <div className="flex flex-col gap-3">
-          <CodeBlock code={CLI_SNIPPETS.install} label="install command" />
-          <CodeBlock code={CLI_SNIPPETS.examples.join("\n")} label="example commands" />
-        </div>
-      </Section>
+      {CLI_SNIPPETS && (
+        <Section n={num("cli")} title="Use the CLI" lead="A tiny Node CLI in this repo talks to Arkiv directly.">
+          <div className="flex flex-col gap-3">
+            <CodeBlock code={CLI_SNIPPETS.install} label="install command" />
+            <CodeBlock code={CLI_SNIPPETS.examples.join("\n")} label="example commands" />
+          </div>
+        </Section>
+      )}
 
-      <Section n="04" title="Use any HTTP client" lead="Arkiv speaks JSON-RPC. No SDK required.">
-        <CodeBlock code={CURL_SNIPPET(rpc)} label="curl command" />
-      </Section>
+      {ARKIV_QUERY_METHOD && (
+        <Section n={num("curl")} title="Use any HTTP client" lead="Arkiv speaks JSON-RPC. No SDK required.">
+          <CodeBlock code={CURL_SNIPPET(rpc, ARKIV_QUERY_METHOD)} label="curl command" />
+        </Section>
+      )}
 
-      <Section n="05" title="Mirrors" lead="The frontend is a static bundle — the same build is pinned to IPFS.">
-        <Card className="divide-y divide-border">
-          {MIRRORS.map((m) => (
-            <a key={m.url} href={m.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 p-4 hover:bg-surface-2/60">
-              <span className="min-w-0">
-                <span className="block font-medium">{m.label}</span>
-                <span className="block truncate font-mono text-xs text-muted">{m.url}</span>
-              </span>
-              <span className="flex shrink-0 items-center gap-2 text-xs text-muted">
-                {m.kind} <ExternalLink className="size-4" aria-hidden />
-              </span>
-            </a>
-          ))}
-        </Card>
-      </Section>
+      {LIVE_MIRRORS.length > 0 && (
+        <Section n={num("mirrors")} title="Mirrors" lead="The frontend is a static bundle — the same build is pinned to IPFS.">
+          <Card className="divide-y divide-border">
+            {LIVE_MIRRORS.map((m) => (
+              <a key={m.url} href={m.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 p-4 hover:bg-surface-2/60">
+                <span className="min-w-0">
+                  <span className="block font-medium">{m.label}</span>
+                  <span className="block truncate font-mono text-xs text-muted">{m.url}</span>
+                </span>
+                <span className="flex shrink-0 items-center gap-2 text-xs text-muted">
+                  {m.kind} <ExternalLink className="size-4" aria-hidden />
+                </span>
+              </a>
+            ))}
+          </Card>
+        </Section>
+      )}
 
-      <Section n="06" title="Schema" lead="Five entity types. Every entity carries project = &quot;tankha&quot; so you can find them all.">
+      <Section n={num("schema")} title="Schema" lead="Six entity types. Every entity carries project = &quot;tankha&quot; so you can find them all.">
         <div className="grid gap-3 md:grid-cols-3">
           {[
+            { t: "discussion", a: ["company", "flair", "city?", "createdAt #", "payload: title, body"] },
             { t: "salary", a: ["company", "role", "level", "city", "yoe #", "ctc #", "base #?", "createdAt #"] },
             { t: "review", a: ["company", "wlb #", "management #", "growth #", "culture #", "createdAt #", "payload: comment"] },
             { t: "confirmation", a: ["entryKey", "createdAt #"] },

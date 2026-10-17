@@ -4,13 +4,16 @@ import { ChevronDown, Code2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import * as React from "react";
 import { CopyButton } from "@/components/common";
+import { useOnchain } from "@/hooks/useOnchain";
 import { cn } from "@/lib/utils";
 
 /** "Show query" toggle — reveals the exact Arkiv query behind a result set. */
 export function QueryReveal({ queries, className, note }: { queries: (string | undefined)[]; className?: string; note?: string }) {
   const [open, setOpen] = React.useState(false);
   const id = React.useId();
+  const [onchain] = useOnchain();
   const list = queries.filter(Boolean) as string[];
+  if (!onchain) return null;
   return (
     <div className={cn("text-sm", className)}>
       <button

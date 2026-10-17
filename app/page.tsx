@@ -4,6 +4,7 @@ import { ScanSearch, X } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { LiveDot } from "@/components/common";
+import { OnchainSwitch } from "@/components/common/OnchainSwitch";
 import { AboutCard, CommunityChips, LeftRail, RulesCard } from "@/components/social/community";
 import { Feed } from "@/components/social/Feed";
 import { Card } from "@/components/ui/primitives";
@@ -41,7 +42,7 @@ function IntroCard() {
       >
         <X className="size-4" />
       </button>
-      <p className="relative inline-flex items-center gap-2 font-mono text-[11px] text-muted">
+      <p className="relative inline-flex items-center gap-2 text-xs font-medium text-muted">
         <LiveDot className="size-1.5" /> Live on Arkiv · Tiramisu
       </p>
       <h1 className="relative mt-1 pr-6 text-2xl font-semibold leading-tight sm:text-3xl">
@@ -53,6 +54,7 @@ function IntroCard() {
       <Link href="/verify/" className="relative mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-accent-ink hover:underline">
         <ScanSearch className="size-4" aria-hidden /> Verify it yourself
       </Link>
+      <OnchainSwitch compact className="relative -mx-2 mt-1" />
     </Card>
   );
 }
