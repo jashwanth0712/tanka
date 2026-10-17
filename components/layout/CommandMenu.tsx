@@ -51,11 +51,11 @@ export function CommandMenuProvider({ children }: { children: React.ReactNode })
             </div>
             <Command.List className="max-h-[50vh] overflow-y-auto p-2">
               <Command.Empty className="p-6 text-center text-sm text-muted">Nothing in the catalog matches.</Command.Empty>
-              <Command.Group heading="Companies" className={groupCls}>
+              <Command.Group heading="Communities" className={groupCls}>
                 {COMPANIES.map((c) => (
                   <Command.Item key={c.id} value={`company ${c.label} ${c.industry}`} onSelect={() => go(`/company/?name=${c.id}`)} className={item}>
                     <Building2 className="size-4 text-muted" aria-hidden />
-                    <span className="flex-1">{c.label}</span>
+                    <span className="flex-1">c/{c.id} <span className="text-muted">· {c.label}</span></span>
                     <span className="text-xs text-muted">{c.industry}</span>
                   </Command.Item>
                 ))}
@@ -85,7 +85,7 @@ export function CommandMenuProvider({ children }: { children: React.ReactNode })
 }
 
 const groupCls = cn(
-  "[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted",
+  "[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:font-bold [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted",
 );
 
 export function SearchTrigger({ className, wide }: { className?: string; wide?: boolean }) {

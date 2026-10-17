@@ -3,7 +3,7 @@
 
 import { CITIES, COMPANIES } from "../catalog";
 import { ENTRY_TTL_MS } from "../constants";
-import type { Address, Confirmation, EntityKey, Rating, Review, SalaryEntry } from "../data/types";
+import type { Address, Comment, Confirmation, EntityKey, Rating, Review, SalaryEntry, Vote } from "../data/types";
 
 export const DEFAULT_SEED = 0x7a4b4a;
 
@@ -120,12 +120,56 @@ const COMPANY_MOOD: Record<string, number> = {
   "coromandel-digital": 3.2,
 };
 
+
+const SALARY_COMMENTS = [
+  "Matches my offer from last cycle almost exactly.",
+  "Is this including variable pay or just fixed?",
+  "Base looks a bit low for this level, but the band is right.",
+  "Was there a joining bonus on top?",
+  "Similar band in my team, maybe 1–2 L lower.",
+  "Useful. I was about to accept something 20% lower.",
+  "How many interview rounds did it take?",
+  "Does this include ESOPs at grant value?",
+  "Pretty standard for the city honestly.",
+  "Negotiated or first offer?",
+];
+const REVIEW_THREAD_COMMENTS = [
+  "Agree on the appraisal part, it's a slow cycle.",
+  "Depends heavily on which manager you get.",
+  "The learning budget point is real.",
+  "On-call was the dealbreaker for me.",
+  "Hybrid policy changed recently, worth checking again.",
+  "Culture is better in the newer teams.",
+];
+const REPLIES = [
+  "Mostly fixed, about 10% variable.",
+  "First offer, didn't negotiate much.",
+  "Excludes ESOPs.",
+  "Same experience here.",
+  "Not in my org, but plausible.",
+  "Three rounds plus a hiring-manager chat.",
+  "Joining bonus was separate, one-time.",
+  "Thanks, this helps.",
+];
+const FRAUD_COMMENTS = [
+  "This is ~3× what anyone else reports for this level at Nimbus. Fake?",
+  "Eight posts in an hour from one wallet. Come on.",
+  "Nobody at Nimbus makes this at SDE-1.",
+  "Trust badge already flags it as Unusual. Good.",
+];
+const FRAUD_REPLIES = [
+  "Same wallet posted the 5-star reviews too.",
+  "That's why it's hidden by default. Click 'All' to see the burst.",
+];
+
 export interface SeedData {
   wallets: Address[];
   fraudWallet: Address;
   salaries: SalaryEntry[];
   reviews: Review[];
   confirmations: Confirmation[];
+  comments: Comment[];
+  votes: Vote[];
 }
 
 export interface GenerateOptions {
@@ -302,6 +346,82 @@ export function generateSeed({ seed = DEFAULT_SEED, now = Date.now() }: Generate
     });
   }
 
+
+  // ── Social layer (generated last so it never changes the data above) ──────
+  const comments: Comment[] = [];
+  const votes: Vote[] = [];
+  const posts: (SalaryEntry | Review)[] = [...salaries, ...reviews];
+  const isFraud = (p: { owner: Address }) => p.owner === fraudWallet;
+  const between = (from: number) => from + Math.floor(r() * Math.max(1, now - from));
+  const other = (not: Address) => {
+    let w = pick(r, wallets);
+    if (w === not) w = wallets[(wallets.indexOf(w) + 1) % wallets.length];
+    return w;
+  };
+  const addComment = (post: SalaryEntry | Review, body: string, parent?: Comment, owner?: Address, at?: number) => {
+    const createdAt = at ?? between(parent?.createdAt ?? post.createdAt);
+    const c: Comment = {
+      key: entityKey(r),
+      kind: "comment",
+      postKey: post.key,
+      parentKey: parent?.key,
+      body,
+      createdAt,
+      expiresAt: createdAt + ENTRY_TTL_MS,
+      owner: owner ?? other(post.owner),
+    };
+    comments.push(c);
+    return c;
+  };
+
+  // Ordinary threads on legit posts.
+  const legitPosts = posts.filter((p) => !isFraud(p));
+  // Discussion concentrates on recent posts, like any feed.
+  const recentLegit = [...legitPosts].sort((x, y) => y.createdAt - x.createdAt).slice(0, 45);
+  for (let i = 0; i < 150; i++) {
+    const post = pick(r, r() < 0.65 ? recentLegit : legitPosts);
+    const top = addComment(post, pick(r, post.kind === "salary" ? SALARY_COMMENTS : REVIEW_THREAD_COMMENTS));
+    if (r() < 0.45) {
+      const reply = addComment(post, pick(r, REPLIES), top);
+      if (r() < 0.35) addComment(post, pick(r, REPLIES), reply, post.owner);
+    }
+  }
+
+  // The community notices the Nimbus burst.
+  const fraudSalaries = salaries.filter(isFraud);
+  fraudSalaries.forEach((post, i) => {
+    const c = addComment(post, FRAUD_COMMENTS[i % FRAUD_COMMENTS.length], undefined, undefined, post.createdAt + (2 + i) * HOUR);
+    if (i % 2 === 0) addComment(post, FRAUD_REPLIES[(i / 2) % FRAUD_REPLIES.length], c);
+  });
+
+  // Votes: every wallet votes on a slice of posts; the burst gets buried.
+  const castVote = (targetKey: EntityKey, dir: "up" | "down", owner: Address, from: number) => {
+    const createdAt = between(from);
+    votes.push({ key: entityKey(r), kind: "vote", targetKey, dir, createdAt, expiresAt: createdAt + ENTRY_TTL_MS, owner });
+  };
+  for (const w of wallets) {
+    const seen = new Set<string>();
+    for (let i = 0; i < 45; i++) {
+      const post = pick(r, r() < 0.55 ? recentLegit : posts);
+      if (seen.has(post.key) || post.owner === w) continue;
+      seen.add(post.key);
+      castVote(post.key, isFraud(post) ? (r() < 0.9 ? "down" : "up") : r() < 0.86 ? "up" : "down", w, post.createdAt);
+    }
+    for (let i = 0; i < 10; i++) {
+      const c = pick(r, comments);
+      if (c.owner !== w) castVote(c.key, r() < 0.85 ? "up" : "down", w, c.createdAt);
+    }
+  }
+  for (const p of posts.filter(isFraud)) {
+    castVote(p.key, "up", fraudWallet, p.createdAt); // self-upvote
+    // A burst like this gets noticed: 4–7 regulars downvote each post.
+    const voters = new Set<Address>();
+    const n = int(r, 4, 7);
+    while (voters.size < n) voters.add(pick(r, wallets));
+    for (const w of voters) castVote(p.key, "down", w, p.createdAt);
+  }
+  comments.sort((a, b) => a.createdAt - b.createdAt);
+
   // Expiry = last activity (creation or latest confirmation) + TTL.
   const lastConf = new Map<string, number>();
   for (const c of confirmations)
@@ -311,6 +431,6 @@ export function generateSeed({ seed = DEFAULT_SEED, now = Date.now() }: Generate
   salaries.sort((a, b) => b.createdAt - a.createdAt);
   reviews.sort((a, b) => b.createdAt - a.createdAt);
   confirmations.sort((a, b) => b.createdAt - a.createdAt);
-  return { wallets, fraudWallet, salaries, reviews, confirmations };
+  return { wallets, fraudWallet, salaries, reviews, confirmations, comments, votes };
 }
 

@@ -1,13 +1,14 @@
 "use client";
 // All React Query hooks. Components never touch the data source directly.
 
-import { keepPreviousData, useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { getDataSource } from "@/lib/data";
 import type {
   Address,
   CompanyId,
   EntityKey,
+  Review,
   ReviewInput,
   SalaryEntry,
   SalaryFilters,
@@ -21,6 +22,7 @@ export const qk = {
   allSalaries: ["salaries", "all"] as const,
   salary: (key: string) => ["salary", key] as const,
   reviews: (company: string) => ["reviews", company] as const,
+  allReviews: ["reviews", "all"] as const,
   confirmations: (key: string) => ["confirmations", key] as const,
   allConfirmations: ["confirmations", "all"] as const,
   wallet: (owner: string) => ["wallet", owner] as const,
@@ -187,13 +189,13 @@ export function useConfirmEntry() {
   });
 }
 
-/** Reviews for every catalog company (one Arkiv query per company). */
-export function useAllReviews(companies: CompanyId[]) {
-  return useQueries({
-    queries: companies.map((c) => ({ queryKey: qk.reviews(c), queryFn: () => ds().getReviews(c) })),
-    combine: (results) => ({
-      byCompany: new Map(companies.map((c, i) => [c, results[i].data?.data ?? []])),
-      isLoading: results.some((r) => r.isLoading),
-    }),
-  });
+/** Every live review, grouped by company. One Arkiv query. */
+export function useAllReviews() {
+  const q = useQuery({ queryKey: qk.allReviews, queryFn: () => ds().getReviews(), staleTime: 30_000, refetchInterval: 30_000 });
+  const byCompany = React.useMemo(() => {
+    const m = new Map<string, Review[]>();
+    for (const r of q.data?.data ?? []) m.set(r.company, [...(m.get(r.company) ?? []), r]);
+    return m;
+  }, [q.data]);
+  return { ...q, all: q.data?.data, byCompany };
 }

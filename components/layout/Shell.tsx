@@ -9,12 +9,13 @@ import { useMounted } from "@/hooks/useNow";
 import { isMock } from "@/lib/data";
 import { DEMO_VIDEO_URL, FRICTION_URL, REPO_URL, SCHEMA_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { IdentityChip } from "@/components/social/identity";
 import { SearchTrigger } from "./CommandMenu";
 import { StatusPill } from "./StatusPill";
 
 const NAV = [
   { href: "/salaries/", label: "Salaries" },
-  { href: "/companies/", label: "Companies" },
+  { href: "/companies/", label: "Communities" },
   { href: "/verify/", label: "Verify" },
 ];
 
@@ -89,12 +90,15 @@ export function Nav() {
         <div className="ml-auto flex items-center gap-2">
           <SearchTrigger className="hidden lg:inline-flex" />
           <StatusPill className="max-[380px]:px-2" />
-          <ThemeToggle />
+          <span className="hidden sm:inline-flex">
+            <ThemeToggle />
+          </span>
           <Button asChild size="sm" className="hidden md:inline-flex">
-            <Link href="/submit/" aria-label="Add salary">
-              <Plus /> <span className="hidden lg:inline">Add salary</span>
+            <Link href="/submit/" aria-label="Create post">
+              <Plus /> <span className="hidden lg:inline">Create</span>
             </Link>
           </Button>
+          <IdentityChip />
         </div>
       </div>
     </header>
@@ -104,8 +108,8 @@ export function Nav() {
 const TABS = [
   { href: "/", label: "Home", Icon: Home },
   { href: "/salaries/", label: "Salaries", Icon: Table2 },
-  { href: "/submit/", label: "Add", Icon: Plus, raised: true },
-  { href: "/companies/", label: "Companies", Icon: Building2 },
+  { href: "/submit/", label: "Post", Icon: Plus, raised: true },
+  { href: "/companies/", label: "Communities", Icon: Building2 },
   { href: "/verify/", label: "Verify", Icon: ShieldCheck },
 ];
 
@@ -159,9 +163,9 @@ export function Footer() {
         <div className="flex max-w-sm flex-col gap-3">
           <Logo />
           <p className="text-sm text-muted">
-            Salaries no one can delete. Anonymous, stored on Arkiv, queryable by anyone.
+            Salaries no one can delete. Anonymous salaries, reviews and discussion — stored on Arkiv, queryable by anyone.
           </p>
-          <p className="font-mono text-xs text-muted">Built for the CROPS Censorship Resistance track · MIT</p>
+          <p className="text-xs text-muted">Built for the CROPS Censorship Resistance track · MIT</p>
         </div>
         <ul className="grid grid-cols-2 gap-x-10 gap-y-2 text-sm">
           {links.map((l) => (

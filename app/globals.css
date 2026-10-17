@@ -57,8 +57,8 @@
   --color-danger: var(--danger);
   --color-chain: var(--chain);
 
-  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 
   --radius-card: 14px;
@@ -83,7 +83,6 @@
     background: var(--bg);
     color: var(--text);
     font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
@@ -96,7 +95,7 @@
 
   ::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
 
-  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.025em; }
 }
 
 /* Numbers line up everywhere. */

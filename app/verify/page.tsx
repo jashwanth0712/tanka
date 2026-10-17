@@ -4,6 +4,7 @@ import { Check, ExternalLink, Loader2, Play, Server } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 import { CopyButton, LiveDot } from "@/components/common";
+import { TakedownDiagram } from "@/components/landing";
 import { RpcSwitcher } from "@/components/layout/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Card, Textarea } from "@/components/ui/primitives";
@@ -19,7 +20,7 @@ function Section({ id, n, title, children, lead }: { id?: string; n: string; tit
     <section id={id} className="scroll-mt-24 border-t border-border py-10 sm:py-14">
       <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
         <div>
-          <p className="font-mono text-xs text-accent-ink">{n}</p>
+          <p className="text-xs font-bold text-accent-ink">{n}</p>
           <h2 className="mt-1 text-2xl font-bold sm:text-3xl">{title}</h2>
           {lead && <p className="mt-2 text-sm text-muted">{lead}</p>}
         </div>
@@ -172,13 +173,16 @@ export default function VerifyPage() {
   const rpc = useRpcUrl();
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-      <header className="pb-10 sm:pb-14">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent-ink">Don&apos;t trust us</p>
+      <header className="grid items-center gap-10 pb-10 sm:pb-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        <div>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent-ink">Don&apos;t trust us</p>
         <h1 className="mt-2 max-w-3xl text-4xl font-extrabold leading-[1.02] sm:text-6xl">This site is just one window into the data.</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted">
           Close it and the data is still there. Everything below lets you read Tankha&apos;s entries without this website — pick
-          another RPC, run the queries yourself, use the CLI or plain curl.
+          another RPC, run the queries yourself, use the CLI or plain curl. Posts, votes and comments are all just entities.
         </p>
+        </div>
+        <TakedownDiagram />
       </header>
 
       <Section id="rpc" n="01" title="RPC endpoints" lead="Live status of every endpoint we know. If one is blocked in your network, switch — the data is identical.">
@@ -216,12 +220,14 @@ export default function VerifyPage() {
         </Card>
       </Section>
 
-      <Section n="06" title="Schema" lead="Three entity types. Every entity carries project = &quot;tankha&quot; so you can find them all.">
+      <Section n="06" title="Schema" lead="Five entity types. Every entity carries project = &quot;tankha&quot; so you can find them all.">
         <div className="grid gap-3 md:grid-cols-3">
           {[
             { t: "salary", a: ["company", "role", "level", "city", "yoe #", "ctc #", "base #?", "createdAt #"] },
             { t: "review", a: ["company", "wlb #", "management #", "growth #", "culture #", "createdAt #", "payload: comment"] },
             { t: "confirmation", a: ["entryKey", "createdAt #"] },
+            { t: "comment", a: ["postKey", "parentKey?", "createdAt #", "payload: body"] },
+            { t: "vote", a: ["targetKey", "dir (up/down/none)", "createdAt #"] },
           ].map((e) => (
             <Card key={e.t} className="p-4">
               <p className="font-mono text-sm font-semibold text-chain">type = &quot;{e.t}&quot;</p>

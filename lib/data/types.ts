@@ -85,17 +85,53 @@ export interface Stats {
   entries: number;
   companies: number;
   confirmations: number;
+  comments: number;
   latestBlock: number;
+}
+
+/** A feed post is either a salary entry or a company review. */
+export type Post = SalaryEntry | Review;
+
+/** "up" / "down", or "none" to clear a previous vote. Latest vote per (wallet, target) wins. */
+export type VoteDir = "up" | "down" | "none";
+
+export interface Vote {
+  key: EntityKey;
+  kind: "vote";
+  targetKey: EntityKey; // a post or a comment
+  dir: VoteDir;
+  createdAt: number;
+  expiresAt: number;
+  owner: Address;
+}
+
+export interface Comment {
+  key: EntityKey;
+  kind: "comment";
+  postKey: EntityKey; // the post this thread belongs to
+  parentKey?: EntityKey; // parent comment; absent for top-level comments
+  body: string; // ≤ 500 chars, PII-checked
+  createdAt: number;
+  expiresAt: number;
+  owner: Address;
 }
 
 export type SalaryInput = Omit<SalaryEntry, "key" | "kind" | "createdAt" | "expiresAt" | "owner">;
 export type ReviewInput = Omit<Review, "key" | "kind" | "createdAt" | "expiresAt" | "owner">;
+export type CommentInput = Pick<Comment, "postKey" | "parentKey" | "body">;
 
 export interface DataSource {
   // reads
   searchSalaries(f: SalaryFilters): Promise<QueryResult<SalaryEntry[]>>;
   getSalary(key: EntityKey): Promise<QueryResult<SalaryEntry | null>>;
-  getReviews(company: CompanyId): Promise<QueryResult<Review[]>>;
+  /** Salary or review by key (post pages). */
+  getPost(key: EntityKey): Promise<QueryResult<Post | null>>;
+  /** Reviews for one company, or every review when `company` is omitted (feed). */
+  getReviews(company?: CompanyId): Promise<QueryResult<Review[]>>;
+  /** Comments on one post, or every comment when omitted (feed comment counts). */
+  getComments(postKey?: EntityKey): Promise<QueryResult<Comment[]>>;
+  /** Votes on the given targets, or every vote when omitted. */
+  getVotes(targetKeys?: EntityKey[]): Promise<QueryResult<Vote[]>>;
   getConfirmations(entryKey: EntityKey): Promise<QueryResult<Confirmation[]>>;
   getConfirmationsFor(entryKeys: EntityKey[]): Promise<QueryResult<Confirmation[]>>;
   getWalletActivity(
@@ -110,4 +146,6 @@ export interface DataSource {
   createSalary(input: SalaryInput): Promise<WriteReceipt>;
   createReview(input: ReviewInput): Promise<WriteReceipt>;
   confirmEntry(entryKey: EntityKey): Promise<WriteReceipt>; // also extends expiry if Arkiv allows
+  createComment(input: CommentInput): Promise<WriteReceipt>;
+  castVote(targetKey: EntityKey, dir: VoteDir): Promise<WriteReceipt>;
 }

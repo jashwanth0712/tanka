@@ -7,7 +7,7 @@
 import { PROJECT_TAG } from "../constants";
 import type { Address, CompanyId, EntityKey, SalaryFilters } from "./types";
 
-export type EntityType = "salary" | "review" | "confirmation";
+export type EntityType = "salary" | "review" | "confirmation" | "comment" | "vote";
 
 const str = (v: string) => `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 
@@ -36,7 +36,14 @@ export function salariesQuery(f: SalaryFilters = {}): string {
 
 export const allOfTypeQuery = (type: EntityType) => base(type);
 export const entityQuery = (key: EntityKey) => `$key = ${key}`;
-export const reviewsQuery = (company: CompanyId) => `${base("review")} && company = ${str(company)}`;
+export const reviewsQuery = (company?: CompanyId) =>
+  company ? `${base("review")} && company = ${str(company)}` : base("review");
+export const commentsQuery = (postKey?: EntityKey) =>
+  postKey ? `${base("comment")} && postKey = ${str(postKey.toLowerCase())}` : base("comment");
+export function votesQuery(targetKeys?: EntityKey[]): string {
+  if (!targetKeys || targetKeys.length > CONFIRMATIONS_OR_LIMIT) return base("vote");
+  return `${base("vote")} && ${anyOf("targetKey", targetKeys.map((k) => k.toLowerCase())) ?? "targetKey = \"\""}`;
+}
 export const confirmationsQuery = (entryKey: EntityKey) =>
   `${base("confirmation")} && entryKey = ${str(entryKey)}`;
 export const walletQuery = (owner: Address) => `project = ${str(PROJECT_TAG)} && $owner = ${owner}`;
@@ -60,4 +67,5 @@ export const QUERY_PRESETS: { label: string; query: () => string }[] = [
   { label: "Salaries above ₹50 L", query: () => salariesQuery({ ctcMin: 5_000_000 }) },
   { label: "All reviews of Kaveri Systems", query: () => reviewsQuery("kaveri-systems") },
   { label: "Every confirmation", query: () => allOfTypeQuery("confirmation") },
+  { label: "Every comment", query: () => allOfTypeQuery("comment") },
 ];

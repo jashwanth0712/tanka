@@ -157,3 +157,23 @@ describe("seed fraud story", () => {
     expect(seed.salaries.filter((s) => s.expiresAt - NOW < 30 * DAY).length).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe("seed social layer", () => {
+  const NOW2 = 1_800_000_000_000;
+  const seed = generateSeed({ now: NOW2 });
+  it("has threads and votes", () => {
+    expect(seed.comments.length).toBeGreaterThan(150);
+    expect(seed.votes.length).toBeGreaterThan(600);
+    expect(seed.comments.some((c) => c.parentKey)).toBe(true);
+  });
+  it("buries the fraud burst with downvotes and calls it out in comments", () => {
+    const fraudKeys = new Set(seed.salaries.filter((s) => s.owner === seed.fraudWallet).map((s) => s.key));
+    const net = seed.votes.filter((v) => fraudKeys.has(v.targetKey)).reduce((a, v) => a + (v.dir === "up" ? 1 : v.dir === "down" ? -1 : 0), 0);
+    expect(net).toBeLessThan(0);
+    expect(seed.comments.filter((c) => fraudKeys.has(c.postKey)).length).toBeGreaterThanOrEqual(8);
+  });
+  it("contains no personal details in comments", async () => {
+    const { scanPII } = await import("@/lib/pii");
+    for (const c of seed.comments) expect(scanPII(c.body).ok).toBe(true);
+  });
+});

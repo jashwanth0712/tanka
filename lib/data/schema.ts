@@ -5,7 +5,20 @@
 // Arkiv numeric annotations are unsigned integers, so every number here is a non-negative integer.
 
 import { PROJECT_TAG, SCHEMA_VERSION } from "../constants";
-import type { Address, Confirmation, EntityKey, Rating, Review, ReviewInput, SalaryEntry, SalaryInput } from "./types";
+import type {
+  Address,
+  Comment,
+  CommentInput,
+  Confirmation,
+  EntityKey,
+  Rating,
+  Review,
+  ReviewInput,
+  SalaryEntry,
+  SalaryInput,
+  Vote,
+  VoteDir,
+} from "./types";
 
 export type AttrValue = string | number;
 export type Attributes = Record<string, AttrValue>;
@@ -123,4 +136,53 @@ export function salaryAttributes(s: SalaryEntry): Attributes {
 export const STORED_FIELDS = {
   salary: ["company", "role", "level", "city", "years of experience", "annual CTC", "base salary (optional)", "posting time"],
   review: ["company", "4 ratings (1–5)", "comment (optional, ≤ 280 chars)", "posting time"],
+  comment: ["the post it replies to", "your comment text (≤ 500 chars)", "posting time"],
 };
+
+export function commentToEntity(input: CommentInput, createdAt: number): EntityDraft {
+  return {
+    attributes: {
+      ...common("comment", createdAt),
+      postKey: input.postKey.toLowerCase(),
+      ...(input.parentKey ? { parentKey: input.parentKey.toLowerCase() } : {}),
+    },
+    payload: { body: input.body },
+  };
+}
+
+/** Vote direction is a string attribute: Arkiv numeric annotations can't be negative. */
+export function voteToEntity(targetKey: EntityKey, dir: VoteDir, createdAt: number): EntityDraft {
+  return { attributes: { ...common("vote", createdAt), targetKey: targetKey.toLowerCase(), dir } };
+}
+
+export function entityToComment(e: RawEntity): Comment {
+  const a = e.attributes;
+  return {
+    key: e.key,
+    kind: "comment",
+    postKey: str(a, "postKey") as EntityKey,
+    parentKey: a.parentKey ? (str(a, "parentKey") as EntityKey) : undefined,
+    body: typeof e.payload?.body === "string" ? e.payload.body : "",
+    createdAt: num(a, "createdAt"),
+    expiresAt: e.expiresAt,
+    owner: e.owner,
+  };
+}
+
+export function entityToVote(e: RawEntity): Vote {
+  const dir = str(e.attributes, "dir");
+  return {
+    key: e.key,
+    kind: "vote",
+    targetKey: str(e.attributes, "targetKey") as EntityKey,
+    dir: dir === "up" || dir === "down" ? dir : "none",
+    createdAt: num(e.attributes, "createdAt"),
+    expiresAt: e.expiresAt,
+    owner: e.owner,
+  };
+}
+
+/** Attributes exactly as stored, for any post (on-chain panel). */
+export function postAttributes(p: SalaryEntry | Review): Attributes {
+  return p.kind === "salary" ? salaryToEntity(p, p.createdAt).attributes : reviewToEntity(p, p.createdAt).attributes;
+}

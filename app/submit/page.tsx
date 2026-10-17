@@ -16,6 +16,7 @@ import type { WriteReceipt } from "@/lib/data/types";
 import { STORED_FIELDS } from "@/lib/data/schema";
 import { formatINRCompact } from "@/lib/format";
 import { reviewSchema, salarySchema, type ReviewForm, type SalaryForm } from "@/lib/schemas";
+import { rememberMyPost } from "@/lib/myPosts";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@/lib/wallet/useWallet";
 
@@ -176,6 +177,7 @@ export default function SubmitPage() {
         kind === "salary"
           ? await createSalary.mutateAsync(salarySchema.parse(salary))
           : await createReview.mutateAsync(reviewSchema.parse(review));
+      rememberMyPost(r.key);
       setReceipt(r);
       go(4);
       toast.success("Written to Arkiv");
@@ -199,8 +201,8 @@ export default function SubmitPage() {
   return (
     <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 py-8 sm:px-6 sm:py-12">
       <header className="mb-6">
-        <h1 className="text-4xl font-extrabold sm:text-5xl">{step === 4 ? "Done." : "Add yours"}</h1>
-        <p className="mt-2 text-muted">No sign-up. No email. Just the number.</p>
+        <h1 className="text-4xl font-extrabold sm:text-5xl">{step === 4 ? "Posted." : "Create a post"}</h1>
+        <p className="mt-2 text-muted">No sign-up. No email. Just the number. It lands in the community feed for that company.</p>
       </header>
       <Stepper step={step} />
 
@@ -295,15 +297,9 @@ export default function SubmitPage() {
             <div className="flex flex-col items-center gap-6">
               <Receipt receipt={receipt} kind={kind === "salary" ? "Salary entry" : "Review"} />
               <div className="flex w-full max-w-md flex-col gap-2 sm:flex-row">
-                {kind === "salary" ? (
-                  <Button asChild className="flex-1">
-                    <Link href={`/entry/?key=${receipt.key}`}>View entry</Link>
-                  </Button>
-                ) : (
-                  <Button asChild className="flex-1">
-                    <Link href={`/company/?name=${review?.company}&tab=reviews`}>View reviews</Link>
-                  </Button>
-                )}
+                <Button asChild className="flex-1">
+                  <Link href={`/post/?key=${receipt.key}`}>View post</Link>
+                </Button>
                 <Button variant="secondary" className="flex-1" onClick={reset}>
                   <Plus /> Add another
                 </Button>

@@ -16,7 +16,8 @@ export const CONFIRM_EXTENDS_TO_MS = ENTRY_TTL_MS;
 export const CONFIRMATION_TTL_MS = ENTRY_TTL_MS;
 
 export const K_ANONYMITY = 3;
-export const COMMENT_MAX = 280;
+export const COMMENT_MAX = 280; // review comments
+export const COMMENT_MAX_LEN = 500; // thread comments
 
 export interface RpcEndpoint {
   url: string;

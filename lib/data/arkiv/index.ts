@@ -11,7 +11,10 @@ export function createArkivDataSource(): DataSource {
   return {
     searchSalaries: notReady("searchSalaries"),
     getSalary: notReady("getSalary"),
+    getPost: notReady("getPost"),
     getReviews: notReady("getReviews"),
+    getComments: notReady("getComments"),
+    getVotes: notReady("getVotes"),
     getConfirmations: notReady("getConfirmations"),
     getConfirmationsFor: notReady("getConfirmationsFor"),
     getWalletActivity: notReady("getWalletActivity"),
@@ -22,5 +25,7 @@ export function createArkivDataSource(): DataSource {
     createSalary: notReady("createSalary"),
     createReview: notReady("createReview"),
     confirmEntry: notReady("confirmEntry"),
+    createComment: notReady("createComment"),
+    castVote: notReady("castVote"),
   };
 }

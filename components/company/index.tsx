@@ -61,7 +61,10 @@ export function CompanyCard({ company, stats }: { company: Company; stats?: Comp
             {company.label}
           </Link>
           <p className="flex items-center gap-1 truncate text-sm text-muted">
-            {company.industry} · <MapPin className="size-3" aria-hidden /> {cityLabel(company.hq)}
+            c/{company.id} · {company.industry}
+          </p>
+          <p className="flex items-center gap-1 truncate text-xs text-muted">
+            <MapPin className="size-3" aria-hidden /> {cityLabel(company.hq)}
           </p>
         </div>
         <ChevronRight className="size-5 text-muted transition-transform group-hover:translate-x-0.5" aria-hidden />

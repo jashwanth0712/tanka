@@ -16,7 +16,7 @@ import type { SalaryEntry } from "@/lib/data/types";
 import type { TrustResult } from "@/lib/trust";
 import { cn } from "@/lib/utils";
 
-const entryHref = (key: string) => `/entry/?key=${key}`;
+const entryHref = (key: string) => `/post/?key=${key}`;
 
 function Th({
   children,
