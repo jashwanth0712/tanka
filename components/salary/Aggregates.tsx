@@ -24,13 +24,13 @@ export function RangeBar({ s, className }: { s: Summary; className?: string }) {
         />
         <div className="absolute -inset-y-1 w-0.5 rounded-full bg-text" style={{ left: `calc(${pos(s.median)}% - 1px)` }} />
       </div>
-      <div className="mt-2 flex justify-between gap-2 text-xs text-muted">
-        <span className="tabular">{formatINRCompact(s.min)}</span>
-        <span className="tabular">
-          p25 <span className="text-text">{formatINRCompact(s.p25)}</span> · p75{" "}
-          <span className="text-text">{formatINRCompact(s.p75)}</span>
+      <div className="mt-2 flex items-start justify-between gap-2 text-xs text-muted">
+        <span className="tabular shrink-0 whitespace-nowrap">{formatINRCompact(s.min)}</span>
+        <span className="tabular text-center">
+          <span className="whitespace-nowrap">p25 <span className="text-text">{formatINRCompact(s.p25)}</span></span> ·{" "}
+          <span className="whitespace-nowrap">p75 <span className="text-text">{formatINRCompact(s.p75)}</span></span>
         </span>
-        <span className="tabular">{formatINRCompact(s.max)}</span>
+        <span className="tabular shrink-0 whitespace-nowrap">{formatINRCompact(s.max)}</span>
       </div>
     </div>
   );

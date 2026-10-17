@@ -14,7 +14,7 @@ import { useCreateReview, useCreateSalary } from "@/hooks/queries";
 import { cityLabel, companyName, levelLabel, roleLabel } from "@/lib/catalog";
 import type { WriteReceipt } from "@/lib/data/types";
 import { STORED_FIELDS } from "@/lib/data/schema";
-import { formatINRCompact } from "@/lib/format";
+import { formatINRCompact, formatYears } from "@/lib/format";
 import { reviewSchema, salarySchema, type ReviewForm, type SalaryForm } from "@/lib/schemas";
 import { rememberMyPost } from "@/lib/myPosts";
 import { cn } from "@/lib/utils";
@@ -124,7 +124,7 @@ function Summary({ kind, salary, review }: { kind: Kind; salary?: SalaryForm; re
         <div>
           <p className="font-medium">{companyName(salary.company)}</p>
           <p className="text-sm text-muted">
-            {roleLabel(salary.role)} · {levelLabel(salary.level)} · {cityLabel(salary.city)} · {salary.yoe} yrs
+            {roleLabel(salary.role)} · {levelLabel(salary.level)} · {cityLabel(salary.city)} · {formatYears(salary.yoe)}
           </p>
         </div>
         <p className="font-display text-3xl font-semibold">{formatINRCompact(salary.ctc)}</p>

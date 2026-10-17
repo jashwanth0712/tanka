@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { daysUntil, formatINR, formatINRCompact, relativeTime, truncateAddress, DAY } from "@/lib/format";
+import { daysUntil, formatINR, formatINRCompact, formatYears, relativeTime, truncateAddress, DAY } from "@/lib/format";
 
 describe("format", () => {
   it("formats INR in Indian grouping", () => {
@@ -21,5 +21,10 @@ describe("format", () => {
     expect(daysUntil(now - 2 * DAY, now)).toBe(-2);
     expect(relativeTime(now - 3 * DAY, now)).toBe("3 days ago");
     expect(relativeTime(now - 10_000, now)).toBe("just now");
+  });
+  it("pluralises years", () => {
+    expect(formatYears(1)).toBe("1 yr");
+    expect(formatYears(0)).toBe("0 yrs");
+    expect(formatYears(4)).toBe("4 yrs");
   });
 });

@@ -20,7 +20,18 @@ export function hueOf(s: string) {
 
 /** Deterministic avatar from a wallet address — two-tone, no faces, no names. */
 export function IdentityAvatar({ address, size = 20, className }: { address?: string; size?: number; className?: string }) {
-  const h = address ? hueOf(address) : 0;
+  if (!address) {
+    return (
+      <span
+        aria-hidden
+        className={cn("inline-grid shrink-0 place-items-center rounded-full bg-surface-2 text-muted ring-1 ring-border", className)}
+        style={{ width: size, height: size }}
+      >
+        <UserRound style={{ width: size * 0.55, height: size * 0.55 }} />
+      </span>
+    );
+  }
+  const h = hueOf(address);
   const h2 = (h + 140) % 360;
   return (
     <span

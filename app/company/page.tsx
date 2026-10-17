@@ -134,7 +134,7 @@ function CommunityView() {
           </div>
 
           <aside className="hidden lg:block">
-            <div className="sticky top-20 flex flex-col gap-4">
+            <div className="no-scrollbar sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-4 overflow-y-auto overscroll-contain pb-2">
               <Card className="p-4">
                 <p className="font-medium">About c/{id}</p>
                 <p className="mt-1 text-sm text-muted">

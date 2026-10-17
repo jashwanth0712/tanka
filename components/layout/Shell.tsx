@@ -29,7 +29,7 @@ function isActive(path: string, href: string) {
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <Link href="/" className={cn("group inline-flex items-center gap-2 rounded-md", className)} aria-label="Tankha home">
+    <Link href="/" className={cn("group inline-flex shrink-0 items-center gap-2 rounded-md", className)} aria-label="Tankha home">
       <span
         aria-hidden
         className="grid size-9 place-items-center rounded-[11px] bg-gradient-primary glow font-display text-lg font-semibold text-accent-fg transition-transform group-hover:-rotate-6"
@@ -70,7 +70,7 @@ export function Nav() {
   const path = usePathname();
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/55 backdrop-blur-2xl backdrop-saturate-150">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 min-[400px]:px-4 sm:gap-3 sm:px-6">
         <Logo />
         <nav aria-label="Main" className="ml-4 hidden items-center gap-1 md:flex">
           {NAV.map((n) => (
@@ -87,7 +87,7 @@ export function Nav() {
             </Link>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2">
           <SearchTrigger className="hidden lg:inline-flex" />
           <StatusPill className="max-[380px]:px-2" />
           <span className="hidden sm:inline-flex">
@@ -109,7 +109,7 @@ const TABS = [
   { href: "/", label: "Home", Icon: Home },
   { href: "/salaries/", label: "Salaries", Icon: Table2 },
   { href: "/submit/", label: "Post", Icon: Plus, raised: true },
-  { href: "/companies/", label: "Communities", Icon: Building2 },
+  { href: "/companies/", label: "Communities", short: "Groups", Icon: Building2 },
   { href: "/verify/", label: "Verify", Icon: ShieldCheck },
 ];
 
@@ -121,7 +121,7 @@ export function MobileTabBar() {
       className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg/60 backdrop-blur-2xl backdrop-saturate-150 md:hidden"
     >
       <ul className="mx-auto grid h-16 max-w-md grid-cols-5">
-        {TABS.map(({ href, label, Icon, raised }) => {
+        {TABS.map(({ href, label, short, Icon, raised }: (typeof TABS)[number] & { short?: string }) => {
           const active = isActive(path, href);
           return (
             <li key={href} className="flex">
@@ -129,7 +129,7 @@ export function MobileTabBar() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium",
+                  "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 whitespace-nowrap text-[10px] font-medium min-[380px]:text-[11px]",
                   active ? "text-text" : "text-muted",
                 )}
               >
@@ -140,7 +140,14 @@ export function MobileTabBar() {
                 ) : (
                   <Icon className={cn("size-5", active && "text-accent-ink")} aria-hidden />
                 )}
-                <span>{label}</span>
+                {short ? (
+                  <>
+                    <span className="min-[380px]:hidden">{short}</span>
+                    <span className="hidden min-[380px]:inline">{label}</span>
+                  </>
+                ) : (
+                  <span>{label}</span>
+                )}
               </Link>
             </li>
           );

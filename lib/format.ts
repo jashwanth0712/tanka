@@ -61,6 +61,11 @@ export function formatDateTime(ts: number): string {
   });
 }
 
+/** "1 yr", "4 yrs", "0 yrs". */
+export function formatYears(n: number): string {
+  return `${n} ${n === 1 ? "yr" : "yrs"}`;
+}
+
 export function formatNumber(n: number): string {
   return inr.format(n);
 }

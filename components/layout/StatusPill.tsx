@@ -35,7 +35,7 @@ export function StatusPill({ className }: { className?: string }) {
           <span className="tabular whitespace-nowrap">
             <span className="hidden xl:inline">{CHAIN_NAME}</span>
             <span className="hidden text-muted xl:inline"> · block </span>
-            <span className="font-mono text-chain">#{data ? data.latestBlock.toLocaleString("en-IN") : "…"}</span>
+            <span className="hidden font-mono text-chain min-[400px]:inline">#{data ? data.latestBlock.toLocaleString("en-IN") : "…"}</span>
           </span>
         )}
       </PopoverTrigger>

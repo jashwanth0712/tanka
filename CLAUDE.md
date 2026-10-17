@@ -151,7 +151,8 @@ Contrast must meet **WCAG AA**. Never rely on color alone — trust badges alway
 - Never animate layout of large tables. Disable non-essential motion under `prefers-reduced-motion`.
 
 ### Responsive rules (mobile-first, test at 360, 390, 768, 1024, 1440)
-- No horizontal scroll at any width.
+- No horizontal scroll at any width. `html` and `body` use `overflow-x: clip` (not `hidden`) so nothing can pan the page sideways on touch devices; sticky still works.
+- Test with **real mobile emulation** (isMobile + touch), not just a narrow desktop window, and down to **280px**: browser zoom makes a 440px phone behave like ~293px. Header: the status pill collapses to the live dot below 400px. Tab bar: "Communities" becomes "Groups" below 380px.
 - **Salaries page:** desktop = left filter sidebar (280px) + results; mobile = sticky "Filters (3)" button opening a bottom **Drawer**, results as cards.
 - **Results:** desktop table (sortable columns) ≥ 1024px; cards below.
 - Tap targets ≥ 44px. Forms single-column on mobile.

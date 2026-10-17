@@ -15,7 +15,7 @@ import { useNow } from "@/hooks/useNow";
 import { cityLabel, companyName, levelLabel, roleLabel } from "@/lib/catalog";
 import { reviewAvg } from "@/lib/companyStats";
 import type { Post, Review, SalaryEntry } from "@/lib/data/types";
-import { formatINRCompact } from "@/lib/format";
+import { formatINRCompact, formatYears } from "@/lib/format";
 import type { Tally } from "@/lib/social";
 import type { TrustResult } from "@/lib/trust";
 import { isMyPost } from "@/lib/myPosts";
@@ -37,7 +37,7 @@ function SalaryBody({ p, trust, big }: { p: SalaryEntry; trust?: TrustResult; bi
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
-        <p className={cn("font-display font-semibold leading-none tracking-tight", big ? "text-6xl sm:text-7xl" : "text-4xl")}>
+        <p className={cn("whitespace-nowrap font-display font-semibold leading-none tracking-tight", big ? "text-[clamp(2.5rem,13vw,4.5rem)]" : "text-[clamp(1.875rem,9vw,2.25rem)]")}>
           <span className="text-gradient">
             <Money value={p.ctc} />
           </span>
@@ -46,7 +46,7 @@ function SalaryBody({ p, trust, big }: { p: SalaryEntry; trust?: TrustResult; bi
       </div>
       <ul className="flex flex-wrap gap-1.5 text-xs text-muted">
         <li className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1"><MapPin className="size-3" aria-hidden />{cityLabel(p.city)}</li>
-        <li className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1"><Briefcase className="size-3" aria-hidden />{p.yoe} yrs exp</li>
+        <li className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1"><Briefcase className="size-3" aria-hidden />{formatYears(p.yoe)} exp</li>
         {p.baseSalary != null && <li className="tabular rounded-full bg-surface-2 px-2.5 py-1">base {formatINRCompact(p.baseSalary)}</li>}
       </ul>
       <div className="relative z-10 flex flex-wrap items-center gap-x-3 gap-y-2">

@@ -102,7 +102,7 @@ export function AboutCard() {
   const { data } = useStats();
   return (
     <Card className="overflow-hidden">
-      <div className="relative h-16 bg-gradient-primary" aria-hidden><div className="hero-grid absolute inset-0 opacity-60" /></div>
+      <div className="relative h-16 bg-gradient-soft" aria-hidden><div className="hero-grid absolute inset-0 opacity-70" /></div>
       <div className="-mt-6 flex flex-col gap-3 p-4">
         <span className="grid size-12 place-items-center rounded-[14px] border-4 border-[var(--surface-solid)] bg-gradient-primary font-display text-xl font-semibold text-accent-fg glow">₹</span>
         <div>

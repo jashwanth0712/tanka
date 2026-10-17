@@ -12,6 +12,7 @@ import { Card, Skeleton } from "@/components/ui/primitives";
 import { useNow } from "@/hooks/useNow";
 import type { SortKey } from "@/hooks/useSalaryFilters";
 import { cityLabel, companyName, levelLabel, roleLabel } from "@/lib/catalog";
+import { formatYears } from "@/lib/format";
 import type { SalaryEntry } from "@/lib/data/types";
 import type { TrustResult } from "@/lib/trust";
 import { cn } from "@/lib/utils";
@@ -147,7 +148,7 @@ export function SalaryCard({ e, trust, index = 0 }: { e: SalaryEntry; trust?: Tr
           <span className="inline-flex items-center gap-1">
             <MapPin className="size-3" aria-hidden /> {cityLabel(e.city)}
           </span>
-          <span className="tabular">{e.yoe} yrs</span>
+          <span className="tabular">{formatYears(e.yoe)}</span>
           <span className="ml-auto inline-flex items-center gap-2">
             <LifeBar expiresAt={e.expiresAt} size="xs" />
           </span>
