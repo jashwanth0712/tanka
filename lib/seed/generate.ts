@@ -184,16 +184,16 @@ export function generateSeed({ seed = DEFAULT_SEED, now = Date.now() }: Generate
 
   // Everyone else.
   // Real data clusters around a few common role/level pairs per company, so each company gets
-  // 4 clustered groups of 3 (enough peers for range-fit) plus 6 scattered entries.
+  // 4 clustered groups of 4 (each entry then has 3 peers, enough for range-fit) plus 3 scattered.
   const others = COMPANIES.filter((c) => c.id !== "nimbus-infotech");
   for (const c of others) {
     const groups = new Set<string>();
     while (groups.size < 4) groups.add(`${weighted(r, ROLE_WEIGHTS)}|${weighted(r, LEVEL_WEIGHTS)}`);
     for (const g of groups) {
       const [role, level] = g.split("|");
-      for (let i = 0; i < 3; i++) salaries.push(makeSalary(c.id, role, level));
+      for (let i = 0; i < 4; i++) salaries.push(makeSalary(c.id, role, level));
     }
-    for (let i = 0; i < 6; i++)
+    for (let i = 0; i < 3; i++)
       salaries.push(makeSalary(c.id, weighted(r, ROLE_WEIGHTS), weighted(r, LEVEL_WEIGHTS)));
   }
 
@@ -226,7 +226,11 @@ export function generateSeed({ seed = DEFAULT_SEED, now = Date.now() }: Generate
   };
   // Older entries that are still around have usually been re-confirmed recently.
   for (const s of confirmable) if (now - s.createdAt > 150 * DAY) confirm(s, now - 170 * DAY);
-  while (confirmations.length < 120) confirm(pick(r, confirmable), 0);
+  // Confirmations cluster: a minority of entries get most of them (people confirm what they see often).
+  const groupSize = (s: SalaryEntry) =>
+    confirmable.filter((x) => x.company === s.company && x.role === s.role && x.level === s.level).length;
+  const popular = confirmable.filter((s, i) => groupSize(s) >= 4 && i % 2 === 0);
+  while (confirmations.length < 190) confirm(pick(r, r() < 0.75 ? popular : confirmable), now - 170 * DAY);
 
   // People lurk before they post: each wallet confirms something a few days before its first entry.
   for (const w of wallets) {

@@ -33,8 +33,8 @@ export function StatusPill({ className }: { className?: string }) {
           </span>
         ) : (
           <span className="tabular whitespace-nowrap">
-            <span className="hidden sm:inline">{CHAIN_NAME}</span>
-            <span className="hidden text-muted sm:inline"> · block </span>
+            <span className="hidden xl:inline">{CHAIN_NAME}</span>
+            <span className="hidden text-muted xl:inline"> · block </span>
             <span className="font-mono text-chain">#{data ? data.latestBlock.toLocaleString("en-IN") : "…"}</span>
           </span>
         )}

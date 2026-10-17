@@ -106,11 +106,14 @@ export function LiveStats() {
 }
 
 export function LiveFeed() {
-  const recent = useRecent(8);
+  const recent = useRecent(30);
   const trust = useTrustIndex();
   const now = useNow(10_000);
   const reduce = useReducedMotion();
-  const rows = recent.data?.data ?? [];
+  // Same default as /salaries: Medium+ only. Low-trust posts are counted, not shown.
+  const all = recent.data?.data ?? [];
+  const rows = all.filter((e) => trust.index?.get(e.key)?.band !== "low").slice(0, 8);
+  const hiddenLow = all.slice(0, all.indexOf(rows[rows.length - 1]) + 1).length - rows.length;
   return (
     <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -121,12 +124,18 @@ export function LiveFeed() {
           <Link href="/salaries/">All salaries <ArrowRight /></Link>
         </Button>
       </div>
-      {recent.isLoading ? (
+      {hiddenLow > 0 && (
+        <p className="-mt-2 mb-4 text-sm text-muted">
+          <span className="tabular font-semibold text-trust-low">{hiddenLow}</span> recent low-trust post{hiddenLow === 1 ? "" : "s"} hidden ·{" "}
+          <Link href="/company/?name=nimbus-infotech" className="text-accent-ink hover:underline">see why</Link>
+        </p>
+      )}
+      {recent.isLoading || !trust.index ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2" aria-live="polite">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-live="polite">
           <AnimatePresence initial={false}>
             {rows.map((e, i) => (
               <motion.li
@@ -145,13 +154,13 @@ export function LiveFeed() {
                     <p className="truncate text-sm text-muted">
                       {roleLabel(e.role)} · {levelLabel(e.level)} · {cityLabel(e.city)}
                     </p>
-                    <div className="relative z-10 mt-2 flex items-center gap-3 text-xs text-muted">
+                    <div className="relative z-10 mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted">
                       <TrustBadge trust={trust.index?.get(e.key)} size="sm" />
                       <TimeAgo ts={e.createdAt} now={now} />
                       <LifeBar expiresAt={e.expiresAt} size="xs" className="hidden min-[400px]:flex" />
                     </div>
                   </div>
-                  <p className="font-display text-2xl font-bold sm:text-3xl"><Money value={e.ctc} /></p>
+                  <p className="shrink-0 font-display text-2xl font-bold sm:text-3xl"><Money value={e.ctc} /></p>
                 </Card>
               </motion.li>
             ))}

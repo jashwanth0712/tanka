@@ -87,12 +87,12 @@ export function Nav() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <SearchTrigger className="hidden md:inline-flex" />
+          <SearchTrigger className="hidden lg:inline-flex" />
           <StatusPill className="max-[380px]:px-2" />
           <ThemeToggle />
           <Button asChild size="sm" className="hidden md:inline-flex">
-            <Link href="/submit/">
-              <Plus /> Add salary
+            <Link href="/submit/" aria-label="Add salary">
+              <Plus /> <span className="hidden lg:inline">Add salary</span>
             </Link>
           </Button>
         </div>
