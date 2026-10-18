@@ -2,7 +2,7 @@
 
 > *Tankha* (Hindi/Urdu slang for "salary"). A Reddit-style anonymous company forum: discussions first (layoffs, culture, hikes, policies), then salary packages and reviews. One community per company, votes and threaded comments. Every post, vote and comment is stored on **Arkiv**, so no company can take it down, and anyone can query it.
 
-**Repo:** https://github.com/rgmanisrivas-ai/tanka · **Live:** _TODO — Vercel URL_ · **IPFS mirror:** _TODO_ · **Demo video (≤ 3 min):** _TODO_
+**Repo:** https://github.com/jashwanth0712/tanka · **Live:** https://tankha-ten.vercel.app · **IPFS mirror:** _TODO_ · **Demo video (≤ 3 min):** _TODO_
 
 <!-- TODO: screenshot / GIF -->
 

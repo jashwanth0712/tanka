@@ -54,7 +54,7 @@ export const explorerTxUrl = (hash: string) => `${EXPLORER_URL}/tx/${hash}`;
 export const explorerAddressUrl = (addr: string) => `${EXPLORER_URL}/address/${addr}`;
 
 // TODO(arkiv): replace with the real repo + deployments.
-export const REPO_URL = "https://github.com/rgmanisrivas-ai/tanka";
+export const REPO_URL = "https://github.com/jashwanth0712/tanka";
 export const SCHEMA_URL = `${REPO_URL}/blob/main/arkiv/schema.md`;
 export const FRICTION_URL = `${REPO_URL}/blob/main/arkiv/friction.md`;
 export const DEMO_VIDEO_URL = ""; // TODO: demo video link (≤ 3 min)
@@ -73,7 +73,7 @@ export const FOOTER_LINKS = [
  * TODO(arkiv/deploy): set the real Vercel URL and IPFS CID, then flip `live`.
  */
 export const MIRRORS: { label: string; url: string; kind: string; live: boolean }[] = [
-  { label: "Vercel", url: "https://tankha.vercel.app", kind: "Primary", live: false },
+  { label: "Vercel", url: "https://tankha-ten.vercel.app", kind: "Primary", live: true },
   { label: "IPFS (ipfs.io gateway)", url: "https://ipfs.io/ipfs/<CID>", kind: "Mirror", live: false },
   { label: "IPFS (dweb.link gateway)", url: "https://<CID>.ipfs.dweb.link", kind: "Mirror", live: false },
 ];
