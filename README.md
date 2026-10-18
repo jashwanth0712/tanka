@@ -4,6 +4,8 @@
 
 **Live:** https://tankha-ten.vercel.app · **Repo:** https://github.com/jashwanth0712/tanka · **Demo video (≤ 3 min):** https://youtu.be/LFjiF_Wrf_Y · **Network:** Tiramisu testnet · **Tracks:** Censorship Resistance, Best Indian Use Case
 
+![Tankha](docs/media/cover-1920x1080.png)
+
 ## The problem
 
 Millions of Indian tech and IT-services employees take jobs, accept offers and survive layoffs with almost no trustworthy information. The few places that hold it (company-review sites, forums, social posts) are centralised, so they fail in the ways that matter:
@@ -64,6 +66,19 @@ Expiry and `permissionlessExtension` are the part we could not get elsewhere: th
 - **A LinkedIn company link is a pointer, not proof of employment.** Private employment verification (zkEmail) is designed in [docs/zkemail-design.md](docs/zkemail-design.md) but not built.
 - **`created_at` is self-reported**, so wallet-age and burst scoring can be gamed by a motivated attacker. A chain-derived, queryable creation time would fix it (see friction log).
 - **All seeded data is synthetic.** The demo companies, people and wallets are fictional; this is a testnet prototype.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Community with a fraud warning](docs/media/02-community-fraud.png) | ![Post with trust breakdown and life bar](docs/media/04-post-trust.png) |
+| A planted burst of fake salaries is flagged and hidden by default. | Trust breakdown from Arkiv data, and the life bar with "Still accurate". |
+| ![Package search with aggregates](docs/media/03-package-search.png) | ![Create a post with a LinkedIn company link](docs/media/06-submit-linkedin.png) |
+| Package search: medians, ranges and filters read from Arkiv queries. | Posting: paste a company's LinkedIn page link. |
+| ![Verify it yourself](docs/media/05-verify.png) | ![How it works](docs/media/how-it-works-1600x900.png) |
+| The Verify page: RPC status, raw queries, schema. | No server in the middle: static site, Arkiv RPC, entities on chain. |
+
+Media files (banner 1080×1920, cover, logo, mobile shots) are in [docs/media](docs/media). All shown data is synthetic.
 
 ## Setup
 

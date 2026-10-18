@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+body{width:1600px;height:900px;position:relative;overflow:hidden}
+.a{width:700px;height:700px;background:#0a8f66;top:-300px;left:-200px;opacity:.4}
+h2{position:absolute;top:96px;left:80px;font-size:50px;font-weight:600;letter-spacing:-1px}
+.row{position:absolute;top:270px;left:80px;right:80px;display:flex;align-items:stretch;gap:0;justify-content:space-between}
+.box{width:440px;border-radius:28px;padding:34px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
+.box h3{font-size:34px;font-weight:600;margin-bottom:14px}
+.box p{font-size:23px;line-height:1.5;color:#A1A1A6}
+.box code{font-family:'JetBrains Mono',monospace;font-size:19px;color:#64D2FF;display:block;margin-top:16px;line-height:1.5}
+.box.hl{border-color:rgba(79,224,169,.6);box-shadow:0 0 70px rgba(47,214,154,.22)}
+.arrow{align-self:center;font-size:56px;color:#4FE0A9;width:80px;text-align:center}
+.no{position:absolute;left:80px;right:80px;top:640px;display:flex;gap:14px;flex-wrap:wrap}
+.no .chip{font-size:24px;padding:14px 22px}
+.cap{position:absolute;left:80px;top:680px;font-size:24px;color:#A1A1A6}
+</style></head><body><div class="glow a"></div>
+<h2>No server in the middle. <span class="grad">Arkiv is the database.</span></h2>
+<div class="row">
+<div class="box"><h3>Static site</h3><p>Next.js export on Vercel or IPFS. Reads and writes straight from the browser. No backend, no database of ours.</p></div>
+<div class="arrow">→</div>
+<div class="box hl"><h3>Arkiv RPC</h3><p>Typed attributes, range queries, expiry, entity flags. Any endpoint works.</p><code>project = str('tankha')<br>AND type = str('salary')<br>AND ctc >= i32(2000000)</code></div>
+<div class="arrow">→</div>
+<div class="box"><h3>Entities on chain</h3><p>discussion · salary · review · comment · vote · confirmation. Read-only once written, expire in ~18 months.</p></div>
+</div>
+<p class="cap">Computed in the browser, not stored on Arkiv:</p>
+<div class="no" style="top:730px"><span class="chip">Trust scores</span><span class="chip">Medians &amp; histograms</span><span class="chip">k-anonymity (≥ 3)</span><span class="chip">Pseudonyms</span><span class="chip">No names, emails or IPs</span></div>
+</body></html>

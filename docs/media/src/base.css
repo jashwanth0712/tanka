@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#000;color:#F5F5F7;font-family:'Poppins',sans-serif;-webkit-font-smoothing:antialiased}
+.glow{position:absolute;border-radius:50%;filter:blur(120px);opacity:.55}
+.logo{display:flex;align-items:center;gap:20px;font-weight:600}
+.mark{display:grid;place-items:center;border-radius:28%;background:linear-gradient(180deg,#0aa070,#036B4B);color:#fff;font-weight:600;box-shadow:0 0 60px rgba(47,214,154,.45)}
+.grad{background:linear-gradient(100deg,#4FE0A9,#2DD4BF 60%,#64D2FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.chip{display:inline-flex;align-items:center;gap:12px;padding:16px 26px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);font-size:26px;font-weight:500;color:#F5F5F7;backdrop-filter:blur(10px)}
+.dot{width:12px;height:12px;border-radius:50%;background:#4FE0A9;box-shadow:0 0 14px #4FE0A9}
+.phone{position:absolute;border-radius:54px;border:11px solid #1c1c1e;overflow:hidden;background:#000;box-shadow:0 40px 90px rgba(0,0,0,.65),0 0 0 2px rgba(255,255,255,.08),0 0 80px rgba(47,214,154,.18)}
+.phone img{display:block;width:100%}
+.win{position:absolute;border-radius:26px;border:2px solid rgba(255,255,255,.14);overflow:hidden;background:#000;box-shadow:0 50px 110px rgba(0,0,0,.7),0 0 120px rgba(47,214,154,.2)}
+.win .bar{height:44px;background:#161618;display:flex;align-items:center;gap:10px;padding:0 18px}
+.win .bar i{width:14px;height:14px;border-radius:50%;background:#3a3a3c;display:block}
+.win img{display:block;width:100%}
