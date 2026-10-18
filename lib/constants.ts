@@ -57,7 +57,7 @@ export const explorerAddressUrl = (addr: string) => `${EXPLORER_URL}/address/${a
 export const REPO_URL = "https://github.com/jashwanth0712/tanka";
 export const SCHEMA_URL = `${REPO_URL}/blob/main/arkiv/schema.md`;
 export const FRICTION_URL = `${REPO_URL}/blob/main/arkiv/friction.md`;
-export const DEMO_VIDEO_URL = ""; // TODO: demo video link (≤ 3 min)
+export const DEMO_VIDEO_URL = "https://youtu.be/LFjiF_Wrf_Y";
 
 /** Footer / Verify links are only rendered once they point somewhere real. */
 export const REPO_IS_SET = !REPO_URL.includes("your-org");
