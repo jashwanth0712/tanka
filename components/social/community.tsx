@@ -8,7 +8,8 @@ import { CountUp, LiveDot } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/primitives";
 import { useStats } from "@/hooks/queries";
-import { COMPANIES, companyName } from "@/lib/catalog";
+import { useCommunities } from "@/hooks/communities";
+import { companyName } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { hueOf } from "./identity";
 
@@ -52,6 +53,13 @@ export function LeftRail() {
   const path = usePathname();
   const sp = useSearchParams();
   const current = path.startsWith("/company") ? sp.get("name") : null;
+  const { rows } = useCommunities();
+  // Most active first; the one you're viewing is always listed.
+  const shown = rows.slice(0, 8);
+  if (current && !shown.some((r) => r.company.id === current)) {
+    const open = rows.find((r) => r.company.id === current);
+    if (open) shown.push(open);
+  }
   return (
     <nav aria-label="Communities" className="flex flex-col gap-1">
       <NavItem href="/" active={path === "/"}>
@@ -61,14 +69,17 @@ export function LeftRail() {
         <Table2 className="size-4" aria-hidden /> Package search
       </NavItem>
       <p className="mt-5 px-3 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted">Communities</p>
-      {COMPANIES.map((c) => (
-        <NavItem key={c.id} href={`/company/?name=${c.id}`} active={current === c.id}>
-          <CommunityIcon company={c.id} size={22} />
-          <span className="truncate">c/{c.id}</span>
+      {shown.map((r) => (
+        <NavItem key={r.company.id} href={`/company/?name=${r.company.id}`} active={current === r.company.id}>
+          <CommunityIcon company={r.company.id} size={22} />
+          <span className="truncate">c/{r.company.id}</span>
         </NavItem>
       ))}
       <Link href="/companies/" className="mt-1 px-3 py-2 text-xs font-medium text-accent-ink hover:underline">
-        All communities →
+        All communities ({rows.length}) →
+      </Link>
+      <Link href="/submit/?type=discussion" className="px-3 pb-1 text-xs font-medium text-muted hover:text-text hover:underline">
+        + Start a community
       </Link>
       <div className="mt-3 border-t border-border pt-2">
         <NavItem href="/verify/" active={path.startsWith("/verify")}>
@@ -81,19 +92,25 @@ export function LeftRail() {
 
 /** Horizontal community chips (mobile / tablet). */
 export function CommunityChips() {
+  const { rows } = useCommunities();
   return (
     <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:hidden">
       <ul className="flex w-max gap-2">
-        {COMPANIES.map((c) => (
-          <li key={c.id}>
+        {rows.slice(0, 12).map((r) => (
+          <li key={r.company.id}>
             <Link
-              href={`/company/?name=${c.id}`}
+              href={`/company/?name=${r.company.id}`}
               className="glass inline-flex h-9 items-center gap-1.5 rounded-full pl-1 pr-3 text-xs font-medium hover:bg-surface-2"
             >
-              <CommunityIcon company={c.id} size={26} /> c/{c.id}
+              <CommunityIcon company={r.company.id} size={26} /> c/{r.company.id}
             </Link>
           </li>
         ))}
+        <li>
+          <Link href="/companies/" className="glass inline-flex h-9 items-center rounded-full px-3 text-xs font-medium text-accent-ink hover:bg-surface-2">
+            All ({rows.length}) →
+          </Link>
+        </li>
       </ul>
     </div>
   );
