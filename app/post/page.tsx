@@ -17,7 +17,7 @@ import { Card, Skeleton } from "@/components/ui/primitives";
 import { useConfirmations } from "@/hooks/queries";
 import { useComments, useFeed, usePost } from "@/hooks/social";
 import { useOnchain } from "@/hooks/useOnchain";
-import { getCompany } from "@/lib/catalog";
+import { resolveCompany } from "@/lib/catalog";
 import { postAttributes } from "@/lib/data/schema";
 import type { EntityKey } from "@/lib/data/types";
 import { tallyFor } from "@/lib/social";
@@ -51,7 +51,7 @@ function PostView() {
 
   const trust = p.kind === "salary" ? feed.trustIndex?.get(p.key) : undefined;
   const flagged = p.kind !== "salary" && feed.flaggedWallets.has(p.owner.toLowerCase());
-  const company = getCompany(p.company);
+  const company = resolveCompany(p.company);
   const list = comments.data?.data ?? [];
 
   return (

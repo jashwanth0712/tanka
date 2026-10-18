@@ -2,7 +2,8 @@
 
 import { ShieldAlert, ShieldCheck, Star } from "lucide-react";
 import * as React from "react";
-import { Input } from "@/components/ui/primitives";
+import { Input, NativeSelect } from "@/components/ui/primitives";
+import { COMPANIES, companyName, isDemoCompany, linkedInCompanyUrl, parseLinkedInCompany } from "@/lib/catalog";
 import { formatINR, formatINRCompact } from "@/lib/format";
 import { PII_LABEL, scanPII } from "@/lib/pii";
 import { parseINR } from "@/lib/schemas";
@@ -144,6 +145,73 @@ export function PIIScanner({ text }: { text: string }) {
       </p>
       <p className="mt-1 text-xs text-muted">Found: {kinds.join(", ")}</p>
       <p className="mt-2 whitespace-pre-wrap break-words text-sm">{parts}</p>
+    </div>
+  );
+}
+
+/**
+ * Company = a LinkedIn company page link (`linkedin.com/company/<name>`), parsed in the browser.
+ * Nothing is fetched from LinkedIn and no personal profile is involved; the demo companies are shortcuts.
+ */
+export function CompanyPicker({
+  id = "f-company",
+  value,
+  onChange,
+  invalid,
+  describedBy,
+}: {
+  id?: string;
+  value: string | undefined;
+  onChange: (slug: string) => void;
+  invalid?: boolean;
+  describedBy?: string;
+}) {
+  const [text, setText] = React.useState(value && !isDemoCompany(value) ? linkedInCompanyUrl(value) : "");
+  const parsed = text ? parseLinkedInCompany(text) : null;
+  return (
+    <div className="flex flex-col gap-2">
+      <Input
+        id={id}
+        type="url"
+        inputMode="url"
+        autoComplete="off"
+        spellCheck={false}
+        value={text}
+        placeholder="https://www.linkedin.com/company/your-company"
+        aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
+        onChange={(e) => {
+          setText(e.target.value);
+          onChange(parseLinkedInCompany(e.target.value) ?? "");
+        }}
+      />
+      <p className="min-h-5 text-sm text-muted" aria-live="polite">
+        {text && parsed ? (
+          <>
+            <ShieldCheck className="mr-1 inline size-4 text-accent-ink" aria-hidden />
+            Posting in <span className="font-medium text-text">c/{parsed}</span> · {companyName(parsed)}
+          </>
+        ) : text ? (
+          "That doesn't look like a company page. Open the company on LinkedIn and copy the link."
+        ) : (
+          "Open the company on LinkedIn and paste its page link. We read only the company name from it."
+        )}
+      </p>
+      <NativeSelect
+        aria-label="Or choose a demo company"
+        value={value && isDemoCompany(value) ? value : ""}
+        onChange={(e) => {
+          setText("");
+          onChange(e.target.value);
+        }}
+      >
+        <option value="">Or choose a demo company…</option>
+        {COMPANIES.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.label}
+          </option>
+        ))}
+      </NativeSelect>
     </div>
   );
 }

@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/overla
 import { Card, Skeleton } from "@/components/ui/primitives";
 import { useCompany } from "@/hooks/queries";
 import { useAllDiscussions } from "@/hooks/social";
-import { cityLabel, getCompany } from "@/lib/catalog";
+import { cityLabel, isDemoCompany, linkedInCompanyUrl, resolveCompany } from "@/lib/catalog";
 import { companyStats, FLAG_THRESHOLD, isFlagged } from "@/lib/companyStats";
 import { salariesQuery } from "@/lib/data/query";
 import { formatINRCompact } from "@/lib/format";
@@ -31,7 +31,7 @@ function CommunityView() {
   const tabParam = sp.get("tab");
   const tab: Tab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : "discussions";
   const showingAll = sp.get("trust") === "all";
-  const company = getCompany(id);
+  const company = resolveCompany(id);
   const data = useCompany(company ? id : undefined);
   const allDiscussions = useAllDiscussions();
   const discussionCount = (allDiscussions.data?.data ?? []).filter((d) => d.company === id).length;
@@ -40,7 +40,7 @@ function CommunityView() {
     return (
       <EmptyState
         title="No such community."
-        body="Communities are the fictional catalog companies."
+        body="Communities are created from a company's LinkedIn page link."
         action={<Button asChild><Link href="/companies/">All communities</Link></Button>}
       />
     );
@@ -84,7 +84,20 @@ function CommunityView() {
           <div className="min-w-0 flex-1 sm:pb-1">
             <h1 className="truncate text-2xl font-medium sm:text-3xl">c/{id}</h1>
             <p className="flex flex-wrap items-center gap-1 text-sm text-muted">
-              {company.label} · {company.industry} · <MapPin className="size-3.5" aria-hidden /> {cityLabel(company.hq)}
+              {company.label} · {company.industry}
+              {company.hq && (
+                <>
+                  {" "}· <MapPin className="size-3.5" aria-hidden /> {cityLabel(company.hq)}
+                </>
+              )}
+              {!isDemoCompany(id) && (
+                <>
+                  {" "}·{" "}
+                  <a href={linkedInCompanyUrl(id)} target="_blank" rel="noopener noreferrer" className="text-accent-ink hover:underline">
+                    LinkedIn page
+                  </a>
+                </>
+              )}
             </p>
           </div>
           <Button asChild className="sm:mb-1">

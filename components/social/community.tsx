@@ -8,13 +8,13 @@ import { CountUp, LiveDot } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/primitives";
 import { useStats } from "@/hooks/queries";
-import { COMPANIES, getCompany } from "@/lib/catalog";
+import { COMPANIES, companyName } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { hueOf } from "./identity";
 
 /** Small round community icon: initials on a deterministic hue. */
 export function CommunityIcon({ company, size = 24 }: { company: string; size?: number }) {
-  const name = getCompany(company)?.label ?? company;
+  const name = companyName(company);
   const initials = name
     .split(/\s+/)
     .slice(0, 2)

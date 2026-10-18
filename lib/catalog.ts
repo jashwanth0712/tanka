@@ -1,4 +1,5 @@
-// Fictional catalog. Every dropdown uses these values — no free text for company/role/level/city.
+// Fictional demo catalog (roles, levels, cities, and demo companies). Companies are open-ended: any
+// LinkedIn company page slug is valid; the demo companies below are just suggestions.
 // Stored on Arkiv as the `id` strings, displayed via the `label`.
 
 export interface CatalogItem {
@@ -64,13 +65,43 @@ const roleIndex = index(ROLES);
 const levelIndex = index(LEVELS);
 const cityIndex = index(CITIES);
 
+/** A company slug as it appears in a LinkedIn page URL: lower-case letters, digits, hyphens. */
+export const COMPANY_SLUG = /^[a-z0-9][a-z0-9-]{1,63}$/;
+
+const titleCase = (slug: string) => slug.split("-").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+
+/**
+ * Reads a company from a LinkedIn company page URL (`linkedin.com/company/<slug>`, with or without
+ * scheme, `www.`, trailing path or query). A bare slug is accepted too. Returns null when it isn't one.
+ * Client-side only: nothing is fetched from LinkedIn and no personal profile is involved.
+ */
+export function parseLinkedInCompany(input: string): string | null {
+  const t = input.trim();
+  if (!t) return null;
+  const m = /(?:^|\/\/)(?:[a-z]{2,3}\.|www\.)?linkedin\.com\/(?:company|school)\/([^/?#\s]+)/i.exec(t);
+  let slug = m ? m[1] : t;
+  try {
+    slug = decodeURIComponent(slug);
+  } catch {
+    /* keep raw */
+  }
+  slug = slug.toLowerCase().replace(/[_.\s]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  return COMPANY_SLUG.test(slug) ? slug : null;
+}
+
+export const linkedInCompanyUrl = (slug: string) => `https://www.linkedin.com/company/${slug}/`;
+
 export const getCompany = (id: string) => companyIndex.get(id);
-export const companyName = (id: string) => companyIndex.get(id)?.label ?? id;
+/** Demo catalog entry, or a stand-in for any company that someone created by pasting its LinkedIn page. */
+export const resolveCompany = (id: string): Company | undefined =>
+  companyIndex.get(id) ?? (COMPANY_SLUG.test(id) ? { id, label: titleCase(id), industry: "Company", hq: "", tier: 1 } : undefined);
+export const isDemoCompany = (id: string) => companyIndex.has(id);
+export const companyName = (id: string) => resolveCompany(id)?.label ?? id;
 export const roleLabel = (id: string) => roleIndex.get(id)?.label ?? id;
 export const levelLabel = (id: string) => levelIndex.get(id)?.label ?? id;
 export const cityLabel = (id: string) => cityIndex.get(id)?.label ?? id;
 
-export const isCompany = (id: string) => companyIndex.has(id);
+export const isCompany = (id: string) => companyIndex.has(id) || COMPANY_SLUG.test(id);
 export const isRole = (id: string) => roleIndex.has(id);
 export const isLevel = (id: string) => levelIndex.has(id);
 export const isCity = (id: string) => cityIndex.has(id);

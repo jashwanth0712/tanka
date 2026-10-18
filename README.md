@@ -98,15 +98,21 @@ Next.js (static export) ──► DataSource interface ──► mock (in-memory
 - `lib/trust.ts`, `lib/aggregate.ts`, `lib/pii.ts`, `lib/format.ts` — pure, unit-tested logic.
 - `lib/seed/generate.ts` — deterministic synthetic dataset (fictional companies only), including a planted sybil burst on *Nimbus Infotech* that the trust score catches.
 
+## Companies and identity
+
+Companies are open-ended. To post, you paste the company's **LinkedIn page link** (`linkedin.com/company/<name>`); the app reads only the company name from it, in your browser. The first post creates that company's community. The eight demo companies are shortcuts. This is a pointer to a public company page, not proof that you work there.
+
+Tankha deliberately does **not** sign people in with LinkedIn or ask for a personal profile link. That would tie every post to a real identity, and a pasted profile URL proves nothing without sign-in (and LinkedIn does not tell third parties where someone works). Employment verification that keeps people anonymous is the zkEmail design in [docs/zkemail-design.md](docs/zkemail-design.md).
+
 ## Pre-existing work
 
 None. Baseline commit: _TODO (first commit SHA)_.
 
 ## Roadmap
 
-- zkEmail-based "verified employee of `<domain>`" badge without revealing identity.
+- zkEmail-based "verified employee of `<domain>`" badge without revealing identity. Not built yet; the design is in [docs/zkemail-design.md](docs/zkemail-design.md).
 - IPFS-pinned frontend mirrors with an ENS/IPNS pointer.
 
 ## License
 
-[MIT](LICENSE). All data shown is synthetic: companies, people and wallets are fictional.
+[MIT](LICENSE). All seeded data is synthetic: the demo companies, people and wallets are fictional.

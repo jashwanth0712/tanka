@@ -6,7 +6,7 @@ import type { Flair } from "./data/types";
 import { scanPII } from "./pii";
 
 const catalog = (check: (s: string) => boolean, what: string) =>
-  z.string({ error: `Pick a ${what}` }).refine(check, `Pick a ${what} from the list`);
+  z.string({ error: `Pick a ${what}` }).refine(check, what === "company" || what === "community" ? "Paste the company's LinkedIn page link" : `Pick a ${what} from the list`);
 
 export const salarySchema = z
   .object({

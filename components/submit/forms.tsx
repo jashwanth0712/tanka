@@ -5,11 +5,11 @@ import { ArrowRight } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input, Label, NativeSelect, Textarea } from "@/components/ui/primitives";
-import { CITIES, COMPANIES, LEVELS, ROLES, type CatalogItem } from "@/lib/catalog";
+import { CITIES, LEVELS, ROLES, type CatalogItem } from "@/lib/catalog";
 import { BODY_MAX, COMMENT_MAX, FLAIRS, TITLE_MAX } from "@/lib/constants";
 import { discussionSchema, reviewSchema, salarySchema, type DiscussionForm, type ReviewForm, type SalaryForm } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
-import { FieldError, MoneyInput, PIIScanner, StarRating } from "./fields";
+import { CompanyPicker, FieldError, MoneyInput, PIIScanner, StarRating } from "./fields";
 
 function CatalogSelect({ items, placeholder, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { items: CatalogItem[]; placeholder: string }) {
   return (
@@ -44,7 +44,11 @@ export function SalaryDetails({ defaults, onNext }: { defaults?: Partial<SalaryF
     <form onSubmit={handleSubmit(onNext)} noValidate className="flex flex-col gap-5">
       <div>
         <Label htmlFor="f-company">Company</Label>
-        <CatalogSelect items={COMPANIES} placeholder="Select a company" {...field("company")} {...register("company")} />
+        <Controller
+          control={control}
+          name="company"
+          render={({ field: f }) => <CompanyPicker value={f.value} onChange={f.onChange} invalid={!!errors.company} describedBy={errors.company ? "e-company" : undefined} />}
+        />
         <FieldError id="e-company" message={errors.company?.message} />
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
@@ -113,12 +117,10 @@ export function ReviewDetails({ defaults, onNext }: { defaults?: Partial<ReviewF
     <form onSubmit={handleSubmit((v) => onNext({ ...v, comment: v.comment?.trim() || undefined }))} noValidate className="flex flex-col gap-5">
       <div>
         <Label htmlFor="f-company">Company</Label>
-        <CatalogSelect
-          items={COMPANIES}
-          placeholder="Select a company"
-          id="f-company"
-          aria-invalid={errors.company ? true : undefined}
-          {...register("company")}
+        <Controller
+          control={control}
+          name="company"
+          render={({ field: f }) => <CompanyPicker value={f.value} onChange={f.onChange} invalid={!!errors.company} describedBy={errors.company ? "e-company" : undefined} />}
         />
         <FieldError id="e-company" message={errors.company?.message} />
       </div>
@@ -189,12 +191,10 @@ export function DiscussionDetails({ defaults, onNext }: { defaults?: Partial<Dis
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <Label htmlFor="f-company">Community</Label>
-          <CatalogSelect
-            items={COMPANIES.map((c) => ({ id: c.id, label: `c/${c.id} · ${c.label}` }))}
-            placeholder="Select a company"
-            id="f-company"
-            aria-invalid={errors.company ? true : undefined}
-            {...register("company")}
+          <Controller
+            control={control}
+            name="company"
+            render={({ field: f }) => <CompanyPicker value={f.value} onChange={f.onChange} invalid={!!errors.company} describedBy={errors.company ? "e-company" : undefined} />}
           />
           <FieldError id="e-company" message={errors.company?.message} />
         </div>

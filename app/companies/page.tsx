@@ -8,7 +8,7 @@ import { Segmented } from "@/components/ui/multi-select";
 import { Card, Input, Skeleton } from "@/components/ui/primitives";
 import { useAllReviews, useTrustIndex } from "@/hooks/queries";
 import { useAllDiscussions } from "@/hooks/social";
-import { COMPANIES } from "@/lib/catalog";
+import { COMPANIES, resolveCompany, type Company } from "@/lib/catalog";
 import { companyStats } from "@/lib/companyStats";
 
 type Sort = "active" | "median" | "rating";
@@ -32,7 +32,12 @@ export default function CompaniesPage() {
 
   const rows = React.useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return COMPANIES.filter((c) => !needle || `${c.label} ${c.industry} ${c.hq}`.toLowerCase().includes(needle))
+    // Demo companies plus any community someone created by pasting a company's LinkedIn page link.
+    const known = new Set(COMPANIES.map((c) => c.id));
+    const extra = new Set<string>();
+    for (const id of [...threadCount.keys(), ...(trust.all ?? []).map((s) => s.company), ...reviews.byCompany.keys()]) if (!known.has(id)) extra.add(id);
+    const all: Company[] = [...COMPANIES, ...[...extra].map(resolveCompany).filter((c): c is Company => !!c)];
+    return all.filter((c) => !needle || `${c.label} ${c.industry} ${c.hq}`.toLowerCase().includes(needle))
       .map((c) => ({ company: c, threads: threadCount.get(c.id) ?? 0, stats: trust.all ? companyStats(c.id, trust.all, trust.index, reviews.byCompany.get(c.id)) : undefined }))
       .sort((a, b) => {
         const s = (x: typeof a) =>
