@@ -48,6 +48,14 @@ export const RPC_ENDPOINTS: RpcEndpoint[] = [
 
 export const DEFAULT_RPC = RPC_ENDPOINTS[0].url;
 
+/**
+ * Optional Arkiv access key: raises the public RPC's anonymous query limit. It is sent as an `X-API-KEY`
+ * header, and only to the official Tiramisu host (never to an RPC a user adds). A static site has no backend,
+ * so this value is visible in the bundle: restrict the key to this site's origin in the Arkiv Hub.
+ */
+export const ARKIV_API_KEY = process.env.NEXT_PUBLIC_ARKIV_API_KEY || "";
+export const OFFICIAL_RPC_HOST = "rpc.tiramisu.db-chain.testnet.arkiv.network";
+
 export const EXPLORER_URL = process.env.NEXT_PUBLIC_ARKIV_EXPLORER_URL || "https://tiramisu.explorer.arkiv.network";
 export const explorerEntityUrl = (key: string) => `${EXPLORER_URL}/entity/${key}`;
 export const explorerTxUrl = (hash: string) => `${EXPLORER_URL}/tx/${hash}`;

@@ -7,7 +7,7 @@ import { tiramisu } from "@arkiv-network/sdk/chains";
 import { eq, runQuery, toRpcSelect, type Entity } from "@arkiv-network/sdk/query";
 import { ExpirationTime, jsonToPayload } from "@arkiv-network/sdk/utils";
 import { custom, http, type Chain, type Hex } from "viem";
-import { CHAIN_NAME, ENTRY_TTL_MS } from "../../constants";
+import { ARKIV_API_KEY, CHAIN_NAME, ENTRY_TTL_MS, OFFICIAL_RPC_HOST } from "../../constants";
 import { getRpcUrl } from "../../rpc";
 import { requireSigner } from "../../wallet/session";
 import {
@@ -60,9 +60,21 @@ const FAUCET_URL = "https://hub.arkiv.network/faucet";
 // ── clients ────────────────────────────────────────────────────────────────
 const chainFor = (rpcUrl: string): Chain => ({ ...tiramisu, rpcUrls: { default: { http: [rpcUrl] } } });
 
+/** The access key goes only to the official RPC host, never to an endpoint a user added. */
+function authHeaders(rpcUrl: string): Record<string, string> {
+  try {
+    return ARKIV_API_KEY && new URL(rpcUrl).host === OFFICIAL_RPC_HOST ? { "X-API-KEY": ARKIV_API_KEY } : {};
+  } catch {
+    return {};
+  }
+}
+
 const publicClients = new Map<string, ReturnType<typeof makePublic>>();
 function makePublic(rpcUrl: string, timeout = 15_000) {
-  return createPublicClient({ chain: chainFor(rpcUrl), transport: http(rpcUrl, { timeout, retryCount: 1 }) });
+  return createPublicClient({
+    chain: chainFor(rpcUrl),
+    transport: http(rpcUrl, { timeout, retryCount: 1, fetchOptions: { headers: authHeaders(rpcUrl) } }),
+  });
 }
 const publicClient = (rpcUrl = getRpcUrl()) => {
   let c = publicClients.get(rpcUrl);
@@ -78,7 +90,7 @@ function walletClient() {
   const chain = chainFor(rpcUrl);
   const client =
     signer.kind === "local"
-      ? createWalletClient({ chain, transport: http(rpcUrl), account: signer.account })
+      ? createWalletClient({ chain, transport: http(rpcUrl, { fetchOptions: { headers: authHeaders(rpcUrl) } }), account: signer.account })
       : createWalletClient({ chain, transport: custom(signer.provider as never), account: address });
   return { client, address, pub: publicClient(rpcUrl) };
 }
