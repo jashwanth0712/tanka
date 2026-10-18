@@ -24,6 +24,11 @@ import type {
 } from "./types";
 
 export type AttrValue = string | number;
+
+/** Attributes that hold an entity key: stored with Arkiv's `key` type (32-byte hash), lower-case hex. */
+export const KEY_ATTRS: ReadonlySet<string> = new Set(["entry_key", "post_key", "parent_key", "target_key"]);
+/** Attributes too large for an i32 (ms epoch): stored as `u64`. Every other number is an `i32`. */
+export const U64_ATTRS: ReadonlySet<string> = new Set(["created_at"]);
 export type Attributes = Record<string, AttrValue>;
 
 /** What gets written to Arkiv for one entity. */
@@ -46,7 +51,7 @@ const common = (type: string, createdAt: number) => ({
   project: PROJECT_TAG,
   type,
   v: SCHEMA_VERSION,
-  createdAt,
+  created_at: createdAt,
 });
 
 export function salaryToEntity(input: SalaryInput, createdAt: number): EntityDraft {
@@ -79,7 +84,7 @@ export function reviewToEntity(input: ReviewInput, createdAt: number): EntityDra
 }
 
 export function confirmationToEntity(entryKey: EntityKey, createdAt: number): EntityDraft {
-  return { attributes: { ...common("confirmation", createdAt), entryKey: entryKey.toLowerCase() } };
+  return { attributes: { ...common("confirmation", createdAt), entry_key: entryKey.toLowerCase() } };
 }
 
 const num = (a: Attributes, k: string) => Number(a[k]);
@@ -97,7 +102,7 @@ export function entityToSalary(e: RawEntity): SalaryEntry {
     yoe: num(a, "yoe"),
     ctc: num(a, "ctc"),
     baseSalary: a.base != null ? num(a, "base") : undefined,
-    createdAt: num(a, "createdAt"),
+    createdAt: num(a, "created_at"),
     expiresAt: e.expiresAt,
     owner: e.owner,
   };
@@ -115,7 +120,7 @@ export function entityToReview(e: RawEntity): Review {
     growth: num(a, "growth") as Rating,
     culture: num(a, "culture") as Rating,
     comment,
-    createdAt: num(a, "createdAt"),
+    createdAt: num(a, "created_at"),
     expiresAt: e.expiresAt,
     owner: e.owner,
   };
@@ -124,8 +129,8 @@ export function entityToReview(e: RawEntity): Review {
 export function entityToConfirmation(e: RawEntity): Confirmation {
   return {
     key: e.key,
-    entryKey: str(e.attributes, "entryKey") as EntityKey,
-    createdAt: num(e.attributes, "createdAt"),
+    entryKey: str(e.attributes, "entry_key") as EntityKey,
+    createdAt: num(e.attributes, "created_at"),
     owner: e.owner,
   };
 }
@@ -143,8 +148,8 @@ export function commentToEntity(input: CommentInput, createdAt: number): EntityD
   return {
     attributes: {
       ...common("comment", createdAt),
-      postKey: input.postKey.toLowerCase(),
-      ...(input.parentKey ? { parentKey: input.parentKey.toLowerCase() } : {}),
+      post_key: input.postKey.toLowerCase(),
+      ...(input.parentKey ? { parent_key: input.parentKey.toLowerCase() } : {}),
     },
     payload: { body: input.body },
   };
@@ -152,7 +157,7 @@ export function commentToEntity(input: CommentInput, createdAt: number): EntityD
 
 /** Vote direction is a string attribute: Arkiv numeric annotations can't be negative. */
 export function voteToEntity(targetKey: EntityKey, dir: VoteDir, createdAt: number): EntityDraft {
-  return { attributes: { ...common("vote", createdAt), targetKey: targetKey.toLowerCase(), dir } };
+  return { attributes: { ...common("vote", createdAt), target_key: targetKey.toLowerCase(), dir } };
 }
 
 export function entityToComment(e: RawEntity): Comment {
@@ -160,10 +165,10 @@ export function entityToComment(e: RawEntity): Comment {
   return {
     key: e.key,
     kind: "comment",
-    postKey: str(a, "postKey") as EntityKey,
-    parentKey: a.parentKey ? (str(a, "parentKey") as EntityKey) : undefined,
+    postKey: str(a, "post_key") as EntityKey,
+    parentKey: a.parent_key ? (str(a, "parent_key") as EntityKey) : undefined,
     body: typeof e.payload?.body === "string" ? e.payload.body : "",
-    createdAt: num(a, "createdAt"),
+    createdAt: num(a, "created_at"),
     expiresAt: e.expiresAt,
     owner: e.owner,
   };
@@ -174,9 +179,9 @@ export function entityToVote(e: RawEntity): Vote {
   return {
     key: e.key,
     kind: "vote",
-    targetKey: str(e.attributes, "targetKey") as EntityKey,
+    targetKey: str(e.attributes, "target_key") as EntityKey,
     dir: dir === "up" || dir === "down" ? dir : "none",
-    createdAt: num(e.attributes, "createdAt"),
+    createdAt: num(e.attributes, "created_at"),
     expiresAt: e.expiresAt,
     owner: e.owner,
   };
@@ -211,7 +216,7 @@ export function entityToDiscussion(e: RawEntity): Discussion {
     city: a.city ? str(a, "city") : undefined,
     title: typeof e.payload?.title === "string" ? e.payload.title : "",
     body: typeof e.payload?.body === "string" ? e.payload.body : undefined,
-    createdAt: num(a, "createdAt"),
+    createdAt: num(a, "created_at"),
     expiresAt: e.expiresAt,
     owner: e.owner,
   };

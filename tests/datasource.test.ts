@@ -20,13 +20,13 @@ describe("mock DataSource", () => {
     expect(d.data.length).toBeGreaterThan(20);
     expect(s.data.length).toBeGreaterThan(100);
     expect(r.data.length).toBeGreaterThan(50);
-    expect(d.query).toContain('type = "discussion"');
-    expect(s.query).toContain('type = "salary"');
+    expect(d.query).toContain("type = str('discussion')");
+    expect(s.query).toContain("type = str('salary')");
   });
 
   it("filters salaries server-side with the shown query", async () => {
     const { data, query } = await ds.searchSalaries({ companies: ["kaveri-systems"], ctcMin: 2_000_000 });
-    expect(query).toBe('project = "tankha" && type = "salary" && company = "kaveri-systems" && ctc >= 2000000');
+    expect(query).toBe("project = str('tankha') AND type = str('salary') AND company = str('kaveri-systems') AND ctc >= i32(2000000)");
     expect(data.every((e) => e.company === "kaveri-systems" && e.ctc >= 2_000_000)).toBe(true);
   });
 
@@ -84,7 +84,7 @@ describe("mock DataSource", () => {
   });
 
   it("raw query playground matches the same entities", async () => {
-    const rows = (await ds.runRawQuery('project = "tankha" && type = "discussion" && flair = "layoffs"')) as { attributes: { flair: string } }[];
+    const rows = (await ds.runRawQuery("project = str('tankha') AND type = str('discussion') AND flair = str('layoffs')")) as { attributes: { flair: string } }[];
     expect(rows.length).toBeGreaterThan(0);
     expect(rows.every((x) => x.attributes.flair === "layoffs")).toBe(true);
     await expect(ds.runRawQuery("type = ")).rejects.toThrow();

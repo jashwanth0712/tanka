@@ -1,16 +1,21 @@
 // Framework-free bridge between the wallet hook (React) and the data source (plain TS).
 // The data source asks for the active signer here when it needs to write.
 //
-// TODO(arkiv): the Arkiv layer replaces `signer` with a real wallet client (e.g. viem WalletClient
-// or the Arkiv SDK's client). The mock only needs `address`.
+// `signer` is how the Arkiv data source signs: a local viem account (fresh wallet, key held in
+// memory only) or an injected EIP-1193 provider (MetaMask etc.). The mock only needs `address`.
 
+import type { Account } from "viem";
 import type { Address } from "../data/types";
+
+export type ArkivSigner =
+  | { kind: "local"; account: Account }
+  | { kind: "injected"; provider: { request(args: { method: string; params?: unknown }): Promise<unknown> } };
 
 export interface ActiveSigner {
   address: Address;
   isFresh: boolean;
-  /** Opaque handle for the real implementation (wallet client, account, etc.). Never logged. */
-  signer?: unknown;
+  /** Never logged, never persisted. */
+  signer?: ArkivSigner;
 }
 
 let active: ActiveSigner | null = null;

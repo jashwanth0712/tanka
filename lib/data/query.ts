@@ -1,66 +1,73 @@
-// Arkiv query strings. Shared by the mock and Arkiv data sources so the "Show query" UI always
-// shows the exact string that produced the results.
+// Arkiv query strings, built with the SDK's own combinators so they are always valid Arkiv syntax.
+// Shared by the mock and Arkiv data sources so the "Show query" UI always shows the exact string
+// that produced the results.
 //
-// Syntax (TODO(arkiv): confirm against the SDK):  attr = "string"  |  attr >= 123  |  a && b  |  (a || b)
-// Meta attributes: $key, $owner.
+// Syntax (verified against @arkiv-network/sdk 0.8):  attr = str('x')  |  attr >= i32(123)  |
+//   key attrs: post_key = key(0x…)  |  a AND b  |  (a OR b).  System attrs: $key, $owner.
 
+import { i32, key, str } from "@arkiv-network/sdk/attr";
+import { and, eq, gte, lte, or, type Expression } from "@arkiv-network/sdk/query";
 import { PROJECT_TAG } from "../constants";
+import { KEY_ATTRS } from "./schema";
 import type { CompanyId, EntityKey, SalaryFilters } from "./types";
 
 export type EntityType = "salary" | "review" | "confirmation" | "comment" | "vote" | "discussion";
 
-const str = (v: string) => `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+const base = (type: EntityType): Expression[] => [eq("project", str(PROJECT_TAG)), eq("type", str(type))];
 
-const base = (type: EntityType) => `project = ${str(PROJECT_TAG)} && type = ${str(type)}`;
+const lit = (attr: string, v: string) =>
+  KEY_ATTRS.has(attr) ? eq(attr, key(v.toLowerCase() as `0x${string}`)) : eq(attr, str(v));
 
-const anyOf = (attr: string, values?: string[]) => {
-  if (!values || values.length === 0) return null;
-  if (values.length === 1) return `${attr} = ${str(values[0])}`;
-  return `(${values.map((v) => `${attr} = ${str(v)}`).join(" || ")})`;
-};
+const anyOf = (attr: string, values?: string[]): Expression | null =>
+  values && values.length > 0 ? or(values.map((v) => lit(attr, v))) : null;
+
+const render = (parts: (Expression | null)[]) => and(parts.filter((p): p is Expression => p !== null)).toString();
 
 export function salariesQuery(f: SalaryFilters = {}): string {
-  const parts = [
-    base("salary"),
+  return render([
+    ...base("salary"),
     anyOf("company", f.companies),
     anyOf("role", f.roles),
     anyOf("level", f.levels),
     anyOf("city", f.cities),
-    f.yoeMin != null ? `yoe >= ${f.yoeMin}` : null,
-    f.yoeMax != null ? `yoe <= ${f.yoeMax}` : null,
-    f.ctcMin != null ? `ctc >= ${f.ctcMin}` : null,
-    f.ctcMax != null ? `ctc <= ${f.ctcMax}` : null,
-  ];
-  return parts.filter(Boolean).join(" && ");
+    f.yoeMin != null ? gte("yoe", i32(f.yoeMin)) : null,
+    f.yoeMax != null ? lte("yoe", i32(f.yoeMax)) : null,
+    f.ctcMin != null ? gte("ctc", i32(f.ctcMin)) : null,
+    f.ctcMax != null ? lte("ctc", i32(f.ctcMax)) : null,
+  ]);
 }
 
-export const allOfTypeQuery = (type: EntityType) => base(type);
-export const entityQuery = (key: EntityKey) => `$key = ${key}`;
+export const allOfTypeQuery = (type: EntityType) => render(base(type));
+export const entityQuery = (k: EntityKey) => eq("$key", key(k.toLowerCase() as `0x${string}`)).toString();
 export const reviewsQuery = (company?: CompanyId) =>
-  company ? `${base("review")} && company = ${str(company)}` : base("review");
+  render([...base("review"), company ? lit("company", company) : null]);
 export const discussionsQuery = (company?: CompanyId) =>
-  company ? `${base("discussion")} && company = ${str(company)}` : base("discussion");
+  render([...base("discussion"), company ? lit("company", company) : null]);
 export const commentsQuery = (postKey?: EntityKey) =>
-  postKey ? `${base("comment")} && postKey = ${str(postKey.toLowerCase())}` : base("comment");
+  render([...base("comment"), postKey ? lit("post_key", postKey) : null]);
+
+/** Matches nothing: the key attribute can never hold the zero hash. */
+const NO_KEY = `0x${"0".repeat(64)}`;
+
 export function votesQuery(targetKeys?: EntityKey[]): string {
-  if (!targetKeys || targetKeys.length > CONFIRMATIONS_OR_LIMIT) return base("vote");
-  return `${base("vote")} && ${anyOf("targetKey", targetKeys.map((k) => k.toLowerCase())) ?? "targetKey = \"\""}`;
+  if (!targetKeys || targetKeys.length > CONFIRMATIONS_OR_LIMIT) return render(base("vote"));
+  return render([...base("vote"), anyOf("target_key", targetKeys.length ? targetKeys : [NO_KEY])]);
 }
 export const confirmationsQuery = (entryKey: EntityKey) =>
-  `${base("confirmation")} && entryKey = ${str(entryKey)}`;
+  render([...base("confirmation"), lit("entry_key", entryKey)]);
 
 /** For many keys the OR-list gets long; above this we fetch all confirmations and filter client-side. */
 export const CONFIRMATIONS_OR_LIMIT = 20;
 export function confirmationsForQuery(keys: EntityKey[]): string {
-  if (keys.length > CONFIRMATIONS_OR_LIMIT) return base("confirmation");
-  return `${base("confirmation")} && ${anyOf("entryKey", keys) ?? "entryKey = \"\""}`;
+  if (keys.length > CONFIRMATIONS_OR_LIMIT) return render(base("confirmation"));
+  return render([...base("confirmation"), anyOf("entry_key", keys.length ? keys : [NO_KEY])]);
 }
 
 
 /** Presets for the /verify playground. */
 export const QUERY_PRESETS: { label: string; query: () => string }[] = [
   { label: "Godavari Labs discussions", query: () => discussionsQuery("godavari-labs") },
-  { label: "Every layoffs thread", query: () => `${base("discussion")} && flair = "layoffs"` },
+  { label: "Every layoffs thread", query: () => render([...base("discussion"), lit("flair", "layoffs")]) },
   {
     label: "All SDE-2 salaries in Hyderabad",
     query: () => salariesQuery({ levels: ["sde-2"], cities: ["hyderabad"] }),

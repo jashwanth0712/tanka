@@ -38,21 +38,17 @@ export interface RpcEndpoint {
   label: string;
 }
 
-// TODO(arkiv): confirm the real Tiramisu endpoints.
+// Tiramisu testnet (chain id 7738577). Users can add their own endpoint from the status pill.
 export const RPC_ENDPOINTS: RpcEndpoint[] = [
   {
-    url: process.env.NEXT_PUBLIC_ARKIV_RPC_URL || "https://tiramisu.hoodi.arkiv.network/rpc",
+    url: process.env.NEXT_PUBLIC_ARKIV_RPC_URL || "https://rpc.tiramisu.db-chain.testnet.arkiv.network",
     label: "Arkiv public RPC",
   },
-  { url: "https://rpc-2.tiramisu.example/rpc", label: "Community mirror (placeholder)" },
-  { url: "https://rpc-3.tiramisu.example/rpc", label: "Volunteer node (placeholder)" },
 ];
 
 export const DEFAULT_RPC = RPC_ENDPOINTS[0].url;
 
-// TODO(arkiv): confirm explorer base URL and path formats.
-export const EXPLORER_URL =
-  process.env.NEXT_PUBLIC_ARKIV_EXPLORER_URL || "https://explorer.tiramisu.hoodi.arkiv.network";
+export const EXPLORER_URL = process.env.NEXT_PUBLIC_ARKIV_EXPLORER_URL || "https://tiramisu.explorer.arkiv.network";
 export const explorerEntityUrl = (key: string) => `${EXPLORER_URL}/entity/${key}`;
 export const explorerTxUrl = (hash: string) => `${EXPLORER_URL}/tx/${hash}`;
 export const explorerAddressUrl = (addr: string) => `${EXPLORER_URL}/address/${addr}`;
@@ -91,10 +87,9 @@ export const LIVE_MIRRORS = MIRRORS.filter((m) => m.live);
 export const CLI_SNIPPETS: { install: string; examples: string[] } | null = null;
 
 /**
- * JSON-RPC method that runs an Arkiv query. `null` hides the curl section until confirmed.
- * TODO(arkiv): set the real method name (and adjust params shape in CURL_SNIPPET if needed).
+ * JSON-RPC method that runs an Arkiv query (verified against Tiramisu). `null` hides the curl section.
  */
-export const ARKIV_QUERY_METHOD: string | null = null;
+export const ARKIV_QUERY_METHOD: string | null = "arkiv_query";
 
 export const CURL_SNIPPET = (rpc: string, method: string) => `curl -s ${rpc} \\
   -H 'content-type: application/json' \\
@@ -102,5 +97,8 @@ export const CURL_SNIPPET = (rpc: string, method: string) => `curl -s ${rpc} \\
     "jsonrpc": "2.0",
     "id": 1,
     "method": "${method}",
-    "params": ["project = \\"tankha\\" && type = \\"discussion\\" && flair = \\"layoffs\\""]
+    "params": [
+      "project = str('"'"'tankha'"'"') AND type = str('"'"'discussion'"'"') AND flair = str('"'"'layoffs'"'"')",
+      { "select": { "key": true, "attributes": true, "payload": true }, "limit": "0x14" }
+    ]
   }'`;

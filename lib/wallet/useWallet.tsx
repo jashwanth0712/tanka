@@ -1,11 +1,11 @@
 "use client";
-// Wallet hook — FRONTEND STUB. The Arkiv-layer teammate replaces the internals of
-// `connectInjected` and `createFreshWallet` (see BACKEND_INTEGRATION.md §4). The shape of
-// WalletState must stay the same; components depend on it.
+// Wallet hook: an injected wallet (MetaMask) on Tiramisu, or a throwaway in-memory key.
 
+import { tiramisu } from "@arkiv-network/sdk/chains";
 import * as React from "react";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import type { Address } from "../data/types";
-import { setActiveSigner } from "./session";
+import { setActiveSigner, type ArkivSigner } from "./session";
 
 export interface WalletState {
   address?: Address;
@@ -13,26 +13,44 @@ export interface WalletState {
   isFresh: boolean; // true if a newly generated burner wallet
   error?: string;
   connect(): Promise<void>; // injected wallet (e.g. MetaMask)
-  useFreshWallet(): Promise<void>; // generate burner, fund via faucet if possible
+  useFreshWallet(): Promise<void>; // generate an in-memory burner key
   disconnect(): void;
 }
 
-function randomAddress(): Address {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  return `0x${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
+type Provider = Extract<ArkivSigner, { kind: "injected" }>["provider"];
+
+// Fresh wallet: a throwaway key held in memory only (gone on reload, never persisted or logged).
+// Tiramisu gas is paid in test GLM and the faucet needs a login, so a fresh wallet can't fund itself:
+// the data source tells the user to fund it when the first write fails (see friction.md).
+async function createFreshWallet(): Promise<{ address: Address; signer: ArkivSigner }> {
+  const account = privateKeyToAccount(generatePrivateKey());
+  return { address: account.address, signer: { kind: "local", account } };
 }
 
-// ── Replace these two with real implementations ─────────────────────────
-async function connectInjected(): Promise<{ address: Address; signer?: unknown }> {
-  await new Promise((r) => setTimeout(r, 500));
-  return { address: randomAddress() };
+async function connectInjected(): Promise<{ address: Address; signer: ArkivSigner }> {
+  const provider = (window as unknown as { ethereum?: Provider }).ethereum;
+  if (!provider) throw new Error("No browser wallet found. Install MetaMask, or use a fresh wallet.");
+  const [address] = (await provider.request({ method: "eth_requestAccounts" })) as Address[];
+  if (!address) throw new Error("No account selected in your wallet.");
+  const chainId = `0x${tiramisu.id.toString(16)}`;
+  try {
+    await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId }] });
+  } catch {
+    await provider.request({
+      method: "wallet_addEthereumChain",
+      params: [
+        {
+          chainId,
+          chainName: tiramisu.name,
+          nativeCurrency: tiramisu.nativeCurrency,
+          rpcUrls: tiramisu.rpcUrls.default.http,
+          blockExplorerUrls: ["https://tiramisu.explorer.arkiv.network"],
+        },
+      ],
+    });
+  }
+  return { address, signer: { kind: "injected", provider } };
 }
-async function createFreshWallet(): Promise<{ address: Address; signer?: unknown }> {
-  await new Promise((r) => setTimeout(r, 400));
-  return { address: randomAddress() };
-}
-// ────────────────────────────────────────────────────────────────────────
 
 const WalletContext = React.createContext<WalletState | null>(null);
 
