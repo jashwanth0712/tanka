@@ -42,8 +42,8 @@ export function useAllSalaries() {
   return useQuery({
     queryKey: qk.allSalaries,
     queryFn: () => ds().searchSalaries({}),
-    staleTime: 30_000,
-    refetchInterval: 30_000,
+    staleTime: 60_000,
+    refetchInterval: 120_000,
   });
 }
 
@@ -64,7 +64,7 @@ export function useConfirmations(entryKey: EntityKey | undefined) {
 }
 
 export function useStats() {
-  return useQuery({ queryKey: qk.stats, queryFn: () => ds().getStats(), refetchInterval: 10_000 });
+  return useQuery({ queryKey: qk.stats, queryFn: () => ds().getStats(), staleTime: 60_000, refetchInterval: 120_000 });
 }
 
 export function useNetworkStatus(rpcOverride?: string) {
@@ -73,7 +73,7 @@ export function useNetworkStatus(rpcOverride?: string) {
   return useQuery({
     queryKey: qk.network(rpc),
     queryFn: () => ds().getNetworkStatus(rpc),
-    refetchInterval: 5_000,
+    refetchInterval: 30_000,
     retry: 0,
   });
 }
@@ -89,7 +89,7 @@ export function useTrustIndex() {
     queryKey: [...qk.allConfirmations, keys.length],
     queryFn: () => ds().getConfirmationsFor(keys),
     enabled: keys.length > 0,
-    staleTime: 30_000,
+    staleTime: 60_000,
   });
   const index = React.useMemo(() => {
     if (!all.data || !confs.data) return undefined;
@@ -161,7 +161,7 @@ export function useConfirmEntry() {
 
 /** Every live review, grouped by company. One Arkiv query. */
 export function useAllReviews() {
-  const q = useQuery({ queryKey: qk.allReviews, queryFn: () => ds().getReviews(), staleTime: 30_000, refetchInterval: 30_000 });
+  const q = useQuery({ queryKey: qk.allReviews, queryFn: () => ds().getReviews(), staleTime: 60_000, refetchInterval: 120_000 });
   const byCompany = React.useMemo(() => {
     const m = new Map<string, Review[]>();
     for (const r of q.data?.data ?? []) m.set(r.company, [...(m.get(r.company) ?? []), r]);

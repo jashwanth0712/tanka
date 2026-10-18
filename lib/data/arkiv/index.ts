@@ -121,8 +121,15 @@ function toRaw(e: Entity, t: Timing): RawEntity {
   };
 }
 
+const RATE_LIMITED =
+  "The public Arkiv RPC has rate-limited this browser (anonymous query budget). Wait a minute, or add an RPC that has an API key under the Live pill.";
+const friendly = (e: unknown) => {
+  const msg = explain(e);
+  return /ANON_COST_LIMITED|budget exhausted/i.test(msg) ? new Error(RATE_LIMITED) : e instanceof Error ? e : new Error(msg);
+};
+
 /** Walk every page of a query. `payload` only when the type needs it. */
-async function fetchAll(c: PublicClient, query: string, payload: boolean): Promise<{ raws: RawEntity[]; block: bigint }> {
+async function fetchAllRaw(c: PublicClient, query: string, payload: boolean): Promise<{ raws: RawEntity[]; block: bigint }> {
   const select = toRpcSelect(
     payload
       ? { key: true, owner: true, expiresAt: true, attributes: true, payload: true }
@@ -145,30 +152,28 @@ async function fetchAll(c: PublicClient, query: string, payload: boolean): Promi
   return { raws: entities.map((e) => toRaw(e, t)), block };
 }
 
+// The public RPC meters anonymous queries, and the feed needs every entity of several types. Share one
+// fetch per query between all hooks for CACHE_MS, and drop it after any write so the UI stays honest.
+const CACHE_MS = 60_000;
+const cache = new Map<string, { at: number; p: ReturnType<typeof fetchAllRaw> }>();
+function fetchAll(c: PublicClient, query: string, payload: boolean, fresh = false) {
+  const k = `${getRpcUrl()}|${payload}|${query}`;
+  const hit = cache.get(k);
+  if (!fresh && hit && Date.now() - hit.at < CACHE_MS) return hit.p;
+  const p = fetchAllRaw(c, query, payload).catch((e) => {
+    cache.delete(k);
+    throw friendly(e);
+  });
+  cache.set(k, { at: Date.now(), p });
+  return p;
+}
+
 async function read<T>(query: string, payload: boolean, map: (e: RawEntity) => T): Promise<QueryResult<T[]>> {
   const { raws } = await fetchAll(publicClient(), query, payload);
   return { data: raws.map(map), query };
 }
 
 const byNewest = <T extends { createdAt: number }>(xs: T[]) => xs.sort((a, b) => b.createdAt - a.createdAt);
-
-async function countOf(c: PublicClient, type: Parameters<typeof allOfTypeQuery>[0], attr?: string) {
-  const select = toRpcSelect(attr ? { key: true, attributes: { [attr]: true } } : { key: true });
-  const query = allOfTypeQuery(type);
-  const keys: string[] = [];
-  const values = new Set<string>();
-  let cursor: string | undefined;
-  do {
-    const r = await runQuery(c, { query, select, limit: PAGE, cursor });
-    for (const e of r.entities) {
-      keys.push(e.key!);
-      const v = attr ? (e.attributes?.[attr] as { value: unknown } | undefined)?.value : undefined;
-      if (v !== undefined) values.add(String(v));
-    }
-    cursor = r.cursor;
-  } while (cursor);
-  return { n: keys.length, distinct: values.size };
-}
 
 // ── writing ────────────────────────────────────────────────────────────────
 const explain = (e: unknown) => {
@@ -206,6 +211,7 @@ async function createEntity(draft: EntityDraft, opts: { permissionlessExtension?
       flags: { readonly: true, permissionlessExtension: !!opts.permissionlessExtension },
     }),
   );
+  cache.clear();
   const [t, rcpt] = await Promise.all([
     timing(pub),
     pub.getTransactionReceipt({ hash: res.txHash }).catch(() => undefined),
@@ -220,7 +226,7 @@ async function createEntity(draft: EntityDraft, opts: { permissionlessExtension?
 }
 
 async function entityExists(pub: PublicClient, key: EntityKey) {
-  const { raws } = await fetchAll(pub, entityQuery(key), false);
+  const { raws } = await fetchAll(pub, entityQuery(key), false, true);
   return raws[0] ?? null;
 }
 
@@ -290,20 +296,21 @@ export function createArkivDataSource(): DataSource {
 
     async getStats(): Promise<Stats> {
       const c = publicClient();
+      // Same queries (and payload flags) the feed uses, so these are cache hits once the feed has loaded.
       const [t, salary, review, discussion, confirmation, comment] = await Promise.all([
         timing(c),
-        countOf(c, "salary", "company"),
-        countOf(c, "review"),
-        countOf(c, "discussion"),
-        countOf(c, "confirmation"),
-        countOf(c, "comment"),
+        fetchAll(c, allOfTypeQuery("salary"), false),
+        fetchAll(c, allOfTypeQuery("review"), true),
+        fetchAll(c, allOfTypeQuery("discussion"), true),
+        fetchAll(c, allOfTypeQuery("confirmation"), false),
+        fetchAll(c, allOfTypeQuery("comment"), true),
       ]);
       return {
-        entries: salary.n + review.n + discussion.n,
-        companies: salary.distinct,
-        confirmations: confirmation.n,
-        comments: comment.n,
-        discussions: discussion.n,
+        entries: salary.raws.length + review.raws.length + discussion.raws.length,
+        companies: new Set(salary.raws.map((e) => e.attributes.company)).size,
+        confirmations: confirmation.raws.length,
+        comments: comment.raws.length,
+        discussions: discussion.raws.length,
         latestBlock: Number(t.block),
       };
     },
@@ -361,7 +368,7 @@ export function createArkivDataSource(): DataSource {
       const entry = await entityExists(pub, entryKey);
       if (!entry || entry.attributes.type !== "salary") throw new Error("Entry not found — it may have expired.");
       if (entry.owner.toLowerCase() === address.toLowerCase()) throw new Error("You can't confirm your own entry.");
-      const dupe = await fetchAll(pub, `${confirmationsQuery(entryKey)} AND ${eq("$owner", addr(address))}`, false);
+      const dupe = await fetchAll(pub, `${confirmationsQuery(entryKey)} AND ${eq("$owner", addr(address))}`, false, true);
       if (dupe.raws.length > 0) throw new Error("This wallet already confirmed this entry.");
 
       const receipt = await createEntity(confirmationToEntity(entryKey, Date.now()));

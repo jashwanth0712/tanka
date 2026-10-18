@@ -34,7 +34,7 @@ export function usePost(key: EntityKey | undefined) {
 }
 
 export function useAllVotes() {
-  return useQuery({ queryKey: sk.allVotes, queryFn: () => ds().getVotes(), staleTime: 15_000, refetchInterval: 20_000 });
+  return useQuery({ queryKey: sk.allVotes, queryFn: () => ds().getVotes(), staleTime: 60_000, refetchInterval: 120_000 });
 }
 
 /** Score per target for the current viewer. */
@@ -46,7 +46,7 @@ export function useTallies() {
 }
 
 export function useAllComments() {
-  return useQuery({ queryKey: sk.allComments, queryFn: () => ds().getComments(), staleTime: 15_000, refetchInterval: 20_000 });
+  return useQuery({ queryKey: sk.allComments, queryFn: () => ds().getComments(), staleTime: 60_000, refetchInterval: 120_000 });
 }
 
 export function useComments(postKey: EntityKey | undefined) {
@@ -54,7 +54,7 @@ export function useComments(postKey: EntityKey | undefined) {
     queryKey: sk.comments(postKey ?? ""),
     queryFn: () => ds().getComments(postKey!),
     enabled: !!postKey,
-    refetchInterval: 15_000,
+    refetchInterval: 120_000,
   });
 }
 
@@ -113,7 +113,7 @@ export interface FeedOptions {
 }
 
 export function useAllDiscussions() {
-  return useQuery({ queryKey: sk.allDiscussions, queryFn: () => ds().getDiscussions(), staleTime: 15_000, refetchInterval: 20_000 });
+  return useQuery({ queryKey: sk.allDiscussions, queryFn: () => ds().getDiscussions(), staleTime: 60_000, refetchInterval: 120_000 });
 }
 
 export function useCreateDiscussion() {

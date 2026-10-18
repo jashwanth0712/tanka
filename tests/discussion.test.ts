@@ -14,7 +14,7 @@ describe("discussions", () => {
     expect(draft.attributes).toMatchObject({ type: "discussion", company: "kaveri-systems", flair: "compensation", city: "bengaluru", created_at: 1_000 });
     expect(draft.payload).toEqual({ title: input.title, body: input.body });
     const back = entityToDiscussion({ key: "0xab" as EntityKey, owner: "0xcd" as Address, expiresAt: 9, attributes: draft.attributes, payload: draft.payload });
-    expect(back).toMatchObject({ ...input, kind: "discussion", created_at: 1_000 });
+    expect(back).toMatchObject({ ...input, kind: "discussion", createdAt: 1_000 });
   });
 
   it("query builder matches by company", () => {
